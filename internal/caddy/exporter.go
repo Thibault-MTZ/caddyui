@@ -163,6 +163,23 @@ func RenderProxyHostCaddyfileWithCertificate(p models.ProxyHost, cert *models.Ce
 		b.WriteString("\ttls off\n")
 	}
 
+	// v2.64.0 (discussion #137): client certificate authentication. Emitted
+	// as its own `tls` block rather than folded into the certificate line
+	// above — the two are independent, and a site can require client
+	// certificates whichever way its own certificate is obtained. Leaving
+	// this out would make an exported Caddyfile look like the site is open
+	// to anyone, which is the one thing an export must not get wrong.
+	if p.ClientAuthEnabled() {
+		b.WriteString("\ttls {\n\t\tclient_auth {\n")
+		fmt.Fprintf(&b, "\t\t\tmode %s\n", p.ClientAuthMode)
+		if files := p.ClientAuthCAFileList(); len(files) > 0 {
+			// One directive taking every file — repeating `trust_pool`
+			// is a duplicate-module error, not a second CA.
+			fmt.Fprintf(&b, "\t\t\ttrust_pool file %s\n", strings.Join(files, " "))
+		}
+		b.WriteString("\t\t}\n\t}\n")
+	}
+
 	// Path blocking (the "block common exploits" toggle that defaults on in
 	// CaddyUI v2.11+). Mirrors the CaddyUI prompt's standard block list.
 	if p.BlockCommonExploits {

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/X4Applegate/caddyui/internal/models"
 	"github.com/go-chi/chi/v5"
@@ -78,6 +79,11 @@ type apiProxyHostInput struct {
 	CompressionEnabled     bool   `json:"compression_enabled"`
 	SecurityHeadersEnabled bool   `json:"security_headers_enabled"`
 	TLSMinVersion          string `json:"tls_min_version"`
+	// v2.64.0 (discussion #137): client certificate authentication (mTLS).
+	// On PATCH, "off" clears the mode — an empty string leaves it unchanged
+	// like every other field in this struct.
+	ClientAuthMode         string `json:"client_auth_mode"`
+	ClientAuthCAFiles      string `json:"client_auth_ca_files"`
 	MaintenanceMode        bool   `json:"maintenance_mode"`
 	MaintenanceMsg         string `json:"maintenance_msg"`
 	MaxRequestBodyMB       int    `json:"max_request_body_mb"`
@@ -127,6 +133,8 @@ func proxyHostToAPIMap(p *models.ProxyHost) map[string]any {
 		"compression_enabled":       p.CompressionEnabled,
 		"security_headers_enabled":  p.SecurityHeadersEnabled,
 		"tls_min_version":           p.TLSMinVersion,
+		"client_auth_mode":          p.ClientAuthMode,
+		"client_auth_ca_files":      p.ClientAuthCAFiles,
 		"maintenance_mode":          p.MaintenanceMode,
 		"maintenance_msg":           p.MaintenanceMsg,
 		"max_request_body_mb":       p.MaxRequestBodyMB,
@@ -166,6 +174,21 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 
 func writeJSONError(w http.ResponseWriter, status int, msg string) {
 	writeJSON(w, status, map[string]string{"error": msg})
+}
+
+// validateClientAuthInput rejects a client-certificate (mTLS) configuration
+// that Caddy would accept but that could not admit anyone: an unknown mode,
+// or a verifying mode with no trusted CA to verify against.
+//
+// v2.64.0 (discussion #137).
+func validateClientAuthInput(mode, caFiles string) error {
+	if !models.ValidClientAuthMode(mode) {
+		return fmt.Errorf("client_auth_mode %q is not valid: use request, require, verify_if_given, require_and_verify, or off", mode)
+	}
+	if models.ClientAuthModeVerifies(mode) && strings.TrimSpace(caFiles) == "" {
+		return fmt.Errorf("client_auth_mode %q verifies the client certificate, so client_auth_ca_files must list at least one trusted CA certificate file", mode)
+	}
+	return nil
 }
 
 // GET /api/v1/proxy-hosts
@@ -230,6 +253,10 @@ func (s *Server) apiV1CreateProxyHost(w http.ResponseWriter, r *http.Request) {
 	if inp.HealthCheckMethod == "" {
 		inp.HealthCheckMethod = "GET"
 	}
+	if err := validateClientAuthInput(inp.ClientAuthMode, inp.ClientAuthCAFiles); err != nil {
+		writeJSONError(w, http.StatusBadRequest, err.Error())
+		return
+	}
 	ph := &models.ProxyHost{
 		Domains: inp.Domains, ForwardScheme: inp.ForwardScheme,
 		ForwardHost: inp.ForwardHost, ForwardPort: inp.ForwardPort,
@@ -245,8 +272,10 @@ func (s *Server) apiV1CreateProxyHost(w http.ResponseWriter, r *http.Request) {
 			return inp.ExtraUpstreams
 		}(),
 		CompressionEnabled: inp.CompressionEnabled, SecurityHeadersEnabled: inp.SecurityHeadersEnabled,
-		TLSMinVersion:   inp.TLSMinVersion,
-		MaintenanceMode: inp.MaintenanceMode, MaintenanceMsg: inp.MaintenanceMsg,
+		TLSMinVersion:     inp.TLSMinVersion,
+		ClientAuthMode:    inp.ClientAuthMode,
+		ClientAuthCAFiles: inp.ClientAuthCAFiles,
+		MaintenanceMode:   inp.MaintenanceMode, MaintenanceMsg: inp.MaintenanceMsg,
 		MaxRequestBodyMB: inp.MaxRequestBodyMB, StickySessions: inp.StickySessions,
 		LBPolicy: inp.LBPolicy, UpstreamTimeoutSec: inp.UpstreamTimeoutSec,
 		CORSEnabled: inp.CORSEnabled, CORSOrigins: func() string {
@@ -349,6 +378,23 @@ func (s *Server) apiV1UpdateProxyHost(w http.ResponseWriter, r *http.Request) {
 	}
 	if inp.TLSMinVersion != "" {
 		existing.TLSMinVersion = inp.TLSMinVersion
+	}
+	// v2.64.0 (discussion #137): client certificate authentication. An
+	// omitted field means "leave unchanged" throughout this handler, so
+	// mTLS is switched off with the explicit mode "off" rather than "".
+	if inp.ClientAuthMode != "" {
+		if inp.ClientAuthMode == "off" {
+			existing.ClientAuthMode, existing.ClientAuthCAFiles = "", ""
+		} else {
+			existing.ClientAuthMode = inp.ClientAuthMode
+		}
+	}
+	if inp.ClientAuthCAFiles != "" && existing.ClientAuthMode != "" {
+		existing.ClientAuthCAFiles = inp.ClientAuthCAFiles
+	}
+	if err := validateClientAuthInput(existing.ClientAuthMode, existing.ClientAuthCAFiles); err != nil {
+		writeJSONError(w, http.StatusBadRequest, err.Error())
+		return
 	}
 	if inp.MaintenanceMsg != "" {
 		existing.MaintenanceMsg = inp.MaintenanceMsg

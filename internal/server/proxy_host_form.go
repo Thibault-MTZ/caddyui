@@ -4,6 +4,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -80,6 +81,24 @@ func parseProxyHostForm(r *http.Request) (*models.ProxyHost, error) {
 		// valid
 	default:
 		tlsMinVersion = ""
+	}
+	// v2.64.0 (discussion #137): client certificate authentication (mTLS).
+	// An unknown mode turns the feature off rather than reaching Caddy and
+	// having the whole config rejected.
+	clientAuthMode := strings.TrimSpace(r.FormValue("client_auth_mode"))
+	if !models.ValidClientAuthMode(clientAuthMode) {
+		clientAuthMode = ""
+	}
+	clientAuthCAFiles := strings.TrimSpace(r.FormValue("client_auth_ca_files"))
+	if clientAuthMode == "" {
+		// Keep the stored pair consistent: no mode, no trust pool.
+		clientAuthCAFiles = ""
+	}
+	if models.ClientAuthModeVerifies(clientAuthMode) && clientAuthCAFiles == "" {
+		// Caddy would accept this and then reject every client, because a
+		// verifying mode with no trust pool trusts nothing. Fail the save
+		// with an explanation instead of silently locking the host.
+		return nil, fmt.Errorf("client certificate authentication: mode %q verifies the client certificate, so it needs at least one trusted CA certificate file — add one, or use \"request\" / \"require\" to ask for a certificate without verifying its issuer", clientAuthMode)
 	}
 	// Parse custom request headers: parallel arrays header_req_key[] + header_req_val[]
 	reqKeys := r.Form["header_req_key"]
@@ -214,6 +233,8 @@ func parseProxyHostForm(r *http.Request) (*models.ProxyHost, error) {
 		}(),
 		StickySessions:         r.FormValue("sticky_sessions") == "on",
 		TLSMinVersion:          tlsMinVersion,
+		ClientAuthMode:         clientAuthMode,
+		ClientAuthCAFiles:      clientAuthCAFiles,
 		CustomReqHeaders:       customReqHeaders,
 		CustomRespHeaders:      customRespHeaders,
 		URLRewrites:            urlRewrites,

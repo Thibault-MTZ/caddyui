@@ -700,8 +700,57 @@ type ProxyHost struct {
 	RateLimitEnabled   bool
 	RateLimitEvents    int
 	RateLimitWindowSec int
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
+	// v2.64.0 (discussion #137): client certificate authentication (mTLS).
+	// Caddy asks the client for a certificate during the TLS handshake and
+	// validates it against the CA(s) in ClientAuthCAFiles. This lands in the
+	// per-SNI entry of tls_connection_policies, NOT in the route — see
+	// caddy.BuildTLSConnectionPolicies. Distinct from the UpstreamTLSClient*
+	// fields, which are Caddy presenting a certificate *to the backend*.
+	ClientAuthMode    string // "" (off) | request | require | verify_if_given | require_and_verify
+	ClientAuthCAFiles string // newline-separated PEM paths holding the trusted CA(s)
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+// ClientAuthCAFileList splits ClientAuthCAFiles into individual PEM paths,
+// accepting newline- or comma-separated input and dropping blanks.
+func (p ProxyHost) ClientAuthCAFileList() []string {
+	if strings.TrimSpace(p.ClientAuthCAFiles) == "" {
+		return nil
+	}
+	var out []string
+	for _, f := range strings.FieldsFunc(p.ClientAuthCAFiles, func(r rune) bool {
+		return r == '\n' || r == '\r' || r == ','
+	}) {
+		if f = strings.TrimSpace(f); f != "" {
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+// ClientAuthEnabled reports whether this host asks clients for a certificate.
+// A mode is enough: require/request without a trust pool is valid in Caddy
+// (it asks for a certificate without verifying the issuer), and verifying
+// modes are rejected without CA files by the form handler.
+func (p ProxyHost) ClientAuthEnabled() bool {
+	return ValidClientAuthMode(p.ClientAuthMode) && p.ClientAuthMode != ""
+}
+
+// ValidClientAuthMode reports whether mode is one of Caddy's client_auth
+// modes ("" means the feature is off).
+func ValidClientAuthMode(mode string) bool {
+	switch mode {
+	case "", "request", "require", "verify_if_given", "require_and_verify":
+		return true
+	}
+	return false
+}
+
+// ClientAuthModeVerifies reports whether the mode validates the client
+// certificate chain, which is the case where a trust pool is required.
+func ClientAuthModeVerifies(mode string) bool {
+	return mode == "verify_if_given" || mode == "require_and_verify"
 }
 
 // MonitoringDisabled reports whether the operator has switched CaddyUI's own
@@ -1870,7 +1919,9 @@ const proxyHostBaseCols = `ph.id, ph.server_id, ph.domains, ph.forward_scheme, p
     COALESCE(ph.internal_tls,0),
     COALESCE(ph.rate_limit_enabled,0),
     COALESCE(ph.rate_limit_events,0),
-    COALESCE(ph.rate_limit_window_sec,0)`
+    COALESCE(ph.rate_limit_window_sec,0),
+    COALESCE(ph.client_auth_mode,''),
+    COALESCE(ph.client_auth_ca_files,'')`
 
 // scanProxyHost pulls a single row into the struct. Centralises the
 // bool-int unpack so each query site doesn't repeat it.
@@ -2196,6 +2247,7 @@ func scanProxyHost(s interface {
 		&nodeLocal,                                                   // v2.33.0
 		&internalTLS,                                                 // v2.46.0
 		&rateLimitEnabled, &p.RateLimitEvents, &p.RateLimitWindowSec, // v2.51.0
+		&p.ClientAuthMode, &p.ClientAuthCAFiles, // v2.64.0 (discussion #137)
 	}
 	if ownerEmail != nil {
 		dst = append(dst, ownerEmail)
@@ -2647,8 +2699,9 @@ func CreateProxyHost(db *sql.DB, serverID int64, ownerID int64, p *ProxyHost) (i
             additional_upstream_rules, expectations_json, disable_upstream_compression,
             monitor_mode, monitor_path, monitor_method, monitor_expect_status,
             monitor_interval_sec, monitor_timeout_sec, node_local, internal_tls,
-            rate_limit_enabled, rate_limit_events, rate_limit_window_sec)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            rate_limit_enabled, rate_limit_events, rate_limit_window_sec,
+            client_auth_mode, client_auth_ca_files)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		serverID,
 		p.Domains, p.ForwardScheme, p.ForwardHost, p.ForwardPort,
 		boolInt(p.WebsocketSupport), boolInt(p.BlockCommonExploits),
@@ -2776,6 +2829,7 @@ func CreateProxyHost(db *sql.DB, serverID int64, ownerID int64, p *ProxyHost) (i
 		boolInt(p.NodeLocal),                                                 // v2.33.0
 		boolInt(p.InternalTLS),                                               // v2.46.0
 		boolInt(p.RateLimitEnabled), p.RateLimitEvents, p.RateLimitWindowSec, // v2.51.0
+		p.ClientAuthMode, p.ClientAuthCAFiles, // v2.64.0 (discussion #137)
 	)
 	if err != nil {
 		return 0, err
@@ -3112,6 +3166,7 @@ func UpdateProxyHost(db *sql.DB, p *ProxyHost) error {
             node_local=?,
             internal_tls=?,
             rate_limit_enabled=?, rate_limit_events=?, rate_limit_window_sec=?,
+            client_auth_mode=?, client_auth_ca_files=?,
             updated_at=CURRENT_TIMESTAMP
         WHERE id = ?`,
 		p.Domains, p.ForwardScheme, p.ForwardHost, p.ForwardPort,
@@ -3421,6 +3476,7 @@ func UpdateProxyHost(db *sql.DB, p *ProxyHost) error {
 		boolInt(p.NodeLocal),                                                 // v2.33.0
 		boolInt(p.InternalTLS),                                               // v2.46.0
 		boolInt(p.RateLimitEnabled), p.RateLimitEvents, p.RateLimitWindowSec, // v2.51.0
+		p.ClientAuthMode, p.ClientAuthCAFiles, // v2.64.0 (discussion #137)
 		p.ID,
 	)
 	if err != nil {

@@ -4397,15 +4397,24 @@ func ExploitBlockerSubroute() map[string]any {
 }
 
 // BuildTLSConnectionPolicies returns per-SNI TLS connection policies for proxy
-// hosts that have TLSMinVersion set. Returns nil when no enabled host specifies
-// a minimum version (caller skips writing the key to Caddy). When non-empty, the
-// last element is always an empty catch-all {} so Caddy applies its default TLS
-// settings to every other hostname — without it Caddy would only serve TLS for
-// explicitly matched SNIs.
+// hosts that have TLSMinVersion and/or client certificate authentication
+// (mTLS) set. Returns nil when no enabled host needs either (caller skips
+// writing the key to Caddy). When non-empty, the last element is always an
+// empty catch-all {} so Caddy applies its default TLS settings to every other
+// hostname — without it Caddy would only serve TLS for explicitly matched SNIs.
+//
+// Client auth lives here rather than in the route because that is where Caddy
+// puts it: the handshake is decided per connection, long before any route
+// matches. This is what a `tls { client_auth ... }` block in a Caddyfile
+// adapts to (discussion #137).
 func BuildTLSConnectionPolicies(proxies []models.ProxyHost) []any {
 	var policies []any
 	for _, p := range proxies {
-		if !p.Enabled || p.TLSMinVersion == "" {
+		if !p.Enabled {
+			continue
+		}
+		clientAuth := buildClientAuthentication(p)
+		if p.TLSMinVersion == "" && clientAuth == nil {
 			continue
 		}
 		domains := p.DomainList()
@@ -4416,10 +4425,14 @@ func BuildTLSConnectionPolicies(proxies []models.ProxyHost) []any {
 		for i, d := range domains {
 			snis[i] = d
 		}
-		policies = append(policies, map[string]any{
-			"match":        map[string]any{"sni": snis},
-			"protocol_min": "tls" + p.TLSMinVersion, // e.g. "tls1.2"
-		})
+		policy := map[string]any{"match": map[string]any{"sni": snis}}
+		if p.TLSMinVersion != "" {
+			policy["protocol_min"] = "tls" + p.TLSMinVersion // e.g. "tls1.2"
+		}
+		if clientAuth != nil {
+			policy["client_authentication"] = clientAuth
+		}
+		policies = append(policies, policy)
 	}
 	if len(policies) == 0 {
 		return nil
@@ -4427,6 +4440,31 @@ func BuildTLSConnectionPolicies(proxies []models.ProxyHost) []any {
 	// Catch-all: without this Caddy would refuse TLS for unmatched SNIs.
 	policies = append(policies, map[string]any{})
 	return policies
+}
+
+// buildClientAuthentication returns the client_authentication object for a
+// host's TLS connection policy, or nil when mTLS is off for that host.
+//
+// The trust pool uses Caddy's `file` CA provider with `pem_files` — the shape
+// `tls { client_auth { trust_pool file ... } }` adapts to. The files are read
+// by Caddy inside the Caddy container, not by CaddyUI, so these are paths as
+// Caddy sees them.
+func buildClientAuthentication(p models.ProxyHost) map[string]any {
+	if !p.ClientAuthEnabled() {
+		return nil
+	}
+	ca := map[string]any{"mode": p.ClientAuthMode}
+	if files := p.ClientAuthCAFileList(); len(files) > 0 {
+		pemFiles := make([]any, len(files))
+		for i, f := range files {
+			pemFiles[i] = f
+		}
+		ca["ca"] = map[string]any{
+			"provider":  "file",
+			"pem_files": pemFiles,
+		}
+	}
+	return ca
 }
 
 // methodStrings converts a []any of method strings back to []string for the

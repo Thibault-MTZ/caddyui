@@ -8,6 +8,7 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -1494,7 +1495,13 @@ func (s *Server) apiValidateRawRoute(w http.ResponseWriter, r *http.Request) {
 		// to Caddy's running state.
 		_, _, err := s.adaptRawRouteCaddyfile(s.caddyForRequest(r), cfSrc)
 		if err != nil {
-			respond(false, "Caddyfile rejected by Caddy: "+err.Error())
+			// Caddy adapts a client_auth block happily; it is CaddyUI that
+			// turns it down, so don't put the words in Caddy's mouth.
+			if errors.Is(err, errClientAuthInRawRoute) {
+				respond(false, err.Error())
+			} else {
+				respond(false, "Caddyfile rejected by Caddy: "+err.Error())
+			}
 			return
 		}
 		// If Caddyfile is fine and JSON is empty (most common case), we're

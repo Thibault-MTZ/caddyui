@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <p class="text-xs text-ink-500 mt-1.5 max-w-2xl">A shared bundle of security headers, forward auth, IP restrictions and extra headers, maintained once under <strong>Middleware Profiles</strong>. A value you set on this host itself wins over the profile; fields left empty here inherit it, and header lists merge by name.{{if not .Profiles}} No profiles exist yet.{{end}}</p>
   </div>
 
-  <details id="ph-security" class="pt-4 border-t border-ink-100"{{if or .Host.CompressionEnabled .Host.SecurityHeadersEnabled .Host.TLSMinVersion .Host.MaintenanceMode .Host.MaxRequestBodyMB .Host.StickySessions .Host.CORSEnabled .Host.HealthCheckURI .Host.KeepaliveConns .Host.DisableAccessLog .Host.AddRequestID .Host.BlockedAgents .Host.ForceHTTP1 .Host.ProxyProtocol .Host.H2CEnabled .Host.FlushImmediate .Host.BufferResponses .Host.APIKeyHeader .Host.APIKeyValue .Host.BlockEmptyUserAgent .Host.MaxConnDurationSec .Host.DecompressResponse .Host.StripReqHeaders .Host.UpstreamPathPrefix .Host.CompressionLevel .Host.CompressionPreferGzip}} open{{end}}>
+  <details id="ph-security" class="pt-4 border-t border-ink-100"{{if or .Host.CompressionEnabled .Host.SecurityHeadersEnabled .Host.TLSMinVersion .Host.ClientAuthMode .Host.MaintenanceMode .Host.MaxRequestBodyMB .Host.StickySessions .Host.CORSEnabled .Host.HealthCheckURI .Host.KeepaliveConns .Host.DisableAccessLog .Host.AddRequestID .Host.BlockedAgents .Host.ForceHTTP1 .Host.ProxyProtocol .Host.H2CEnabled .Host.FlushImmediate .Host.BufferResponses .Host.APIKeyHeader .Host.APIKeyValue .Host.BlockEmptyUserAgent .Host.MaxConnDurationSec .Host.DecompressResponse .Host.StripReqHeaders .Host.UpstreamPathPrefix .Host.CompressionLevel .Host.CompressionPreferGzip}} open{{end}}>
     <summary class="cursor-pointer select-none text-xs uppercase tracking-wider text-ink-500 hover:text-ink-700 font-medium transition">
       Security &amp; Performance <span class="font-normal normal-case">(compression, headers, TLS)</span>
     </summary>
@@ -1337,6 +1337,37 @@ document.addEventListener('DOMContentLoaded', function() {
           </select>
         </div>
         <p class="text-xs text-ink-500 sm:pt-7">Sets a per-SNI TLS connection policy in Caddy. TLS 1.2+ is the modern standard. TLS 1.3 offers improved security and performance but drops support for some older clients.</p>
+      </div>
+
+      {{/* v2.64.0 (discussion #137): client certificate authentication (mTLS).
+           Deliberately placed right under "Minimum TLS version" — both land in
+           the same per-SNI tls_connection_policy. Not to be confused with the
+           Upstream mTLS fields further down, which point the other way. */}}
+      <div class="border-t border-gray-100 dark:border-gray-800 pt-3 mt-3 space-y-3">
+        <p class="text-xs font-medium text-ink-700">Client certificate authentication (mTLS) <span class="font-normal text-ink-400">— requires a certificate from the visitor's browser or client</span></p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+          <div>
+            <label class="block text-sm font-medium text-ink-800 mb-1.5">Client certificate mode</label>
+            <select name="client_auth_mode" id="client-auth-mode" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+              <option value="" {{if eq .Host.ClientAuthMode ""}}selected{{end}}>Off — no client certificate requested (default)</option>
+              <option value="require_and_verify" {{if eq .Host.ClientAuthMode "require_and_verify"}}selected{{end}}>Require and verify (recommended for mTLS)</option>
+              <option value="verify_if_given" {{if eq .Host.ClientAuthMode "verify_if_given"}}selected{{end}}>Verify if given — optional certificate, validated when sent</option>
+              <option value="require" {{if eq .Host.ClientAuthMode "require"}}selected{{end}}>Require, do not verify issuer</option>
+              <option value="request" {{if eq .Host.ClientAuthMode "request"}}selected{{end}}>Request, do not verify issuer</option>
+            </select>
+          </div>
+          <p class="text-xs text-ink-500 sm:pt-7"><strong>Require and verify</strong> is what people normally mean by mTLS: the handshake fails unless the client presents a certificate signed by one of your trusted CAs below. The two <em>do not verify issuer</em> modes accept any certificate the client offers — only useful when something behind Caddy does the checking.</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+          <div>
+            <label class="block text-sm font-medium text-ink-800 mb-1.5">Trusted CA certificate files</label>
+            <textarea name="client_auth_ca_files" rows="2"
+              placeholder="/etc/caddy/tls/ManagementCA.cacert.pem"
+              class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{.Host.ClientAuthCAFiles}}</textarea>
+          </div>
+          <p class="text-xs text-ink-500 sm:pt-7">One PEM path per line, as seen <strong>inside the Caddy container</strong> — Caddy reads these itself, so the file has to be mounted there, not into CaddyUI. Required by both verifying modes. A client certificate signed by any CA listed here is accepted.</p>
+        </div>
+        <p class="text-xs text-ink-500">Your backend can read the certificate through placeholders such as <code class="font-mono text-[11px]">{{"{{"}}http.request.tls.client.certificate_der_base64{{"}}"}}</code> or <code class="font-mono text-[11px]">{{"{{"}}http.request.tls.client.subject{{"}}"}}</code> — add them as a custom request header under <em>Custom headers</em> above. Not to be confused with <em>Upstream mTLS Client Certificate</em> further down this form, which is Caddy presenting a certificate <em>to your backend</em>.</p>
       </div>
 
       {{/* v2.28.0 (issue #39): CaddyUI's own monitoring probes. Deliberately

@@ -4,6 +4,7 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -201,6 +202,12 @@ func (s *Server) withAutoLoadedSnippets(src string) string {
 	return strings.Join(loaded, "\n\n") + "\n\n" + src
 }
 
+// errClientAuthInRawRoute marks the one rejection adaptRawRouteCaddyfile makes
+// on its own account rather than relaying from Caddy, so callers can avoid
+// blaming Caddy for a block it adapted perfectly well. v2.64.0 (discussion
+// #137).
+var errClientAuthInRawRoute = errors.New("this block configures client certificate authentication (mTLS), which an Advanced route cannot carry")
+
 // adaptRawRouteCaddyfile sends a Caddyfile block (the `caddyfile_src` field of a
 // raw_route) through Caddy's /adapt, prepending auto-loaded snippets from the
 // mounted Caddyfile so `import <name>` references resolve. Returns the JSON to
@@ -219,6 +226,13 @@ func (s *Server) adaptRawRouteCaddyfile(caddyCl *caddy.Client, src string) (stri
 	adaptedRoutes := extractAdaptedServerRoutes(adapted.Result)
 	if len(adaptedRoutes) == 0 {
 		return "", "", fmt.Errorf("the Caddyfile adapted successfully but produced no HTTP routes — include at least one site block")
+	}
+	// v2.64.0 (discussion #137): an Advanced route stores routes only, so a
+	// `tls { client_auth ... }` block here would be dropped on the floor and
+	// the site would serve happily without ever asking for a certificate.
+	// Refuse the save and name the setting that works instead.
+	if snis := adaptedClientAuthSNIs(adapted.Result); len(snis) > 0 {
+		return "", "", fmt.Errorf("%w (affects %s). Caddy keeps client_auth in the server's TLS connection policies, not in the route, and an Advanced route stores routes only — so it would be discarded here and the site would accept any visitor. Configure it on the proxy host instead — Proxy Hosts → edit → Security → Client certificate authentication — and keep the rest of this block for the routing", errClientAuthInRawRoute, strings.Join(snis, ", "))
 	}
 	var addrs []string
 	routes := make([]map[string]any, 0, len(adaptedRoutes))
@@ -1158,9 +1172,10 @@ func (s *Server) syncCaddyInner(serverID int64, forceTLS, allowEmpty bool) error
 	loadPEM, loadFiles := buildCertLoaders(certs)
 	skipList := buildSkipCertificates(proxies, redirs, httpsRawRoutes(raws), certs)
 	skipAccessLogs := buildSkipAccessLogs(proxies)
-	// v2.9.0: per-SNI TLS minimum-version connection policies. nil when no
-	// host has a min version configured — writeTLSConnectionPoliciesSubtree
-	// handles the nil case by clearing stale policies that may exist.
+	// v2.9.0: per-SNI TLS connection policies — minimum version, and since
+	// v2.64.0 client certificate authentication. nil when no host needs
+	// either; writeTLSConnectionPoliciesSubtree handles the nil case by
+	// clearing stale policies that may exist.
 	tlsConnPolicies := caddy.BuildTLSConnectionPolicies(proxies)
 	// DNS-01 issuance policies plus (v2.46.0) internal-CA issuance policies,
 	// pushed together into apps.tls.automation.

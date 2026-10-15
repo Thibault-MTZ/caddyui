@@ -159,6 +159,8 @@
         <tr class="border-t border-ink-200"><td class="px-3 py-1.5">reverse_proxy https://...</td><td class="px-3 py-1.5">Forward Scheme = https</td><td class="px-3 py-1.5 font-sans text-ink-500">use when upstream serves TLS itself</td></tr>
         <tr class="border-t border-ink-200"><td class="px-3 py-1.5">tls_server_name name</td><td class="px-3 py-1.5">Upstream SNI</td><td class="px-3 py-1.5 font-sans text-ink-500">override SNI for self-signed / shared-cert backends</td></tr>
         <tr class="border-t border-ink-200"><td class="px-3 py-1.5">tls_insecure_skip_verify</td><td class="px-3 py-1.5">Verify Upstream TLS Certificate = off</td><td class="px-3 py-1.5 font-sans text-ink-500">in Options &amp; Forwarded Headers; only applies when Forward Scheme = https</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">tls { client_auth { mode … } }</td><td class="px-3 py-1.5">Client certificate authentication → mode</td><td class="px-3 py-1.5 font-sans text-ink-500">in Security &amp; Performance; mTLS — asks the visitor for a certificate</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">trust_pool file /path/ca.pem</td><td class="px-3 py-1.5">Trusted CA certificate files</td><td class="px-3 py-1.5 font-sans text-ink-500">one path per line, as seen inside the Caddy container</td></tr>
         <tr class="border-t border-ink-200"><td class="px-3 py-1.5">header_up Host {host}</td><td class="px-3 py-1.5">(default — no field)</td><td class="px-3 py-1.5 font-sans text-ink-500">Caddy passes the original Host by default</td></tr>
         <tr class="border-t border-ink-200"><td class="px-3 py-1.5">header_up X-Real-IP {remote_host}</td><td class="px-3 py-1.5">Add X-Real-IP Header (checkbox)</td><td class="px-3 py-1.5 font-sans text-ink-500"></td></tr>
         <tr class="border-t border-ink-200"><td class="px-3 py-1.5">header_up X-Forwarded-Host {host}</td><td class="px-3 py-1.5">Add X-Forwarded-Host (checkbox)</td><td class="px-3 py-1.5 font-sans text-ink-500"></td></tr>
@@ -280,6 +282,7 @@
     <div class="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-xs text-amber-900">
       <strong>Heads-up:</strong> advanced routes aren't linked to certificates or the host list. You're responsible for their TLS blocks.
     </div>
+    <p class="text-xs text-ink-500">One thing an advanced route <em>cannot</em> carry is client certificate authentication. Caddy keeps <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">tls { client_auth … }</code> in the server's TLS connection policies rather than in the route, and only the routes are stored here — so the block would be dropped and the site would serve everyone. Since v2.64.0 such a paste is refused with that explanation; configure mTLS on the proxy host instead (<strong>Security → Client certificate authentication</strong>) and keep the advanced route for the routing.</p>
   </div>
 </section>
 

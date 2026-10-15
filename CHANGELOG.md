@@ -5,6 +5,29 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.64.0] - 2026-10-14 - Client certificate authentication (mTLS) on proxy hosts (discussion #137)
+
+### Added
+
+- **A proxy host can require a client certificate.** *Proxy Hosts → edit → Security* gains **Client certificate authentication (mTLS)**: a mode and a list of trusted CA certificate files. Caddy then asks the visitor's browser or client for a certificate during the TLS handshake and refuses the connection unless it checks out. The four modes are Caddy's own — *Require and verify* (the usual meaning of mTLS), *Verify if given* (optional certificate, validated when sent), and *Require* / *Request*, which accept any certificate the client offers for cases where something behind Caddy does the checking.
+  - The trusted CA files are read **by Caddy, inside the Caddy container**, exactly like certificate files are — so the path is the one Caddy sees, and the file does not need mounting into CaddyUI.
+  - Your backend reads the certificate through the usual placeholders. For EJBCA and friends, add `SSL_CLIENT_CERT: {http.request.tls.client.certificate_der_base64}` under *Custom headers* on the same page.
+  - Verified end to end against Caddy 2.11.7 with a throwaway CA: no certificate is refused with *certificate required*, a certificate signed by the trusted CA gets through, and a self-signed one is refused with *unknown ca*.
+- **A verifying mode with no trusted CA is refused at save time.** Caddy accepts that combination and then turns away every client, because there is nothing to verify against — the save now explains this instead, and suggests *Request* / *Require* for the no-verification case.
+- **`client_auth_mode` and `client_auth_ca_files` on the REST API** (`/api/v1/proxy-hosts`), with the same validation. On `PATCH`, send `"client_auth_mode": "off"` to switch mTLS off — an empty string leaves it unchanged, as it does for every other field there.
+- **Export to Caddyfile writes the `tls { client_auth { … } }` block.** Leaving it out would make an exported site look open to anyone.
+
+### Fixed
+
+- **An Advanced route carrying `tls { client_auth … }` no longer discards it in silence.** This is what prompted the discussion: Caddy keeps client authentication in the server's TLS connection policies, not in the route, and an Advanced route stores routes only — so the block vanished during import, the generated JSON contained the `reverse_proxy` headers but no `client_auth`, and the site came up serving everyone while looking configured. Importing such a block is now refused, naming the hostnames affected and pointing at the proxy-host setting above, which does reach Caddy.
+
+### Notes
+
+- Existing hosts are unaffected: the new mode defaults to off, so nothing starts asking for client certificates after the upgrade.
+- Not to be confused with **Upstream mTLS Client Certificate / Key** further down the same form — those are Caddy presenting a certificate *to your backend*, the opposite direction. Both can be used at once.
+
+---
+
 ## [2.63.2] - 2026-10-10 - IP allowlists work behind a load balancer (#129)
 
 ### Fixed

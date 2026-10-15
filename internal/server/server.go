@@ -3992,6 +3992,52 @@ func extractAdaptedAutomationPolicies(cfg map[string]any) []map[string]any {
 	return out
 }
 
+// adaptedClientAuthSNIs returns the SNIs of every adapted TLS connection
+// policy that asks the client for a certificate.
+//
+// v2.64.0 (discussion #137): `tls { client_auth ... }` in a site block does
+// not adapt to anything inside the route — it becomes a
+// tls_connection_policies entry, and route-only importers keep just the
+// routes. The block therefore vanished without a word, and the site came up
+// looking configured while accepting anyone. Callers use this to say so
+// instead, and point at the per-host setting that does reach Caddy.
+func adaptedClientAuthSNIs(cfg map[string]any) []string {
+	apps, _ := cfg["apps"].(map[string]any)
+	httpApp, _ := apps["http"].(map[string]any)
+	servers, _ := httpApp["servers"].(map[string]any)
+	var out []string
+	seen := map[string]bool{}
+	for _, srv := range servers {
+		m, _ := srv.(map[string]any)
+		policies, _ := m["tls_connection_policies"].([]any)
+		for _, p := range policies {
+			pm, _ := p.(map[string]any)
+			if _, ok := pm["client_authentication"]; !ok {
+				continue
+			}
+			match, _ := pm["match"].(map[string]any)
+			snis, _ := match["sni"].([]any)
+			if len(snis) == 0 {
+				// A policy with no SNI match applies to every name the
+				// server serves; name it so the message still says something.
+				if !seen["(all hostnames)"] {
+					seen["(all hostnames)"] = true
+					out = append(out, "(all hostnames)")
+				}
+				continue
+			}
+			for _, s := range snis {
+				if str, ok := s.(string); ok && !seen[str] {
+					seen[str] = true
+					out = append(out, str)
+				}
+			}
+		}
+	}
+	sort.Strings(out)
+	return out
+}
+
 // extractAdaptedLayer4App pulls apps.layer4 from an adapted Caddy config —
 // and only that key. v2.56.0 (issue #113): a pasted layer4 Caddyfile block is
 // adapted in isolation via buildLayer4App, and the result is trusted only for

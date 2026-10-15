@@ -2406,6 +2406,16 @@ func migrate(db *sql.DB) error {
 		migrationStep(db, `ALTER TABLE proxy_hosts ADD COLUMN rate_limit_window_sec INTEGER NOT NULL DEFAULT 0`)
 	}
 
+	// v2.64.0 (discussion #137): client certificate authentication (mTLS).
+	// Empty mode means off, so existing hosts keep asking for no client
+	// certificate after upgrade.
+	if !columnExists2(db, "proxy_hosts", "client_auth_mode") {
+		migrationStep(db, `ALTER TABLE proxy_hosts ADD COLUMN client_auth_mode TEXT NOT NULL DEFAULT ''`)
+	}
+	if !columnExists2(db, "proxy_hosts", "client_auth_ca_files") {
+		migrationStep(db, `ALTER TABLE proxy_hosts ADD COLUMN client_auth_ca_files TEXT NOT NULL DEFAULT ''`)
+	}
+
 	// v2.55.0 (issue #115): opt-in "source push" fleet distribution for a
 	// Managed ACME certificate — one Caddy performs the ACME order and
 	// CaddyUI pushes the resulting certificate/key to the servers listed in
