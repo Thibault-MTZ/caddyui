@@ -1848,8 +1848,18 @@ func (s *Server) postSettings(w http.ResponseWriter, r *http.Request) {
 		// is kept in step so a downgrade still enforces the policy. Accepts
 		// either checkbox convention ("1" or "on") because the two old
 		// toggles used one each.
-		settingRequireTOTP:      requireTOTPFormValue(r),
-		settingRequire2FA:       requireTOTPFormValue(r),
+		settingRequireTOTP: requireTOTPFormValue(r),
+		settingRequire2FA:  requireTOTPFormValue(r),
+		// v2.64.2 (issue #138): switching the policy on retires any earlier
+		// "I don't want this" acknowledgement, so turning it off again later
+		// raises the recommendation afresh instead of staying silently
+		// dismissed from a decision made months ago.
+		settingTOTPPolicyDismissed: func() string {
+			if requireTOTPFormValue(r) == "1" {
+				return "0"
+			}
+			return mustGetSetting(s.DB, settingTOTPPolicyDismissed)
+		}(),
 		settingSMTPPort:         smtpPort,
 		settingSMTPUsername:     smtpUsername,
 		settingSMTPFrom:         smtpFrom,

@@ -209,6 +209,24 @@ func (s *Server) listCertificates(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// dismissTOTPPolicyRecommendation acknowledges the dashboard's "two-factor
+// authentication is not required" recommendation. v2.64.2 (issue #138):
+// choosing not to require site-wide TOTP is legitimate, and the dashboard
+// should be able to reach a clean state once that choice is recorded.
+func (s *Server) dismissTOTPPolicyRecommendation(w http.ResponseWriter, r *http.Request) {
+	cu := s.currentUser(r)
+	if cu == nil || !cu.IsAdmin {
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+	if err := models.SetSetting(s.DB, settingTOTPPolicyDismissed, "1"); err != nil {
+		http.Error(w, "save dismissal: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	_ = models.LogActivity(s.DB, s.currentServerID(r), cu.Email, "recommendation_dismiss", "two_factor_policy", "", true)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
 func (s *Server) dismissUnusedCertificateRecommendation(w http.ResponseWriter, r *http.Request) {
 	sid := s.currentServerID(r)
 	certs, err := models.ListCertificates(s.DB, sid)

@@ -5,6 +5,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.64.2] - 2026-10-15 - Declining two-factor auth no longer looks like unfinished setup (#138)
+
+### Fixed
+
+- **The readiness banner counted a recommendation as a requirement.** Reported by @tkkost: with two-factor auth deliberately not in use, Operations showed *"Environment readiness · 3 of 4 required"* and **Continue setup** permanently, so a considered decision looked like an install someone had abandoned half-done. The onboarding page labels that same step *"Recommended"*, so the banner was contradicting it. Readiness now counts the three foundations that genuinely are required — your administrator account, a connected Caddy, and a published service — and reaches a finished state without TOTP. The step is still listed, and the security recommendation still appears; neither claims the install is incomplete.
+  - Worth knowing if you go looking: that counter was driven by **your own account's** TOTP, not the site-wide policy. Toggling the policy never moved it.
+- **The "two-factor authentication is not required" recommendation can be dismissed.** Choosing not to require TOTP across the board is a legitimate decision, and a recommendation that cannot be acknowledged is just a permanent nag. There is now a **Dismiss** next to it, following the same pattern as the unused-certificates recommendation. Turning the policy on clears the dismissal, so switching it off again later raises the recommendation afresh rather than leaving it silently suppressed by a decision made months earlier.
+
+### Notes
+
+- Nothing about enforcement changed — this release only affects what the dashboard claims about your setup. If you require TOTP site-wide, it is still required.
+- Simplified Chinese: the readiness count and body text are updated, and **Dismiss** is translated.
+
+---
+
 ## [2.64.1] - 2026-10-15 - One two-factor policy setting instead of two (#138)
 
 ### Fixed

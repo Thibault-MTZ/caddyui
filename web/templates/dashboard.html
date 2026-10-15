@@ -249,7 +249,19 @@
           <div class="ops-attention-row__title">{{.Title}}</div>
           <div class="ops-attention-row__detail">{{.Detail}}</div>
         </div>
-        {{if .URL}}<a href="{{.URL}}" class="ui-section-header__action">{{if .Action}}{{.Action}}{{else}}{{t $ "dashboard.attention.open"}}{{end}} →</a>{{end}}
+        {{/* One grid cell: .ops-attention-row is a three-column grid, so the
+             action and the dismiss control have to share the last column or
+             the dismiss wraps onto a line of its own.
+             v2.64.2 (issue #138): Dismiss appears only where declining is a
+             real decision rather than unfinished work. */}}
+        <div class="flex items-center justify-end gap-3 shrink-0">
+          {{if .DismissURL}}
+          <form method="post" action="{{.DismissURL}}">
+            <button type="submit" class="text-xs text-ink-400 hover:text-ink-600 underline underline-offset-2 transition whitespace-nowrap">{{t $ "dashboard.attention.dismiss"}}</button>
+          </form>
+          {{end}}
+          {{if .URL}}<a href="{{.URL}}" class="ui-section-header__action">{{if .Action}}{{.Action}}{{else}}{{t $ "dashboard.attention.open"}}{{end}} →</a>{{end}}
+        </div>
       </div>
       {{end}}
     </div>

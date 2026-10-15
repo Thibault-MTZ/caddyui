@@ -905,6 +905,7 @@ func (s *Server) Routes() http.Handler {
 			r.Post("/api/server-logs/disable", s.disableServerLogs)
 			r.Post("/api/server-logs/clear", s.clearServerLogs) // v2.35.5 (issue #60)
 			r.Post("/dashboard/recommendations/unused-certificates/dismiss", s.dismissUnusedCertificateRecommendation)
+			r.Post("/dashboard/recommendations/two-factor-policy/dismiss", s.dismissTOTPPolicyRecommendation) // v2.64.2 (issue #138)
 
 			// v2.7.2: create/edit moved up to the requireWrite group so
 			// user-role accounts can manage their own certs. The remaining
@@ -1361,7 +1362,7 @@ func (s *Server) getOnboarding(w http.ResponseWriter, r *http.Request) {
 	var proxyCount int
 	_ = s.DB.QueryRow(`SELECT COUNT(*) FROM proxy_hosts WHERE server_id = ?`, sid).Scan(&proxyCount)
 
-	completed := requiredReadinessSteps(serverConnected, cu.TOTPEnabled, proxyCount > 0)
+	completed := requiredReadinessSteps(serverConnected, proxyCount > 0)
 
 	s.render(w, r, "onboarding.html", map[string]any{
 		"User":            cu,
@@ -2542,6 +2543,10 @@ type dashboardRecommendation struct {
 	Detail   string
 	URL      string
 	Action   string
+	// DismissURL, when set, renders a Dismiss button that POSTs here.
+	// v2.64.2 (issue #138): only for recommendations where declining is a
+	// legitimate decision rather than something left unfinished.
+	DismissURL string
 }
 
 type dashboardRecommendationInput struct {
@@ -2561,7 +2566,10 @@ type dashboardRecommendationInput struct {
 	AdminAllowlistSet bool
 	AutoSnapshots     bool
 	DismissedUnused   string
-	Now               time.Time
+	// v2.64.2 (issue #138): admin acknowledged that they do not want a
+	// site-wide TOTP requirement.
+	DismissedTOTPPolicy bool
+	Now                 time.Time
 	// v2.39.0: best-known expiry per custom certificate (stored PEM, readable
 	// file, or the last live TLS probe) — see customCertificateExpiries.
 	// Callers that leave it nil still get stored-PEM expiries.
@@ -2582,6 +2590,12 @@ func buildDashboardRecommendations(in dashboardRecommendationInput) []dashboardR
 			URL:      url,
 			Action:   action,
 		})
+	}
+	// addDismissible is add() for a recommendation the admin may legitimately
+	// decline. Same append path, so the cap below still applies to it.
+	addDismissible := func(severity, title, detail, url, action, dismissURL string) {
+		add(severity, title, detail, url, action)
+		out[len(out)-1].DismissURL = dismissURL
 	}
 
 	if in.GlobalMaintenance {
@@ -2685,8 +2699,19 @@ func buildDashboardRecommendations(in dashboardRecommendationInput) []dashboardR
 	}
 
 	if in.IsAdmin {
-		if !in.RequireTOTP {
-			add("warning", "Two-factor authentication is not required", "Requiring TOTP enrolment for everyone reduces account-takeover risk.", "/settings/security", "Open security")
+		// v2.64.2 (issue #138): deciding against a site-wide TOTP requirement
+		// is a legitimate choice, so this one can be acknowledged. The
+		// dismissal is cleared the moment the policy is turned on and off
+		// again, so it cannot hide a later change of mind.
+		if !in.RequireTOTP && !in.DismissedTOTPPolicy {
+			addDismissible(
+				"warning",
+				"Two-factor authentication is not required",
+				"Requiring TOTP enrolment for everyone reduces account-takeover risk. Dismiss this if you have decided against it.",
+				"/settings/security",
+				"Open security",
+				"/dashboard/recommendations/two-factor-policy/dismiss",
+			)
 		}
 		if !in.AdminAllowlistSet {
 			add("info", "Admin IP allowlist is empty", "Restricting CaddyUI to trusted IPs or CIDRs can reduce exposure for homelab installs.", "/settings/security", "Open security")
@@ -2906,30 +2931,35 @@ func (s *Server) dashboard(w http.ResponseWriter, r *http.Request) {
 	}
 	currentServer, _ := models.GetCaddyServer(s.DB, sid)
 	serverReady := currentServer != nil && currentServer.Status == models.CaddyServerStatusOnline
-	readinessSteps := requiredReadinessSteps(serverReady, cu != nil && cu.TOTPEnabled, len(hosts) > 0)
-	showReadiness := isAdmin && (!serverReady || len(hosts) == 0 || cu == nil || !cu.TOTPEnabled)
+	readinessSteps := requiredReadinessSteps(serverReady, len(hosts) > 0)
+	// v2.64.2 (issue #138): the banner clears once the required foundations
+	// are in place. It used to also hang on the admin's own TOTP, which is a
+	// recommendation, so declining it meant "Continue setup" with nothing
+	// left to continue.
+	showReadiness := isAdmin && readinessIncomplete(serverReady, len(hosts) > 0)
 	snapshots, _ := models.ListSnapshots(s.DB, sid, 1)
 	requireTOTP := s.twoFactorRequired()
 	adminAllowlistSet := strings.TrimSpace(mustGetSetting(s.DB, settingAdminAllowlist)) != ""
 	dismissedUnused := mustGetSetting(s.DB, unusedCertificateDismissalKey(sid))
 	recommendations := buildDashboardRecommendations(dashboardRecommendationInput{
-		IsAdmin:           isAdmin,
-		ProxyHosts:        hosts,
-		RedirectionHosts:  redirs,
-		RawRoutes:         raws,
-		Certificates:      certs,
-		Snapshots:         snapshots,
-		DNSProfileIDs:     dnsProfileIDs,
-		LastSync:          lastSync,
-		DownCount:         downCount,
-		MaintenanceCount:  maintenanceCount,
-		GlobalMaintenance: globalMaintenance == "1",
-		RequireTOTP:       requireTOTP,
-		AdminAllowlistSet: adminAllowlistSet,
-		AutoSnapshots:     s.autoSnapshotsEnabled(),
-		DismissedUnused:   dismissedUnused,
-		CertificateExpiry: s.customCertificateExpiries(certs),
-		Now:               time.Now(),
+		IsAdmin:             isAdmin,
+		ProxyHosts:          hosts,
+		RedirectionHosts:    redirs,
+		RawRoutes:           raws,
+		Certificates:        certs,
+		Snapshots:           snapshots,
+		DNSProfileIDs:       dnsProfileIDs,
+		LastSync:            lastSync,
+		DownCount:           downCount,
+		MaintenanceCount:    maintenanceCount,
+		GlobalMaintenance:   globalMaintenance == "1",
+		RequireTOTP:         requireTOTP,
+		AdminAllowlistSet:   adminAllowlistSet,
+		AutoSnapshots:       s.autoSnapshotsEnabled(),
+		DismissedUnused:     dismissedUnused,
+		DismissedTOTPPolicy: mustGetSetting(s.DB, settingTOTPPolicyDismissed) == "1",
+		CertificateExpiry:   s.customCertificateExpiries(certs),
+		Now:                 time.Now(),
 	})
 
 	s.render(w, r, "dashboard.html", map[string]any{
@@ -4421,6 +4451,15 @@ func pushAutomationPoliciesVia(cl *caddy.Client, incoming []map[string]any) erro
 	}
 	return cl.PutPath("/config/apps/tls/automation", automation)
 }
+
+// settingTOTPPolicyDismissed records that an admin has acknowledged the
+// dashboard's "two-factor authentication is not required" recommendation.
+//
+// v2.64.2 (issue #138): not requiring site-wide TOTP is a valid decision, and
+// a recommendation that cannot be acknowledged is a permanent nag. Cleared
+// whenever the policy is switched on, so turning it off later raises the
+// recommendation again rather than staying silently dismissed from months ago.
+const settingTOTPPolicyDismissed = "dashboard_totp_policy_dismissed"
 
 // twoFactorRequired reports whether every user must enrol TOTP before reaching
 // a protected page.
