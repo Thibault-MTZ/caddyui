@@ -922,9 +922,38 @@
     <div class="py-4 border-b border-ink-100">
       <label class="block text-sm font-medium text-ink-900 mb-1.5">Admin panel IP allowlist</label>
       <p class="text-xs text-ink-500 mb-2">⚠️ One IP or CIDR per line. When set, only listed IPs can access CaddyUI. <strong>Make sure your own IP is included before saving!</strong></p>
+
+      {{/* v2.65.0 (issue #140): show the address this very request arrived
+           with, and where it was read from. Saving a list that does not
+           contain this address locks you out, and until now there was no way
+           to check short of trying it. */}}
+      <div class="mb-2 rounded-lg border border-ink-200 bg-ink-50 px-3 py-2">
+        <div class="flex items-baseline gap-2 flex-wrap">
+          <span class="text-xs text-ink-600">You are connecting from</span>
+          <code class="text-sm font-mono font-semibold text-ink-900">{{.CurrentClientIP}}</code>
+          {{if .CurrentClientIPViaProxy}}
+            <span class="ui-status ui-status--info">via trusted proxy</span>
+          {{else}}
+            <span class="ui-status ui-status--info">direct connection</span>
+          {{end}}
+        </div>
+        <p class="text-xs text-ink-500 mt-1">
+          {{if .CurrentClientIPViaProxy}}
+            Read from a forwarding header, because the machine that opened this connection is a trusted proxy. This is the address the allowlist checks — include it, or a range containing it.
+          {{else}}
+            This is the address of the connection itself, and what the allowlist checks. <strong>If CaddyUI sits behind a reverse proxy and this looks like the proxy rather than your own address</strong>, add the proxy under <em>Trusted proxy IPs/CIDRs</em> above first — otherwise every visitor arrives as this one address and the allowlist cannot tell them apart.
+          {{end}}
+        </p>
+      </div>
+
       <textarea name="admin_allowlist" rows="4"
         placeholder="Leave blank to allow all IPs&#10;192.168.1.0/24&#10;10.0.0.1"
         class="w-full text-sm px-3 py-2 rounded-lg border border-ink-200 bg-white text-ink-900 focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono">{{.AdminAllowlist}}</textarea>
+
+      {{if .AdminAllowlistFromEnv}}
+      <p class="text-xs text-amber-700 mt-2"><strong>Overridden by the environment.</strong> <code class="font-mono">CADDYUI_ADMIN_ALLOWLIST</code> is set on this container and takes precedence over the list above, which is saved but not in force. Remove the variable to go back to using it.</p>
+      {{end}}
+      <p class="text-xs text-ink-500 mt-2">Locked out? Set <code class="font-mono">CADDYUI_ADMIN_ALLOWLIST</code> in your compose file and restart — it overrides this list, and <code class="font-mono">CADDYUI_ADMIN_ALLOWLIST=off</code> disables the gate entirely while you get back in. What you saved here is left untouched.</p>
     </div>
     {{/* issue #100: fleet-wide IP blocklist */}}
     <div class="py-4 border-b border-ink-100">
@@ -953,6 +982,13 @@
           <label class="block text-xs font-medium text-ink-700 mb-1">Redirect URL <span class="text-ink-400 font-normal">(callback)</span></label>
           <input name="oidc_redirect_url" value="{{.OIDCRedirectURL}}" type="url" placeholder="https://caddyui.example.com/auth/oidc/callback"
             class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+          {{/* v2.65.0 (issue #139): the placeholder is the full callback URL,
+               but the input is too narrow to show the "/callback" on the end,
+               so it read as a recommendation to use the bare /auth/oidc path.
+               Spell the whole thing out below the field instead, where it
+               cannot be clipped, and build it from this request's own host. */}}
+          <p class="text-xs text-ink-500 mt-1">Register this exact URL with your provider — including the <strong>/callback</strong> on the end:</p>
+          <code class="mt-1 block w-full select-all break-all rounded-md bg-ink-50 border border-ink-200 px-2 py-1.5 text-xs font-mono text-ink-900">{{.OIDCSuggestedRedirectURL}}</code>
         </div>
         <div>
           <label class="block text-xs font-medium text-ink-700 mb-1">Client ID</label>
@@ -973,8 +1009,42 @@
       <label class="flex items-start gap-2 cursor-pointer">
         <input type="checkbox" name="oidc_auto_create" {{if .OIDCAutoCreate}}checked{{end}}
           class="mt-0.5 w-4 h-4 rounded border-ink-300 text-brand-600 focus:ring-brand-500">
-        <span class="text-sm text-ink-700">Auto-create accounts<span class="block text-xs text-ink-500">Provision a read-only user on first SSO sign-in (verified email required). Off = only users that already exist in CaddyUI can sign in via SSO. Promote roles under <a href="/users" class="text-brand-600 hover:underline">Users</a>.</span></span>
+        <span class="text-sm text-ink-700">Auto-create accounts<span class="block text-xs text-ink-500">Provision a user on first SSO sign-in (verified email required). Off = only users that already exist in CaddyUI can sign in via SSO.</span></span>
       </label>
+
+      {{/* v2.65.0 (issue #139): decide what an auto-created account may do.
+           Before this, every SSO account arrived read-only and had to be
+           promoted by hand under Users, with nothing in the UI saying so. */}}
+      <div class="mt-4 pt-4 border-t border-ink-100 space-y-3">
+        <p class="text-xs font-medium text-ink-700">Access level for auto-created accounts</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+          <div>
+            <label class="block text-xs font-medium text-ink-700 mb-1">Default role</label>
+            <select name="oidc_default_role" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+              <option value="view" {{if or (eq .OIDCDefaultRole "view") (eq .OIDCDefaultRole "")}}selected{{end}}>View — read-only (default)</option>
+              <option value="user" {{if eq .OIDCDefaultRole "user"}}selected{{end}}>User — can manage their own resources</option>
+              <option value="admin" {{if eq .OIDCDefaultRole "admin"}}selected{{end}}>Admin — full access</option>
+            </select>
+          </div>
+          <p class="text-xs text-ink-500 sm:pt-6">Given to a new SSO account when no group rule below matches. Existing accounts keep the role they already have — this only applies at creation.</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+          <div>
+            <label class="block text-xs font-medium text-ink-700 mb-1">Groups claim <span class="text-ink-400 font-normal">(optional)</span></label>
+            <input name="oidc_groups_claim" value="{{.OIDCGroupsClaim}}" type="text" autocomplete="off" placeholder="groups"
+              class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+          </div>
+          <p class="text-xs text-ink-500 sm:pt-6">The ID-token claim holding the user's groups — usually <code class="font-mono">groups</code>. Your provider has to be configured to include it in the token. Leave blank to use the default role for everyone.</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+          <div>
+            <label class="block text-xs font-medium text-ink-700 mb-1">Group → role rules</label>
+            <textarea name="oidc_role_mappings" rows="3" placeholder="caddyui-admins|admin&#10;infra|user"
+              class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{.OIDCRoleMappings}}</textarea>
+          </div>
+          <p class="text-xs text-ink-500 sm:pt-6">One <code class="font-mono">group|role</code> per line, role being <code class="font-mono">admin</code>, <code class="font-mono">user</code> or <code class="font-mono">view</code>. <strong>First match wins</strong>, so put the most privileged first. Group names are matched case-insensitively; a rule naming an unknown role is ignored rather than guessed at.</p>
+        </div>
+      </div>
     </div>
 
     <div class="py-4 border-b border-ink-100">

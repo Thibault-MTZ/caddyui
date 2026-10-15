@@ -1006,9 +1006,16 @@ func (s *Server) securityHeaders(next http.Handler) http.Handler {
 
 // adminIPGate returns a middleware that enforces the admin_allowlist setting.
 // If the setting is empty, all IPs are allowed. Non-matching IPs get 403.
+//
+// v2.65.0 (issue #140): the allowlist is matched against the address from
+// resolvedClientIP, not the raw connection. It used to compare
+// r.RemoteAddr, which behind any reverse proxy is the proxy — so an
+// allowlist naming the real visitor locked that visitor out, and the usual
+// workaround of naming the proxy instead admitted *everyone* who came
+// through it while still reading as "restricted" in the UI.
 func (s *Server) adminIPGate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		raw, _ := models.GetSetting(s.DB, settingAdminAllowlist)
+		raw := s.adminAllowlist()
 		if raw == "" {
 			next.ServeHTTP(w, r)
 			return
@@ -1036,8 +1043,9 @@ func (s *Server) adminIPGate(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
-		// Extract client IP.
-		clientIP, _, _ := net.SplitHostPort(r.RemoteAddr)
+		// The visitor's address, taken from a forwarded header only when the
+		// connection came from a trusted proxy.
+		clientIP, _ := s.resolvedClientIP(r)
 		ip := net.ParseIP(clientIP)
 		if ip == nil {
 			http.Error(w, "Forbidden", http.StatusForbidden)
@@ -2117,21 +2125,37 @@ func (s *Server) peerIsTrustedProxy(peerIP net.IP) bool {
 // wins; otherwise the right-most X-Forwarded-For entry is used, since that is
 // the hop appended by the closest trusted proxy and is not client-spoofable.
 func (s *Server) rateLimitClientIP(r *http.Request) string {
+	ip, _ := s.resolvedClientIP(r)
+	return ip
+}
+
+// resolvedClientIP returns the visitor's address as CaddyUI should judge it,
+// and whether that came from a proxy header rather than the connection.
+//
+// A forwarded header is believed only when the machine that opened the
+// connection is itself a trusted proxy, and the *right-most* entry is taken —
+// the one the trusted proxy appended — so a visitor cannot prepend a chosen
+// address to X-Forwarded-For and be believed.
+//
+// v2.65.0 (issue #140): split out of rateLimitClientIP so the admin IP
+// allowlist resolves the address the same way the login rate limiter does,
+// and so Settings can show the operator which address a request arrived with.
+func (s *Server) resolvedClientIP(r *http.Request) (ip string, viaTrustedProxy bool) {
 	peer := peerHost(r)
 	if s.peerIsTrustedProxy(net.ParseIP(peer)) {
 		if v := strings.TrimSpace(r.Header.Get("X-Real-Ip")); v != "" {
-			return v
+			return v, true
 		}
 		if v := r.Header.Get("X-Forwarded-For"); v != "" {
 			parts := strings.Split(v, ",")
 			for i := len(parts) - 1; i >= 0; i-- {
 				if p := strings.TrimSpace(parts[i]); p != "" {
-					return p
+					return p, true
 				}
 			}
 		}
 	}
-	return peer
+	return peer, false
 }
 
 // loginFailureWindow is how far back failed sign-in attempts are counted.
@@ -4564,6 +4588,40 @@ const settingFaviconURL = "favicon_url"
 // settingAdminAllowlist holds newline or comma-separated IPs/CIDRs that are
 // permitted to access the CaddyUI admin panel. When empty, all IPs are allowed.
 const settingAdminAllowlist = "admin_allowlist"
+
+// envAdminAllowlist overrides settingAdminAllowlist from the environment.
+//
+// v2.65.0 (issue #140): an allowlist that turns out not to include you locks
+// you out of the only page that could fix it, and the reporter hit exactly
+// that. Setting this in docker-compose takes precedence over the stored
+// value, so recovery is a compose edit and a restart rather than hand-editing
+// SQLite. `CADDYUI_ADMIN_ALLOWLIST=""` is treated as "not set"; use
+// `CADDYUI_ADMIN_ALLOWLIST=off` to disable the gate entirely while you get
+// back in. The stored setting is left untouched either way, so removing the
+// variable restores whatever was configured.
+const envAdminAllowlist = "CADDYUI_ADMIN_ALLOWLIST"
+
+// adminAllowlist returns the effective allowlist: the environment override
+// when present, otherwise the stored setting. An override of "off"/"none"/
+// "any" (any case) returns empty, which adminIPGate treats as "allow all".
+func (s *Server) adminAllowlist() string {
+	if env := strings.TrimSpace(os.Getenv(envAdminAllowlist)); env != "" {
+		switch strings.ToLower(env) {
+		case "off", "none", "any", "*":
+			return ""
+		}
+		return env
+	}
+	raw, _ := models.GetSetting(s.DB, settingAdminAllowlist)
+	return raw
+}
+
+// adminAllowlistFromEnv reports whether the environment is currently
+// overriding the stored allowlist, so Settings can say so rather than showing
+// a stored value that is not in force.
+func (s *Server) adminAllowlistFromEnv() bool {
+	return strings.TrimSpace(os.Getenv(envAdminAllowlist)) != ""
+}
 
 // settingGlobalIPBlocklist holds newline or comma-separated IPs/CIDRs blocked
 // across every host (v2.50.0, issue #100). Applied as a top-level 403 route on

@@ -151,6 +151,9 @@ var settingsKeySection = map[string]string{
 	settingOIDCRedirectURL:    "security",
 	settingOIDCAutoCreate:     "security",
 	settingOIDCButtonLabel:    "security",
+	settingOIDCDefaultRole:    "security", // v2.65.0 (issue #139)
+	settingOIDCGroupsClaim:    "security",
+	settingOIDCRoleMappings:   "security",
 	settingSessionDays:        "security",
 	settingMaxLoginAttempts:   "security",
 	settingCaptchaProvider:    "security",

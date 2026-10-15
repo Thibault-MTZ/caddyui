@@ -5,6 +5,32 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.65.0] - 2026-10-16 - Admin allowlist matches the real visitor; SSO roles from group claims (#139, #140)
+
+### Security
+
+- **The admin panel IP allowlist did not restrict what it appeared to.** It compared the raw connection address, ignoring *Trusted proxy IPs/CIDRs* entirely, so behind any reverse proxy it only ever saw the proxy. Two symmetrical failures followed, and @BenRLange hit the first:
+  - An allowlist naming **your own address locked you out**, because your address never reached the check.
+  - The obvious workaround — allowlisting **the proxy** — then admitted **every** visitor who arrived through it, at any IP, while Settings still read as restricted. An admin could believe the panel was limited to their home address while it was reachable by anyone who could reach the proxy.
+
+  The allowlist now matches the same trusted-proxy-aware address the login rate limiter uses: a forwarded header is believed only when the connection came from a trusted proxy, and the **right-most** `X-Forwarded-For` entry is taken — the one your proxy appended — so a visitor cannot prepend a chosen address and be believed. Same class of bug as #129, which v2.63.2 fixed for the Caddy-side allowlists; this was CaddyUI's own panel and was missed at the time.
+
+  **If you use this allowlist, re-check it after upgrading.** A list that "worked" because it named the proxy now restricts by real visitor address, as it always claimed to.
+
+### Added
+
+- **Settings → Security shows the address you are connecting from**, and whether it was read from the connection or from a forwarded header via a trusted proxy (#140). The allowlist is checked against exactly that address, so an entry that would lock you out is visible before you save it rather than after. If it names the proxy instead of you, the hint says to configure *Trusted proxy IPs/CIDRs* first.
+- **`CADDYUI_ADMIN_ALLOWLIST` recovers a lockout from compose** (#140). Set it in your compose file and restart: it overrides the stored list, and `CADDYUI_ADMIN_ALLOWLIST=off` disables the gate entirely while you get back in. The saved list is left untouched, so removing the variable restores it. An empty value counts as not set, so a blank entry in compose cannot lock you out by itself.
+- **Auto-created SSO accounts can be given a role** (#139). *Settings → Security → SSO* gains a **default role** for accounts created on first sign-in — still `view` unless you change it, so upgrading widens nobody's access — plus optional mapping from a **groups claim**: name the claim your IdP sends and write `group|role` rules, one per line, first match wins. Group names match case-insensitively, since IdPs are inconsistent about casing. A rule naming a role CaddyUI does not have is refused when you save, with the line number, rather than stored and silently ignored.
+  - The claim is read defensively: an array of strings, a single string, or a space/comma-separated string all work, and any other shape means "no groups" and a sign-in on the default role rather than a failure.
+  - Roles are applied **at account creation only**. An existing user's role is never changed by signing in, so a mapping cannot demote or escalate someone already set up under *Users*.
+
+### Fixed
+
+- **The SSO callback URL is spelled out in full** (#139). The field's placeholder was the complete `…/auth/oidc/callback`, but the input is too narrow to show the end of it, so it read as a recommendation to register the bare `/auth/oidc` path — and registering that causes the login to fail at the provider. The exact URL, built from the host you are using, is now shown under the field as selectable text where it cannot be clipped.
+
+---
+
 ## [2.64.2] - 2026-10-15 - Declining two-factor auth no longer looks like unfinished setup (#138)
 
 ### Fixed

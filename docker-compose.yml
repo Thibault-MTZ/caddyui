@@ -93,6 +93,12 @@ services:
       # override per-user from Settings → Timezone; the DB value wins
       # over this env var when both are set.
       TZ: ${TZ:-UTC}
+      # Escape hatch for the admin panel IP allowlist (Settings → Security).
+      # Uncomment and restart if a saved allowlist locks you out: this value
+      # overrides the stored list, and "off" disables the gate entirely while
+      # you get back in. What you saved in the UI is left untouched, so
+      # commenting this out again restores it. Leave it unset normally.
+      # CADDYUI_ADMIN_ALLOWLIST: "off"
     networks:
       - caddyui
 

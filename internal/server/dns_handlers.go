@@ -1469,8 +1469,15 @@ func (s *Server) getSettings(w http.ResponseWriter, r *http.Request) {
 		"OIDCRedirectURL":     mustGetSetting(s.DB, settingOIDCRedirectURL),
 		"OIDCAutoCreate":      mustGetSetting(s.DB, settingOIDCAutoCreate) == "1",
 		"OIDCButtonLabel":     mustGetSetting(s.DB, settingOIDCButtonLabel),
-		"Success":             success,
-		"ClearedName":         clearedName,
+		// v2.65.0 (issue #139): role assignment for auto-created SSO users,
+		// plus the exact callback URL spelled out where it cannot be clipped
+		// by the width of the input it belongs to.
+		"OIDCDefaultRole":          mustGetSetting(s.DB, settingOIDCDefaultRole),
+		"OIDCGroupsClaim":          mustGetSetting(s.DB, settingOIDCGroupsClaim),
+		"OIDCRoleMappings":         mustGetSetting(s.DB, settingOIDCRoleMappings),
+		"OIDCSuggestedRedirectURL": s.publicBaseURL(r) + "/auth/oidc/callback",
+		"Success":                  success,
+		"ClearedName":              clearedName,
 		// v2.7.0: analytics card
 		"AnalyticsEnabled":           analyticsCfg.Enabled,
 		"ExpectationsAutoRollback":   expectationsAutoRollbackEnabled(s), // v2.38.0
@@ -1526,6 +1533,18 @@ func (s *Server) getSettings(w http.ResponseWriter, r *http.Request) {
 		// v2.11.0: custom favicon + admin IP allowlist
 		"FaviconURL":     mustGetSetting(s.DB, settingFaviconURL),
 		"AdminAllowlist": mustGetSetting(s.DB, settingAdminAllowlist),
+		// v2.65.0 (issue #140): the address this request arrived with, so the
+		// operator can see what the allowlist will actually be matching
+		// before they save a list that might exclude them.
+		"CurrentClientIP": func() string {
+			ip, _ := s.resolvedClientIP(r)
+			return ip
+		}(),
+		"CurrentClientIPViaProxy": func() bool {
+			_, viaProxy := s.resolvedClientIP(r)
+			return viaProxy
+		}(),
+		"AdminAllowlistFromEnv": s.adminAllowlistFromEnv(),
 		// v2.12.0: configurable session duration + global catch-all 404
 		"SessionDays":          mustGetSetting(s.DB, settingSessionDays),
 		"CatchAll404HTML":      mustGetSetting(s.DB, settingCatchAll404HTML),
@@ -1563,6 +1582,14 @@ func (s *Server) postSettings(w http.ResponseWriter, r *http.Request) {
 	// v2.44.0: the posted page owns a subset of keys; "" is the legacy
 	// whole-form post (API clients, old bookmarks) and saves everything.
 	settingsPage := settingsSectionSlug(r.FormValue("settings_section"))
+	// v2.65.0 (issue #139): a group rule naming a role CaddyUI does not have
+	// is ignored at sign-in time, which would mean saving a mapping that
+	// quietly never applies. Say so instead.
+	if bad := invalidOIDCRoleMappingLines(r.FormValue("oidc_role_mappings")); len(bad) > 0 {
+		http.Error(w, "Group → role rules: "+strings.Join(bad, "; ")+
+			". Use one `group|role` per line, with role being admin, user or view.", http.StatusBadRequest)
+		return
+	}
 	integrationSettingsPresent := r.FormValue("fleet_integrations_present") == "1"
 	accessLogFormCfg := loadFleetAccessLogConfig(s.DB)
 	crowdSecFormCfg := loadCrowdSecConfig(s.DB)
@@ -1776,12 +1803,24 @@ func (s *Server) postSettings(w http.ResponseWriter, r *http.Request) {
 		settingBackupScheduleInterval: strings.TrimSpace(r.FormValue("backup_schedule_interval_hours")),
 		settingBackupScheduleKeep:     strings.TrimSpace(r.FormValue("backup_schedule_keep")),
 		// issue #106: OIDC / SSO login (client secret handled below, keep-blank).
-		settingOIDCEnabled:         oidcEnabled,
-		settingOIDCIssuer:          strings.TrimSpace(r.FormValue("oidc_issuer")),
-		settingOIDCClientID:        strings.TrimSpace(r.FormValue("oidc_client_id")),
-		settingOIDCRedirectURL:     strings.TrimSpace(r.FormValue("oidc_redirect_url")),
-		settingOIDCAutoCreate:      oidcAutoCreate,
-		settingOIDCButtonLabel:     strings.TrimSpace(r.FormValue("oidc_button_label")),
+		settingOIDCEnabled:     oidcEnabled,
+		settingOIDCIssuer:      strings.TrimSpace(r.FormValue("oidc_issuer")),
+		settingOIDCClientID:    strings.TrimSpace(r.FormValue("oidc_client_id")),
+		settingOIDCRedirectURL: strings.TrimSpace(r.FormValue("oidc_redirect_url")),
+		settingOIDCAutoCreate:  oidcAutoCreate,
+		settingOIDCButtonLabel: strings.TrimSpace(r.FormValue("oidc_button_label")),
+		// v2.65.0 (issue #139). An unrecognised role is stored as "" so
+		// oidcConfig.defaultRole falls back to view, rather than persisting
+		// something no permission check understands.
+		settingOIDCDefaultRole: func() string {
+			role := strings.ToLower(strings.TrimSpace(r.FormValue("oidc_default_role")))
+			if !validOIDCRole(role) {
+				return ""
+			}
+			return role
+		}(),
+		settingOIDCGroupsClaim:     strings.TrimSpace(r.FormValue("oidc_groups_claim")),
+		settingOIDCRoleMappings:    strings.TrimSpace(r.FormValue("oidc_role_mappings")),
 		settingNotifyWebhookURL:    webhookURL,
 		settingNotifyWebhookSecret: webhookSecret,
 		settingNotifyNtfyURL:       ntfyURL, // v2.12.51

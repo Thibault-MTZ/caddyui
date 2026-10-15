@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -35,6 +36,21 @@ const (
 	settingOIDCAutoCreate   = "oidc_auto_create"
 	settingOIDCButtonLabel  = "oidc_button_label"
 
+	// v2.65.0 (issue #139): control what an auto-created SSO account may do.
+	// Auto-created users were always given the read-only role with no way to
+	// change that short of promoting each one by hand under Users.
+	//
+	// settingOIDCDefaultRole is the role for a new account when no group
+	// mapping matches. Empty means "view", which is what every release
+	// before this one did.
+	settingOIDCDefaultRole = "oidc_default_role"
+	// settingOIDCGroupsClaim names the ID-token claim holding the user's
+	// groups ("groups", "roles", "wiki_groups", …). Empty disables mapping.
+	settingOIDCGroupsClaim = "oidc_groups_claim"
+	// settingOIDCRoleMappings maps those group values to CaddyUI roles, one
+	// `group|role` rule per line. First match in file order wins.
+	settingOIDCRoleMappings = "oidc_role_mappings"
+
 	oidcStateCookie        = "caddyui_oidc_state"
 	oidcNonceCookie        = "caddyui_oidc_nonce"
 	oidcDefaultButtonLabel = "Sign in with SSO"
@@ -48,6 +64,107 @@ type oidcConfig struct {
 	RedirectURL  string
 	AutoCreate   bool
 	ButtonLabel  string
+	// v2.65.0 (issue #139): role assignment for auto-created accounts.
+	DefaultRole  string
+	GroupsClaim  string
+	RoleMappings []oidcRoleMapping
+}
+
+// oidcRoleMapping grants a CaddyUI role to members of one IdP group.
+type oidcRoleMapping struct {
+	Group string
+	Role  string
+}
+
+// validOIDCRole reports whether role is one CaddyUI recognises. Anything else
+// is ignored rather than stored, so a typo in the mapping list cannot hand out
+// an unintended level of access — or silently create an account with a role
+// no permission check understands.
+func validOIDCRole(role string) bool {
+	switch role {
+	case models.RoleAdmin, models.RoleUser, models.RoleView:
+		return true
+	}
+	return false
+}
+
+// parseOIDCRoleMappings reads `group|role` rules, one per line. Blank lines
+// and `#` comments are skipped, as is any rule naming a role CaddyUI does not
+// have. Order is preserved: the first rule matching any of the user's groups
+// decides, so the most privileged mappings belong at the top.
+func parseOIDCRoleMappings(raw string) []oidcRoleMapping {
+	var out []oidcRoleMapping
+	for _, line := range strings.Split(raw, "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		parts := strings.SplitN(line, "|", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		group := strings.TrimSpace(parts[0])
+		role := strings.ToLower(strings.TrimSpace(parts[1]))
+		if group == "" || !validOIDCRole(role) {
+			continue
+		}
+		out = append(out, oidcRoleMapping{Group: group, Role: role})
+	}
+	return out
+}
+
+// invalidOIDCRoleMappingLines describes every line of a group→role list that
+// parseOIDCRoleMappings would discard, so the operator is told at save time
+// rather than finding out when someone signs in on the wrong role.
+// v2.65.0 (issue #139).
+func invalidOIDCRoleMappingLines(raw string) []string {
+	var bad []string
+	for i, line := range strings.Split(raw, "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		n := i + 1
+		parts := strings.SplitN(line, "|", 2)
+		if len(parts) != 2 {
+			bad = append(bad, fmt.Sprintf("line %d (%q) has no `|` separating the group from the role", n, line))
+			continue
+		}
+		group := strings.TrimSpace(parts[0])
+		role := strings.ToLower(strings.TrimSpace(parts[1]))
+		switch {
+		case group == "":
+			bad = append(bad, fmt.Sprintf("line %d (%q) has no group name", n, line))
+		case role == "":
+			bad = append(bad, fmt.Sprintf("line %d (%q) has no role", n, line))
+		case !validOIDCRole(role):
+			bad = append(bad, fmt.Sprintf("line %d names the role %q, which does not exist", n, role))
+		}
+	}
+	return bad
+}
+
+// roleForGroups returns the role to give a user with these IdP groups, and
+// whether a mapping actually matched. Group comparison is case-insensitive;
+// IdPs are inconsistent about casing and a near-miss would silently downgrade
+// someone to the default role.
+func (c oidcConfig) roleForGroups(groups []string) (string, bool) {
+	for _, m := range c.RoleMappings {
+		for _, g := range groups {
+			if strings.EqualFold(strings.TrimSpace(g), m.Group) {
+				return m.Role, true
+			}
+		}
+	}
+	return "", false
+}
+
+// defaultRole is the role for a new account when no mapping matched.
+func (c oidcConfig) defaultRole() string {
+	if validOIDCRole(c.DefaultRole) {
+		return c.DefaultRole
+	}
+	return models.RoleView
 }
 
 func (s *Server) oidcConfig() oidcConfig {
@@ -64,12 +181,49 @@ func (s *Server) oidcConfig() oidcConfig {
 		RedirectURL:  get(settingOIDCRedirectURL),
 		AutoCreate:   mustGetSetting(s.DB, settingOIDCAutoCreate) == "1",
 		ButtonLabel:  label,
+		DefaultRole:  strings.ToLower(get(settingOIDCDefaultRole)),
+		GroupsClaim:  get(settingOIDCGroupsClaim),
+		RoleMappings: parseOIDCRoleMappings(mustGetSetting(s.DB, settingOIDCRoleMappings)),
 	}
 }
 
 // ready reports whether SSO is enabled and has the minimum configuration to run.
 func (c oidcConfig) ready() bool {
 	return c.Enabled && c.Issuer != "" && c.ClientID != "" && c.ClientSecret != "" && c.RedirectURL != ""
+}
+
+// oidcStringValues normalises a claim value into a list of strings.
+//
+// v2.65.0 (issue #139): IdPs disagree about how to express group membership.
+// Most send a JSON array of strings, some send a single string, and a few
+// send a space- or comma-separated string in one field. Anything else — an
+// array of objects, a number — yields no groups rather than an error, so an
+// unexpected claim shape simply means "no mapping matched" and the user still
+// signs in on the default role.
+func oidcStringValues(v any) []string {
+	switch t := v.(type) {
+	case []any:
+		var out []string
+		for _, item := range t {
+			if s, ok := item.(string); ok {
+				if s = strings.TrimSpace(s); s != "" {
+					out = append(out, s)
+				}
+			}
+		}
+		return out
+	case []string:
+		return t
+	case string:
+		var out []string
+		for _, s := range strings.FieldsFunc(t, func(r rune) bool { return r == ',' || r == ' ' }) {
+			if s = strings.TrimSpace(s); s != "" {
+				out = append(out, s)
+			}
+		}
+		return out
+	}
+	return nil
 }
 
 // oidcProviderCache memoises the discovery document per issuer so each login
@@ -210,6 +364,16 @@ func (s *Server) getOIDCCallback(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login?error=sso", http.StatusSeeOther)
 		return
 	}
+	// v2.65.0 (issue #139): the groups claim is read separately and
+	// defensively — its name is operator-configured and its shape varies by
+	// IdP, so it must not be able to fail the whole sign-in.
+	var groups []string
+	if cfg.GroupsClaim != "" {
+		var all map[string]any
+		if err := idToken.Claims(&all); err == nil {
+			groups = oidcStringValues(all[cfg.GroupsClaim])
+		}
+	}
 	email := strings.ToLower(strings.TrimSpace(claims.Email))
 	if email == "" || !claims.EmailVerified {
 		// An unverified (or missing) email must not be trusted to match or
@@ -238,10 +402,16 @@ func (s *Server) getOIDCCallback(w http.ResponseWriter, r *http.Request) {
 		if name == "" {
 			name = email
 		}
-		// New SSO users get the read-only role and an unusable password (a
-		// random non-bcrypt string), so they can't password-log-in. Promote
-		// them under Users if they need more.
-		if _, cerr := models.CreateUser(s.DB, email, oidcRandom(), name, models.RoleView); cerr != nil {
+		// v2.65.0 (issue #139): the role comes from a group mapping when one
+		// matches, otherwise the configured default (still "view" unless an
+		// admin changed it). The password is an unusable random non-bcrypt
+		// string, so the account cannot be used to password-log-in.
+		role := cfg.defaultRole()
+		if mapped, ok := cfg.roleForGroups(groups); ok {
+			role = mapped
+		}
+		log.Printf("oidc: creating account for %s with role %q (groups=%v)", email, role, groups)
+		if _, cerr := models.CreateUser(s.DB, email, oidcRandom(), name, role); cerr != nil {
 			log.Printf("oidc: provision %s: %v", email, cerr)
 			http.Redirect(w, r, "/login?error=sso", http.StatusSeeOther)
 			return
