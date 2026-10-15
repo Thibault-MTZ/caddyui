@@ -58,7 +58,7 @@ func TestBuildDashboardRecommendationsAdminHardening(t *testing.T) {
 	})
 
 	for _, title := range []string{
-		"2FA is not required",
+		"Two-factor authentication is not required",
 		"Admin IP allowlist is empty",
 		"No config snapshots yet",
 	} {
@@ -113,7 +113,7 @@ func TestBuildDashboardRecommendationsCapsNoise(t *testing.T) {
 		DNSProfileIDs:     map[string]bool{},
 		DownCount:         2,
 		MaintenanceCount:  1,
-		Require2FA:        false,
+		RequireTOTP:       false,
 		AdminAllowlistSet: false,
 		AutoSnapshots:     false,
 		Now:               now,

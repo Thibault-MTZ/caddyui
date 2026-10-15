@@ -611,7 +611,7 @@
       <li><span class="inline-block px-1.5 py-0.5 rounded bg-ink-100 text-ink-600 text-[10px] font-semibold uppercase tracking-wider">viewer</span> — read-only. Can see dashboards and lists but can't create / edit / delete.</li>
     </ul>
     <p>Each user can enable <strong>TOTP 2FA</strong> on their profile at <a href="/totp/setup" class="text-brand-600 hover:text-brand-700">/totp/setup</a>. Scan the QR with Google Authenticator, Authy, 1Password, etc., enter the 6-digit code, and it's active on next login.</p>
-    <p>Admins can require 2FA at signup via <a href="/settings" class="text-brand-600 hover:text-brand-700">Settings</a> and can reset it on any account from <a href="/users" class="text-brand-600 hover:text-brand-700">Users</a>.</p>
+    <p>The two controls are separate, and it's worth keeping them straight. Each person switches their <em>own</em> TOTP on or off under <strong>user menu → My two-factor authentication</strong> (that is this same <code class="font-mono">/totp/setup</code> page). Admins set the site-wide policy — <strong>Require two-factor authentication (TOTP) for everyone</strong> — under <a href="/settings/security" class="text-brand-600 hover:text-brand-700">Settings → Security</a>, which sends anyone not yet enrolled to the setup page until they finish, including the admin who switched it on. Admins can also reset TOTP on any account from <a href="/users" class="text-brand-600 hover:text-brand-700">Users</a>.</p>
   </div>
 </section>
 

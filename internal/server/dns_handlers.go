@@ -1506,9 +1506,15 @@ func (s *Server) getSettings(w http.ResponseWriter, r *http.Request) {
 		"MetricsObserveCatchAll":  metricsCfg.ObserveCatchAllHost,
 		"MetricsServerSelected":   integrationServerSelection(caddyServers, metricsCfg.ServerIDs),
 		"MetricsScrapeTargets":    metricsScrapeTargets,
-		// v2.9.5: 2FA enforcement policy
-		"Require2FA":  mustGetSetting(s.DB, settingRequire2FA),
-		"RequireTOTP": mustGetSetting(s.DB, settingRequireTOTP),
+		// v2.64.1 (issue #138): one two-factor policy toggle. Reflects either
+		// key so an install that only ever set the deprecated one still shows
+		// the switch as on.
+		"RequireTOTP": func() string {
+			if s.twoFactorRequired() {
+				return "1"
+			}
+			return "0"
+		}(),
 		// v2.10.0: trusted proxies + custom site title
 		"TrustedProxies": mustGetSetting(s.DB, settingTrustedProxies),
 		"SiteTitle":      mustGetSetting(s.DB, settingSiteTitle),
@@ -1538,6 +1544,18 @@ func (s *Server) getSettings(w http.ResponseWriter, r *http.Request) {
 		"SettingsNav":          localizedSettingsSections(lang),                   // v2.44.0; v2.63.0 translated
 		"SettingsAnchorsJSON":  settingsAnchorsJSON(),                             // v2.44.0
 	})
+}
+
+// requireTOTPFormValue reads the single two-factor policy toggle from the
+// settings form. The two toggles it replaces used different checkbox
+// conventions — one value="1", one bare "on" — so both are accepted rather
+// than letting a stale form silently save "off". v2.64.1 (issue #138).
+func requireTOTPFormValue(r *http.Request) string {
+	switch r.FormValue("require_totp") {
+	case "1", "on":
+		return "1"
+	}
+	return "0"
 }
 
 func (s *Server) postSettings(w http.ResponseWriter, r *http.Request) {
@@ -1825,20 +1843,13 @@ func (s *Server) postSettings(w http.ResponseWriter, r *http.Request) {
 			}
 			return "0"
 		}(),
-		// v2.9.5: 2FA enforcement policy (checkbox → "on" when checked).
-		settingRequire2FA: func() string {
-			if r.FormValue("require_2fa") == "on" {
-				return "1"
-			}
-			return "0"
-		}(),
-		// require_totp toggle uses value="1" checkbox pattern.
-		settingRequireTOTP: func() string {
-			if r.FormValue("require_totp") == "1" {
-				return "1"
-			}
-			return "0"
-		}(),
+		// v2.64.1 (issue #138): one toggle, written to both keys. The form
+		// field is require_totp; settingRequire2FA is its deprecated twin and
+		// is kept in step so a downgrade still enforces the policy. Accepts
+		// either checkbox convention ("1" or "on") because the two old
+		// toggles used one each.
+		settingRequireTOTP:      requireTOTPFormValue(r),
+		settingRequire2FA:       requireTOTPFormValue(r),
 		settingSMTPPort:         smtpPort,
 		settingSMTPUsername:     smtpUsername,
 		settingSMTPFrom:         smtpFrom,

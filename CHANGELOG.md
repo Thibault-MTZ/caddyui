@@ -5,6 +5,23 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.64.1] - 2026-10-15 - One two-factor policy setting instead of two (#138)
+
+### Fixed
+
+- **Settings › Security had two toggles for one policy.** *Require 2FA for all users* and *Require TOTP for all users* were separate settings whose descriptions said nearly the same thing, and reported by @tkkost as impossible to tell apart. They were: both sent a user without TOTP to the setup page, and the dashboard's security recommendation already treated them as interchangeable. There is now a single **Require two-factor authentication (TOTP) for everyone**.
+  - **Nothing is switched off by the upgrade.** An install that had set only one of the pair still enforces the policy — both stored keys are honoured, and saving writes both, so downgrading to an earlier release keeps enforcing it too.
+  - The two old toggles enforced the policy with *different* exclusion lists: the TOTP one would answer a session-authenticated `/api/` request with a redirect to an HTML page, while the 2FA one let it through. The surviving check keeps the wider list, so JSON callers get JSON.
+  - They also used different checkbox conventions and one saved immediately while the other waited for **Save**. One toggle, one behaviour.
+- **The per-user control was hard to find.** The user-menu entry is now **My two-factor authentication** rather than the ambiguous *Two-factor auth*, and the policy setting says in so many words that it is site-wide, that it enrols nobody, and that individual accounts are managed from that menu. @tkkost had reported TOTP as impossible to disable before finding this entry — the disable itself was working correctly all along.
+- **The policy applies to the admin who turns it on**, which is easy to walk into: with no TOTP on your own account, saving it sends you to enrolment and you must finish before reaching Settings again, including to switch it back off. That was already true; the setting now warns before you save. The enrolment page stays reachable, so this strands nobody.
+
+### Notes
+
+- Simplified Chinese: the renamed user-menu entry is translated (*我的两步验证*). The new policy description is English until a translation lands.
+
+---
+
 ## [2.64.0] - 2026-10-14 - Client certificate authentication (mTLS) on proxy hosts (discussion #137)
 
 ### Added

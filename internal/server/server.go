@@ -1105,29 +1105,24 @@ func (s *Server) requireAuth(next http.Handler) http.Handler {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
-		// Enforce 2FA policy if enabled.
-		if !u.TOTPEnabled {
-			if v, _ := models.GetSetting(s.DB, settingRequire2FA); v == "1" {
-				// Allow the TOTP setup pages and static assets through.
-				path := r.URL.Path
-				if !strings.HasPrefix(path, "/totp/") && !strings.HasPrefix(path, "/static/") &&
-					!strings.HasPrefix(path, "/api/") && path != "/logout" {
-					http.Redirect(w, r, "/totp/setup?required=1", http.StatusSeeOther)
-					return
-				}
-			}
-		}
-		// TOTP enforcement: if the admin has enabled require_totp and this user
-		// has TOTP disabled, redirect them to TOTP setup before granting access.
-		// Skip the check for the TOTP setup page itself to avoid a redirect loop.
-		if mustGetSetting(s.DB, settingRequireTOTP) == "1" {
-			if !u.TOTPEnabled {
-				// Allow /totp/setup and /logout through so the user can complete enrollment.
-				path := r.URL.Path
-				if path != "/totp/setup" && path != "/logout" && !strings.HasPrefix(path, "/static/") {
-					http.Redirect(w, r, "/totp/setup?enforce=1", http.StatusFound)
-					return
-				}
+		// Enforce the two-factor policy: a user without TOTP goes to the setup
+		// page until they enrol.
+		//
+		// v2.64.1 (issue #138): this used to be two consecutive blocks, one per
+		// setting, which differed only in their query parameter and in what
+		// they let through — so whether an API call survived the redirect
+		// depended on which of two identically-described toggles the admin
+		// happened to use. One check now, with the wider exclusion list, and
+		// either setting still turns it on (see settingRequire2FA).
+		if !u.TOTPEnabled && s.twoFactorRequired() {
+			path := r.URL.Path
+			// /totp/ covers the setup page and its POST target, so enrolment
+			// can actually be completed. /api/ is excluded because a JSON
+			// caller has no use for a redirect to an HTML page.
+			if !strings.HasPrefix(path, "/totp/") && !strings.HasPrefix(path, "/static/") &&
+				!strings.HasPrefix(path, "/api/") && path != "/logout" {
+				http.Redirect(w, r, "/totp/setup?required=1", http.StatusSeeOther)
+				return
 			}
 		}
 		ctx := context.WithValue(r.Context(), auth.ContextUserKey, u)
@@ -2561,7 +2556,7 @@ type dashboardRecommendationInput struct {
 	DownCount         int
 	MaintenanceCount  int
 	GlobalMaintenance bool
-	Require2FA        bool
+	// v2.64.1 (issue #138): one policy, not two. See twoFactorRequired.
 	RequireTOTP       bool
 	AdminAllowlistSet bool
 	AutoSnapshots     bool
@@ -2690,8 +2685,8 @@ func buildDashboardRecommendations(in dashboardRecommendationInput) []dashboardR
 	}
 
 	if in.IsAdmin {
-		if !in.Require2FA && !in.RequireTOTP {
-			add("warning", "2FA is not required", "Admins can enable required TOTP enrollment to reduce account-takeover risk.", "/settings/security", "Open security")
+		if !in.RequireTOTP {
+			add("warning", "Two-factor authentication is not required", "Requiring TOTP enrolment for everyone reduces account-takeover risk.", "/settings/security", "Open security")
 		}
 		if !in.AdminAllowlistSet {
 			add("info", "Admin IP allowlist is empty", "Restricting CaddyUI to trusted IPs or CIDRs can reduce exposure for homelab installs.", "/settings/security", "Open security")
@@ -2914,8 +2909,7 @@ func (s *Server) dashboard(w http.ResponseWriter, r *http.Request) {
 	readinessSteps := requiredReadinessSteps(serverReady, cu != nil && cu.TOTPEnabled, len(hosts) > 0)
 	showReadiness := isAdmin && (!serverReady || len(hosts) == 0 || cu == nil || !cu.TOTPEnabled)
 	snapshots, _ := models.ListSnapshots(s.DB, sid, 1)
-	require2FA := mustGetSetting(s.DB, settingRequire2FA) == "1"
-	requireTOTP := mustGetSetting(s.DB, settingRequireTOTP) == "1"
+	requireTOTP := s.twoFactorRequired()
 	adminAllowlistSet := strings.TrimSpace(mustGetSetting(s.DB, settingAdminAllowlist)) != ""
 	dismissedUnused := mustGetSetting(s.DB, unusedCertificateDismissalKey(sid))
 	recommendations := buildDashboardRecommendations(dashboardRecommendationInput{
@@ -2930,7 +2924,6 @@ func (s *Server) dashboard(w http.ResponseWriter, r *http.Request) {
 		DownCount:         downCount,
 		MaintenanceCount:  maintenanceCount,
 		GlobalMaintenance: globalMaintenance == "1",
-		Require2FA:        require2FA,
 		RequireTOTP:       requireTOTP,
 		AdminAllowlistSet: adminAllowlistSet,
 		AutoSnapshots:     s.autoSnapshotsEnabled(),
@@ -4429,6 +4422,17 @@ func pushAutomationPoliciesVia(cl *caddy.Client, incoming []map[string]any) erro
 	return cl.PutPath("/config/apps/tls/automation", automation)
 }
 
+// twoFactorRequired reports whether every user must enrol TOTP before reaching
+// a protected page.
+//
+// v2.64.1 (issue #138): true when either key is set. The two were separate
+// toggles doing the same job; collapsing them to one must not switch the
+// policy off for an install that had set only the older of the pair.
+func (s *Server) twoFactorRequired() bool {
+	return mustGetSetting(s.DB, settingRequireTOTP) == "1" ||
+		mustGetSetting(s.DB, settingRequire2FA) == "1"
+}
+
 // --- Snapshots ---
 
 // settingAutoSnapshots gates creation of "auto" snapshots (pre-sync, pre-restore).
@@ -4436,12 +4440,24 @@ func pushAutomationPoliciesVia(cl *caddy.Client, incoming []map[string]any) erro
 // don't want a snapshot every sync filling the DB.
 const settingAutoSnapshots = "auto_snapshots_enabled"
 
-// settingRequire2FA gates 2FA enforcement: when "1", users without TOTP enabled
-// are redirected to /totp/setup before accessing any page.
-const settingRequire2FA = "require_2fa"
-
-// settingRequireTOTP forces all users to enroll TOTP before accessing protected pages.
+// settingRequireTOTP forces every user to enrol TOTP before reaching any
+// protected page. This is the canonical key for the policy.
 const settingRequireTOTP = "require_totp"
+
+// settingRequire2FA is the deprecated twin of settingRequireTOTP.
+//
+// v2.64.1 (issue #138): CaddyUI shipped two settings for one policy — both
+// enforced "enrol TOTP or go to the setup page", and their descriptions on
+// Settings › Security said nearly the same thing, so nobody could tell which
+// to use. The UI now has one toggle.
+//
+// The key is kept, and written in lockstep with settingRequireTOTP, for one
+// reason: an install that had only this one switched on must not quietly stop
+// enforcing two-factor auth, in either direction. Reading honours whichever
+// key is set (twoFactorRequired), and saving sets both, so downgrading to a
+// release that reads only this key still enforces the policy. Don't add new
+// reads of it.
+const settingRequire2FA = "require_2fa"
 
 // settingSessionDays is the admin-configured session lifetime in days.
 // Default is 7 days when empty or invalid.
