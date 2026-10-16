@@ -5,6 +5,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.65.1] - 2026-10-16 - Go toolchain 1.27.2 closes 12 standard-library vulnerabilities
+
+### Security
+
+- **The published binaries were built with Go 1.26.8, which govulncheck reports as affected by 12 standard-library vulnerabilities.** Mostly denial-of-service and request-desynchronisation issues in `net/http` — an HTTP/2 HPACK encoder race, double flow-control refunds, memory exhaustion via trailers, unbounded `Range` header parsing, HTTP/1 desync after a CONNECT response — plus a MIME header memory-limit bypass in `net/textproto`, malformed ECH handling in `crypto/tls`, and two `html/template` context-tracking issues reachable from CaddyUI's own page rendering. The pinned toolchain is now **Go 1.27.2** and govulncheck reports zero.
+- **The Docker images were never affected.** They build on `golang:1.27-alpine`, which resolves to 1.27.2 — already the fixed release for that line. Only the native binaries from the GitHub releases page carried the vulnerable runtime, so **anyone running `applegater/caddyui` had nothing to do**; anyone running a downloaded binary should take v2.65.1.
+- This also closes a gap where one release was compiled two different ways: the binaries from the `toolchain` line in `go.mod` and the images from the Dockerfile's base image. Both now use 1.27.2.
+
+---
+
 ## [2.65.0] - 2026-10-16 - Admin allowlist matches the real visitor; SSO roles from group claims (#139, #140)
 
 ### Security
