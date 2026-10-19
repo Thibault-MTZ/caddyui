@@ -1,14 +1,14 @@
-{{define "title"}}{{if .Target.ID}}Edit{{else}}Add{{end}} Caddy Server · CaddyUI{{end}}
+{{define "title"}}{{if .Target.ID}}{{t $ "page.server_form.title_edit"}}{{else}}{{t $ "page.server_form.title_new"}}{{end}}{{end}}
 {{define "content"}}
 <header class="enterprise-page-header">
   <div>
   <a href="/servers" class="enterprise-back-link">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-    Caddy fleet
+    {{t $ "page.server_form.caddy_fleet_95796c6a"}}
   </a>
-  <div class="enterprise-page-header__eyebrow">Control plane connection</div>
-  <h1>{{if .Target.ID}}Edit Caddy environment{{else}}Connect a Caddy environment{{end}}</h1>
-  <p>CaddyUI reaches Caddy through its admin API. Use a private network, Unix socket, or authenticated endpoint and choose whether this control plane may push configuration.</p>
+  <div class="enterprise-page-header__eyebrow">{{t $ "page.server_form.control_plane_connection_24f071fd"}}</div>
+  <h1>{{if .Target.ID}}{{t $ "page.server_form.edit_caddy_environment_a6e2160e"}}{{else}}{{t $ "page.server_form.connect_a_caddy_environment_6d2f175a"}}{{end}}</h1>
+  <p>{{t $ "page.server_form.caddyui_reaches_caddy_through_its_admin_api_use_a_8fad7384"}}</p>
   </div>
 </header>
 
@@ -25,23 +25,23 @@
 <div class="ui-panel mb-6 p-6 space-y-3" data-pending-deletions>
   <div class="flex items-center justify-between gap-3">
     <div>
-      <div class="text-sm font-medium text-ink-800">Pending deletions on targets</div>
-      <p class="text-xs text-ink-500 mt-1">Deleted here, not yet removed from these targets. They are retried every minute.</p>
+      <div class="text-sm font-medium text-ink-800">{{t $ "page.server_form.pending_deletions_on_targets_d55e0e8b"}}</div>
+      <p class="text-xs text-ink-500 mt-1">{{t $ "page.server_form.deleted_here_not_yet_removed_from_these_targets_t_93936406"}}</p>
     </div>
-    <form method="post" action="/servers/{{.Target.ID}}/pending-deletions/retry"><button class="ui-button">Retry now</button></form>
+    <form method="post" action="/servers/{{.Target.ID}}/pending-deletions/retry"><button class="ui-button">{{t $ "page.server_form.retry_now_5148c3e2"}}</button></form>
   </div>
   <ul class="divide-y divide-ink-100 text-sm">
     {{range .PendingDeletions}}
     <li class="py-2 flex items-start justify-between gap-3">
       <div class="min-w-0">
-        <div class="text-ink-800">{{.ResourceKind}} <span class="font-mono">{{.Label}}</span> → <strong>{{if .TargetName}}{{.TargetName}}{{else}}server {{.TargetServerID}}{{end}}</strong></div>
-        <div class="text-xs text-ink-500">{{.Attempts}} attempt(s){{if .LastError}} · last error: {{.LastError}}{{end}}</div>
+        <div class="text-ink-800">{{.ResourceKind}} <span class="font-mono">{{.Label}}</span> → <strong>{{if .TargetName}}{{.TargetName}}{{else}}{{t $ "page.server_form.server_b3eacd33"}} {{.TargetServerID}}{{end}}</strong></div>
+        <div class="text-xs text-ink-500">{{.Attempts}} {{t $ "page.server_form.attempt_s_2e9c5f70"}}{{if .LastError}} {{t $ "page.server_form.last_error_d26ad501"}} {{.LastError}}{{end}}</div>
       </div>
-      <form method="post" action="/servers/{{$.Target.ID}}/pending-deletions/discard" onsubmit="return confirm('Forget this pending deletion? The copy on the target, if it still exists, will stay.')">
+      <form method="post" action="/servers/{{$.Target.ID}}/pending-deletions/discard" onsubmit="return confirm(caddyuiT('js.server_form.forget_this_pending_deletion_the_copy_on_the_tar_23a4dc27'))">
         <input type="hidden" name="kind" value="{{.ResourceKind}}" />
         <input type="hidden" name="source_resource_id" value="{{.SourceResourceID}}" />
         <input type="hidden" name="target_server_id" value="{{.TargetServerID}}" />
-        <button class="ui-button ui-button--quiet text-red-600">Discard</button>
+        <button class="ui-button ui-button--quiet text-red-600">{{t $ "page.server_form.discard_eb1a70e3"}}</button>
       </form>
     </li>
     {{end}}
@@ -51,36 +51,36 @@
 
 <div class="server-form-layout">
   <aside class="ui-panel server-form-guide">
-    <div class="server-form-guide__eyebrow">Connection workflow</div>
+    <div class="server-form-guide__eyebrow">{{t $ "page.server_form.connection_workflow_66261537"}}</div>
     <ol>
-      <li class="is-current"><span>1</span><div><strong>Identify</strong><small>Name the environment</small></div></li>
-      <li><span>2</span><div><strong>Connect</strong><small>Set the protected admin endpoint</small></div></li>
-      <li><span>3</span><div><strong>Authorize</strong><small>Choose managed or external policy</small></div></li>
+      <li class="is-current"><span>1</span><div><strong>{{t $ "page.server_form.identify_4786cd51"}}</strong><small>{{t $ "page.server_form.name_the_environment_a4164abe"}}</small></div></li>
+      <li><span>2</span><div><strong>{{t $ "page.server_form.connect_1a2303ed"}}</strong><small>{{t $ "page.server_form.set_the_protected_admin_endpoint_bfed5156"}}</small></div></li>
+      <li><span>3</span><div><strong>{{t $ "page.server_form.authorize_b6741b4c"}}</strong><small>{{t $ "page.server_form.choose_managed_or_external_policy_47d4de2a"}}</small></div></li>
     </ol>
     <div class="server-form-guide__note">
       <span class="semantic-dot semantic-dot--warning"></span>
-      Port 2019 should never be exposed publicly without network or authentication controls.
+      {{t $ "page.server_form.port_2019_should_never_be_exposed_publicly_witho_77c9ebc9"}}
     </div>
   </aside>
 
 <form method="post" action="{{if .Target.ID}}/servers/{{.Target.ID}}{{else}}/servers{{end}}" class="ui-panel server-form-panel divide-y divide-ink-100">
   <div class="p-6 space-y-4">
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Name</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.server_form.name_dcd1d522"}}</label>
       <input type="text" name="name" required value="{{.Target.Name}}" placeholder="Edge · DMZ · xCave"
         class="w-full px-3 py-2 border border-ink-200 rounded-lg text-sm bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition" />
-      <p class="text-xs text-ink-500 mt-1.5">A short label you'll recognize in the list.</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.server_form.a_short_label_you_ll_recognize_in_the_list_8d873c90"}}</p>
     </div>
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Admin URL</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.server_form.admin_url_2a4854db"}}</label>
       <input type="text" name="admin_url" required value="{{.Target.AdminURL}}" placeholder="http://10.0.0.2:2019"
         class="w-full px-3 py-2 border border-ink-200 rounded-lg text-sm font-mono bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition" />
       <div class="text-xs text-ink-500 mt-1.5 space-y-1">
-        <p>Where Caddy's admin API is reachable from this host. No trailing slash. Three forms are accepted:</p>
+        <p>{{t $ "page.server_form.where_caddy_s_admin_api_is_reachable_from_this_h_146219b7"}}</p>
         <ul class="ml-4 space-y-0.5">
-          <li><code class="bg-ink-100 px-1 rounded font-mono">http://host:2019</code> — standard TCP (default)</li>
-          <li><code class="bg-ink-100 px-1 rounded font-mono">https://host:2019</code> — if you've wrapped port 2019 in TLS</li>
-          <li><code class="bg-ink-100 px-1 rounded font-mono">unix:///run/caddy-admin.sock</code> — Unix domain socket (local-only, zero network exposure)</li>
+          <li><code class="bg-ink-100 px-1 rounded font-mono">http://host:2019</code> {{t $ "page.server_form.standard_tcp_default_9bc02873"}}</li>
+          <li><code class="bg-ink-100 px-1 rounded font-mono">https://host:2019</code> {{t $ "page.server_form.if_you_ve_wrapped_port_2019_in_tls_f7c470e2"}}</li>
+          <li><code class="bg-ink-100 px-1 rounded font-mono">unix:///run/caddy-admin.sock</code> {{t $ "page.server_form.unix_domain_socket_local_only_zero_network_expos_33c9e695"}}</li>
         </ul>
       </div>
     </div>
@@ -89,36 +89,42 @@
          a Docker service name that nodes on other hosts can't resolve, so they
          silently shipped nothing. */}}
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Log ingest target <span class="text-ink-400 font-normal text-xs">(optional — host:port this node sends its logs to)</span></label>
-      <input type="text" name="ingest_target" value="{{.Target.IngestTarget}}" placeholder="blank = fleet-wide target from Settings → Analytics"
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.server_form.log_ingest_target_7bf46f1c"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.server_form.optional_host_port_this_node_sends_its_logs_to_620347e3"}}</span></label>
+      <input type="text" name="ingest_target" value="{{.Target.IngestTarget}}" placeholder="{{t $ "page.server_form.placeholder.blank_fleet_wide_target_from_settings_analytics_f3fb4d35"}}"
         class="w-full px-3 py-2 border border-ink-200 rounded-lg text-sm font-mono bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition" />
-      <p class="text-xs text-ink-500 mt-1.5" data-ingest-help>CaddyUI configures this node to ship its access logs, certificate events and runtime logs here — that is what powers Analytics, certificate status and Server Logs for it. Blank uses the fleet-wide target from Settings → Analytics (default <code class="bg-ink-100 px-1 rounded font-mono">caddyui:9019</code>), which only works for a Caddy on the same Docker network as CaddyUI. A node on another host needs an address it can actually reach — the CaddyUI host as seen from that node, e.g. <code class="bg-ink-100 px-1 rounded font-mono">10.8.0.1:9019</code> over a VPN or <code class="bg-ink-100 px-1 rounded font-mono">192.168.1.10:9019</code> on a LAN — with port 9019 published on the CaddyUI container.</p>
+      <p class="text-xs text-ink-500 mt-1.5" data-ingest-help>{{t $ "page.server_form.caddyui_configures_this_node_to_ship_its_access_l_a554d683"}} <code class="bg-ink-100 px-1 rounded font-mono">caddyui:9019</code>{{t $ "page.server_form.which_only_works_for_a_caddy_on_the_same_docker_n_9262346f"}} <code class="bg-ink-100 px-1 rounded font-mono">10.8.0.1:9019</code> {{t $ "page.server_form.over_a_vpn_or_b1d25129"}} <code class="bg-ink-100 px-1 rounded font-mono">192.168.1.10:9019</code> {{t $ "page.server_form.on_a_lan_with_port_9019_published_on_the_caddyui_52464ca1"}}</p>
     </div>
   </div>
 
   {{/* ── v2.42.0: data directory for certificate export ── */}}
   <div class="p-6 space-y-4 border-t border-ink-100" data-data-dir-field>
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Data directory <span class="text-ink-400 font-normal text-xs">(optional — this node's Caddy data volume, as mounted inside the CaddyUI container)</span></label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.server_form.data_directory_5e6050c2"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.server_form.optional_this_node_s_caddy_data_volume_as_mounte_249a0d7c"}}</span></label>
       <input type="text" name="data_dir" value="{{.Target.DataDir}}" placeholder="/caddy-data"
         class="w-full px-3 py-2 border border-ink-200 rounded-lg text-sm font-mono bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition" />
-      <p class="text-xs text-ink-500 mt-1.5">Lets CaddyUI read the certificates this Caddy obtained and copy them to a directory after every renewal (Certificates → edit a managed certificate → <strong>Export to a directory</strong>). Mount the node's data volume into the CaddyUI container, read-only is enough — e.g. <code class="bg-ink-100 px-1 rounded font-mono">caddy_data:/caddy-data:ro</code> under the caddyui service — and enter the mount path here. Caddy keeps that volume private to its own user (root, mode 0700), so the caddyui container must run as root for the export to work — add <code class="bg-ink-100 px-1 rounded font-mono">user: "0:0"</code> to the caddyui service. Only possible for a Caddy whose volume this CaddyUI host can see; leave blank for remote nodes.</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.server_form.lets_caddyui_read_the_certificates_this_caddy_ob_7bf470b2"}} <strong>{{t $ "page.server_form.export_to_a_directory_89932ae6"}}</strong>{{t $ "page.server_form.mount_the_node_s_data_volume_into_the_caddyui_co_cdb7dbe2"}} <code class="bg-ink-100 px-1 rounded font-mono">caddy_data:/caddy-data:ro</code> {{t $ "page.server_form.under_the_caddyui_service_and_enter_the_mount_pa_f8437567"}} <code class="bg-ink-100 px-1 rounded font-mono">user: "0:0"</code> {{t $ "page.server_form.to_the_caddyui_service_only_possible_for_a_caddy_74ab4606"}}</p>
     </div>
   </div>
 
   {{/* ── v2.56.0 (issue #113): layer4 app Caddyfile block ── */}}
   <div id="layer4-raw" class="p-6 space-y-4 border-t border-ink-100" data-layer4-field>
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Layer4 app <span class="text-ink-400 font-normal text-xs">(optional — TCP/UDP routing via github.com/mholt/caddy-l4)</span></label>
-      <textarea name="layer4_caddyfile" rows="10" spellcheck="false" placeholder="layer4 {&#10;    :8443 {&#10;        route {&#10;            proxy 127.0.0.1:9000&#10;        }&#10;    }&#10;}"
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.server_form.layer4_app_9794aefc"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.server_form.optional_tcp_udp_routing_via_github_com_mholt_ca_f59cff97"}}</span></label>
+      <textarea name="layer4_caddyfile" rows="10" spellcheck="false" placeholder="layer4 {
+    :8443 {
+        route {
+            proxy 127.0.0.1:9000
+        }
+    }
+}"
         class="w-full px-3 py-2 border border-ink-200 rounded-lg text-sm font-mono bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition">{{.Target.Layer4Caddyfile}}</textarea>
-      <p class="text-xs text-ink-500 mt-1.5">Paste a complete <code class="bg-ink-100 px-1 rounded font-mono">layer4 { ... }</code> block, including the wrapper — CaddyUI sends it to this server's own admin API to adapt, and merges only the resulting <code class="bg-ink-100 px-1 rounded font-mono">apps.layer4</code> subtree into the config it pushes on every sync. Anything else the paste happens to adapt to is discarded. Requires a Caddy build with the <code class="bg-ink-100 px-1 rounded font-mono">caddy-l4</code> module compiled in — e.g. the <code class="bg-ink-100 px-1 rounded font-mono">applegater/caddyui-caddy</code> image. Checked against this server's admin API before saving. Leave blank to run no layer4 app here (default).</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.server_form.paste_a_complete_dc752557"}} <code class="bg-ink-100 px-1 rounded font-mono">layer4 { ... }</code> {{t $ "page.server_form.block_including_the_wrapper_caddyui_sends_it_to_t_05095eb1"}} <code class="bg-ink-100 px-1 rounded font-mono">apps.layer4</code> {{t $ "page.server_form.subtree_into_the_config_it_pushes_on_every_sync_a_0f5c5265"}} <code class="bg-ink-100 px-1 rounded font-mono">caddy-l4</code> {{t $ "page.server_form.module_compiled_in_e_g_the_33f302e7"}} <code class="bg-ink-100 px-1 rounded font-mono">applegater/caddyui-caddy</code> {{t $ "page.server_form.image_checked_against_this_server_s_admin_api_be_b07d3962"}}</p>
     </div>
 
     {{if .OtherServers}}
     <div>
-      <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-2">Also copy to</div>
-      <p class="text-xs text-ink-400 mb-3">Copy this exact layer4 Caddyfile text to other servers' own layer4 field too. Each target is checked against its own admin API — one without the caddy-l4 module compiled in is skipped and recorded in its activity log instead of silently breaking on its next sync.</p>
+      <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-2">{{t $ "page.server_form.also_copy_to_0c7e042b"}}</div>
+      <p class="text-xs text-ink-400 mb-3">{{t $ "page.server_form.copy_this_exact_layer4_caddyfile_text_to_other_s_cd24c012"}}</p>
       <div class="space-y-2">
         {{range .OtherServers}}
         <label class="flex items-center gap-2.5 cursor-pointer select-none">
@@ -139,10 +145,10 @@
   {{if .OtherServers}}
   <div class="p-6 space-y-3 border-t border-ink-100" data-default-deploy-targets>
     <div>
-      <div class="text-sm font-medium text-ink-800">Automatic deployment targets <span class="text-ink-400 font-normal text-xs">(optional — use this server as a configuration source)</span></div>
-      <p class="text-xs text-ink-500 mt-1.5">Every proxy host, redirection, advanced route and Layer4 proxy you create or edit <em>on this server</em> in the web UI is automatically deployed to the servers ticked here too — no need to tick <strong>Also deploy to</strong> on each save. Those forms show these servers as <em>default</em>; the per-resource picker stays available for one-off extra targets. To keep a single resource off every other server, mark it <strong>node-local</strong>.</p>
-      <p class="text-xs text-ink-500 mt-1.5"><strong>What this does not do:</strong> quick enable/disable toggles on hosts, bulk actions, Caddyfile import and the REST API do not deploy; resources that already exist are deployed the next time they are saved. For a one-time bulk copy use <strong>Sync from current</strong> on the target server. Certificates keep their own per-certificate targets. Deleting a resource here leaves its copies in place unless you tick <strong>Propagate deletions</strong> below.</p>
-      <p class="text-xs text-ink-500 mt-1.5">Deploying happens as part of the save, so a target that cannot be reached can delay it by up to ~10 seconds (the failure is recorded in the Activity Log). Set targets on the source only — a server that already deploys to this one can't be chosen, so two servers can never point at each other.</p>
+      <div class="text-sm font-medium text-ink-800">{{t $ "page.server_form.automatic_deployment_targets_1a7eca2a"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.server_form.optional_use_this_server_as_a_configuration_sour_bfc8727a"}}</span></div>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.server_form.every_proxy_host_redirection_advanced_route_and_l_656231e4"}} <em>{{t $ "page.server_form.on_this_server_4c0b4eb5"}}</em> {{t $ "page.server_form.in_the_web_ui_is_automatically_deployed_to_the_s_c2ee6af7"}} <strong>{{t $ "page.server_form.also_deploy_to_cb49f674"}}</strong> {{t $ "page.server_form.on_each_save_those_forms_show_these_servers_as_1c6b4461"}} <em>{{t $ "page.server_form.default_37a8eec1"}}</em>{{t $ "page.server_form.the_per_resource_picker_stays_available_for_one_o_b5b9ffb1"}} <strong>{{t $ "page.server_form.node_local_d35a278b"}}</strong>.</p>
+      <p class="text-xs text-ink-500 mt-1.5"><strong>{{t $ "page.server_form.what_this_does_not_do_54de751f"}}</strong> {{t $ "page.server_form.quick_enable_disable_toggles_on_hosts_bulk_actio_0b372767"}} <strong>{{t $ "page.server_form.sync_from_current_3feda88d"}}</strong> {{t $ "page.server_form.on_the_target_server_certificates_keep_their_own_9a267080"}} <strong>{{t $ "page.server_form.propagate_deletions_094588c8"}}</strong> {{t $ "page.server_form.below_a46435f4"}}</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.server_form.deploying_happens_as_part_of_the_save_so_a_targe_cefd817a"}}</p>
     </div>
     <div class="space-y-2">
       {{range .OtherServers}}
@@ -158,8 +164,8 @@
       <label class="flex items-start gap-2.5 cursor-pointer select-none">
         <input type="checkbox" name="propagate_deletions" value="1" {{if .Target.PropagateDeletions}}checked{{end}} class="mt-0.5 rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
         <span>
-          <span class="text-sm text-ink-800 font-medium">Propagate deletions to automatic deployment targets</span>
-          <span class="block text-xs text-ink-500 mt-0.5">Off by default. When on, deleting a proxy host, redirection, advanced route or Layer4 proxy on this server (web UI or REST API) also deletes the copies it previously deployed to the servers ticked above — and nothing else: target-local resources, rows created independently on a target, and copies on one-off <strong>Also deploy to</strong> servers are never removed. If a target cannot be reached, the deletion stays pending and is retried every minute until that target's Caddy has converged. If a deletion leaves a target with nothing at all, that target's live Caddy is cleared too.</span>
+          <span class="text-sm text-ink-800 font-medium">{{t $ "page.server_form.propagate_deletions_to_automatic_deployment_targ_0127fa4d"}}</span>
+          <span class="block text-xs text-ink-500 mt-0.5">{{t $ "page.server_form.off_by_default_when_on_deleting_a_proxy_host_red_eea5e73e"}} <strong>{{t $ "page.server_form.also_deploy_to_cb49f674"}}</strong> {{t $ "page.server_form.servers_are_never_removed_if_a_target_cannot_be_r_8295ba61"}}</span>
         </span>
       </label>
     </div>
@@ -171,21 +177,21 @@
     <div>
       <div class="flex items-center gap-2 mb-1.5">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-brand-600"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <span class="text-sm font-medium text-ink-800">HTTP Basic Auth <span class="text-ink-400 font-normal">(optional)</span></span>
+        <span class="text-sm font-medium text-ink-800">{{t $ "page.server_form.http_basic_auth_a8b8b7c5"}} <span class="text-ink-400 font-normal">{{t $ "page.server_form.optional_0059798b"}}</span></span>
       </div>
       <p class="text-xs text-ink-500 mb-3">
-        For when port 2019 sits behind a reverse proxy that enforces HTTP Basic Auth (a simpler alternative to WireGuard/Tailscale for remote admin). Leave both blank for unauthenticated admin APIs on an internal network.
+        {{t $ "page.server_form.for_when_port_2019_sits_behind_a_reverse_proxy_t_07dee7b1"}}
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block text-xs text-ink-600 mb-1">Username</label>
+          <label class="block text-xs text-ink-600 mb-1">{{t $ "page.server_form.username_e3b89e9d"}}</label>
           <input type="text" name="admin_username" value="{{.Target.AdminUsername}}" autocomplete="off" placeholder="admin"
             class="w-full px-3 py-2 border border-ink-200 rounded-lg text-sm font-mono bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition" />
         </div>
         <div>
           <label class="block text-xs text-ink-600 mb-1">
-            Password
-            {{if and .Target.ID .Target.AdminPassword}}<span class="text-ink-400 font-normal">· leave blank to keep current</span>{{end}}
+            {{t $ "page.server_form.password_e7cf3ef4"}}
+            {{if and .Target.ID .Target.AdminPassword}}<span class="text-ink-400 font-normal">{{t $ "page.server_form.leave_blank_to_keep_current_e702d616"}}</span>{{end}}
           </label>
           <input type="password" name="admin_password" value="" autocomplete="new-password" placeholder="{{if and .Target.ID .Target.AdminPassword}}••••••••{{else}}secret{{end}}"
             class="w-full px-3 py-2 border border-ink-200 rounded-lg text-sm font-mono bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition" />
@@ -194,7 +200,7 @@
       {{if and .Target.ID .Target.AdminPassword}}
       <label class="inline-flex items-center gap-2 mt-3 text-xs text-ink-600 cursor-pointer">
         <input type="checkbox" name="clear_admin_password" value="1" class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-        Clear saved password on this server
+        {{t $ "page.server_form.clear_saved_password_on_this_server_3281a22f"}}
       </label>
       {{end}}
     </div>
@@ -202,39 +208,39 @@
 
   <div class="p-6 space-y-4">
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-2">Type</label>
+      <label class="block text-sm font-medium text-ink-800 mb-2">{{t $ "page.server_form.type_baaddf70"}}</label>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <label class="cursor-pointer rounded-lg border border-ink-200 p-3 transition hover:border-ink-300 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50/50">
           <input type="radio" name="type" value="managed" class="sr-only" {{if or (eq .Target.Type "managed") (not .Target.Type)}}checked{{end}} />
-          <div class="text-sm font-medium text-ink-800">Managed</div>
-          <div class="text-xs text-ink-500 mt-0.5">CaddyUI pushes config here.</div>
+          <div class="text-sm font-medium text-ink-800">{{t $ "page.server_form.managed_8f2de600"}}</div>
+          <div class="text-xs text-ink-500 mt-0.5">{{t $ "page.server_form.caddyui_pushes_config_here_9d924f34"}}</div>
         </label>
         <label class="cursor-pointer rounded-lg border border-ink-200 p-3 transition hover:border-ink-300 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50/50">
           <input type="radio" name="type" value="external" class="sr-only" {{if eq .Target.Type "external"}}checked{{end}} />
-          <div class="text-sm font-medium text-ink-800">External</div>
-          <div class="text-xs text-ink-500 mt-0.5">Monitor only — don't push.</div>
+          <div class="text-sm font-medium text-ink-800">{{t $ "page.server_form.external_68c114ea"}}</div>
+          <div class="text-xs text-ink-500 mt-0.5">{{t $ "page.server_form.monitor_only_don_t_push_b3137574"}}</div>
         </label>
       </div>
     </div>
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Tags</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.server_form.tags_1331275b"}}</label>
       <input type="text" name="tags" value="{{.Target.Tags}}" placeholder="homelab, edge, dmz"
         class="w-full px-3 py-2 border border-ink-200 rounded-lg text-sm bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition" />
-      <p class="text-xs text-ink-500 mt-1.5">Optional comma-separated labels for your own organization.</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.server_form.optional_comma_separated_labels_for_your_own_org_c9660313"}}</p>
     </div>
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Caddy Version</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.server_form.caddy_version_cda43221"}}</label>
       <input type="text" name="version" value="{{.Target.Version}}" placeholder="v2.11.2"
         class="w-full px-3 py-2 border border-ink-200 rounded-lg text-sm font-mono bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition" />
-      <p class="text-xs text-ink-500 mt-1.5">Optional. Run <code class="bg-ink-100 px-1 rounded">docker exec &lt;caddy&gt; caddy version</code> to find it.</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.server_form.optional_run_d0b6d789"}} <code class="bg-ink-100 px-1 rounded">docker exec &lt;caddy&gt; caddy version</code> {{t $ "page.server_form.to_find_it_f317fab4"}}</p>
     </div>
   </div>
 
   <div class="p-6 flex items-center gap-3">
     <button class="ui-button ui-button--primary">
-      {{if .Target.ID}}Save changes{{else}}Add server{{end}}
+      {{if .Target.ID}}{{t $ "page.server_form.save_changes_dd0ae7a5"}}{{else}}{{t $ "page.server_form.add_server_1099b2a9"}}{{end}}
     </button>
-    <a href="/servers" class="ui-button ui-button--quiet">Cancel</a>
+    <a href="/servers" class="ui-button ui-button--quiet">{{t $ "page.server_form.cancel_19766ed6"}}</a>
   </div>
 </form>
 

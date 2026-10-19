@@ -1,18 +1,16 @@
-{{define "title"}}{{if .Row.ID}}Edit{{else}}New{{end}} Advanced Route · CaddyUI{{end}}
+{{define "title"}}{{if .Row.ID}}{{t $ "page.raw_route_form.title_edit"}}{{else}}{{t $ "page.raw_route_form.title_new"}}{{end}}{{end}}
 {{define "content"}}
 <div class="mb-8">
   <a href="/raw-routes" class="text-xs text-ink-500 hover:text-ink-900 transition inline-flex items-center gap-1">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="15 18 9 12 15 6"/></svg>
-    Back to advanced routes
+    {{t $ "page.raw_route_form.back_to_advanced_routes_53e8489a"}}
   </a>
-  <h1 class="text-2xl font-semibold tracking-tight text-ink-900 mt-2">{{if .Row.ID}}Edit Advanced Route{{else}}New Advanced Route{{end}}</h1>
+  <h1 class="text-2xl font-semibold tracking-tight text-ink-900 mt-2">{{if .Row.ID}}{{t $ "page.raw_route_form.edit_advanced_route_5c26718a"}}{{else}}{{t $ "page.raw_route_form.new_advanced_route_6c15b8c3"}}{{end}}</h1>
   <p class="text-sm text-ink-500 mt-1 max-w-2xl">
-    The JSON below is sent to Caddy verbatim inside <code class="font-mono text-xs bg-ink-100 px-1 rounded">apps.http.servers.srv0.routes[]</code>.
-    It must be a single route object with <code class="font-mono text-xs bg-ink-100 px-1 rounded">match</code>,
-    <code class="font-mono text-xs bg-ink-100 px-1 rounded">handle</code>, and usually
-    <code class="font-mono text-xs bg-ink-100 px-1 rounded">terminal: true</code>.
-    To enter routes in Caddyfile syntax instead, use
-    <a href="/caddyfile-import" class="text-brand-600 hover:text-brand-700">Paste Caddyfile</a>.
+    {{t $ "page.raw_route_form.the_json_below_is_sent_to_caddy_verbatim_inside_c89ce661"}} <code class="font-mono text-xs bg-ink-100 px-1 rounded">apps.http.servers.srv0.routes[]</code>{{t $ "page.raw_route_form.it_must_be_a_single_route_object_with_fb6b89ad"}} <code class="font-mono text-xs bg-ink-100 px-1 rounded">match</code>,
+    <code class="font-mono text-xs bg-ink-100 px-1 rounded">handle</code>{{t $ "page.raw_route_form.and_usually_14f69adb"}}
+    <code class="font-mono text-xs bg-ink-100 px-1 rounded">terminal: true</code>{{t $ "page.raw_route_form.to_enter_routes_in_caddyfile_syntax_instead_use_f13addaf"}}
+    <a href="/caddyfile-import" class="text-brand-600 hover:text-brand-700">{{t $ "page.raw_route_form.paste_caddyfile_32f9c3af"}}</a>.
   </p>
 </div>
 
@@ -22,9 +20,9 @@
 
 <form method="post" action="{{if .Row.ID}}/raw-routes/{{.Row.ID}}{{else}}/raw-routes{{end}}" class="bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-5 max-w-3xl">
   <div>
-    <label class="block text-sm font-medium text-ink-800 mb-1.5">Label</label>
-    <input name="label" value="{{.Row.Label}}" required placeholder="e.g. cloud.example.com (complex)" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-    <p class="text-xs text-ink-500 mt-1.5">For display only — pick something recognisable.</p>
+    <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.raw_route_form.label_0e66373f"}}</label>
+    <input name="label" value="{{.Row.Label}}" required placeholder="{{t $ "page.raw_route_form.placeholder.e_g_cloud_example_com_complex_c0e6c67a"}}" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
+    <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.raw_route_form.for_display_only_pick_something_recognisable_a6fcd8bf"}}</p>
   </div>
 
   {{/* v2.9.228: Caddyfile / JSON tabbed editor.
@@ -36,34 +34,34 @@
   <div>
     <div class="flex items-center justify-between mb-2">
       <div class="inline-flex rounded-lg border border-ink-200 p-0.5 text-xs font-medium" id="route-mode-tabs">
-        <button type="button" data-mode="caddyfile" class="px-3 py-1.5 rounded-md transition" id="tab-caddyfile">Caddyfile</button>
+        <button type="button" data-mode="caddyfile" class="px-3 py-1.5 rounded-md transition" id="tab-caddyfile">{{t $ "page.raw_route_form.caddyfile_1f38639f"}}</button>
         <button type="button" data-mode="json" class="px-3 py-1.5 rounded-md transition" id="tab-json">JSON</button>
       </div>
       <button type="button" id="route-validate-btn" class="text-xs px-3 py-1.5 border border-ink-200 rounded-lg hover:bg-ink-50 transition inline-flex items-center gap-1.5">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Validate
+        {{t $ "page.raw_route_form.validate_40611abb"}}
       </button>
     </div>
     <span id="route-validate-result" class="text-xs hidden mb-2 inline-block"></span>
     <div id="pane-caddyfile">
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Caddyfile source <span class="text-ink-400 font-normal text-xs">({{if .Row.CaddyfileSrc}}edit and Save to re-adapt{{else}}preferred — adapted to JSON via Caddy on save{{end}})</span></label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.raw_route_form.caddyfile_source_52a67d91"}} <span class="text-ink-400 font-normal text-xs">({{if .Row.CaddyfileSrc}}{{t $ "page.raw_route_form.edit_and_save_to_re_adapt_ee5bbf63"}}{{else}}{{t $ "page.raw_route_form.preferred_adapted_to_json_via_caddy_on_save_c4d86e04"}}{{end}})</span></label>
       <textarea name="caddyfile_src" rows="14" spellcheck="false" placeholder="example.com {&#10;    reverse_proxy backend:8080&#10;    encode gzip&#10;}" class="w-full rounded-lg border border-ink-200 px-3 py-2.5 font-mono text-xs bg-ink-900 text-ink-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{.Row.CaddyfileSrc}}</textarea>
-      <p class="text-xs text-ink-500 mt-1.5">Filled? Caddy's <code class="font-mono bg-ink-100 px-1 rounded">/adapt</code> runs on save and the JSON tab is auto-regenerated. Empty? Use the JSON tab instead.</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.raw_route_form.filled_caddy_s_7d4d96ca"}} <code class="font-mono bg-ink-100 px-1 rounded">/adapt</code> {{t $ "page.raw_route_form.runs_on_save_and_the_json_tab_is_auto_regenerate_9472ac55"}}</p>
     </div>
     <div id="pane-json" class="hidden">
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Route JSON <span class="text-ink-400 font-normal text-xs">(auto-regenerated from Caddyfile when that tab is filled — edits here are ignored in that case)</span></label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.raw_route_form.route_json_7765bdad"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.raw_route_form.auto_regenerated_from_caddyfile_when_that_tab_is_9eb5b5f1"}}</span></label>
       <textarea name="json_data" rows="18" spellcheck="false" placeholder='{"match":[{"host":["example.com"]}],"handle":[{"handler":"reverse_proxy","upstreams":[{"dial":"backend:8080"}]}],"terminal":true}' class="w-full rounded-lg border border-ink-200 px-3 py-2.5 font-mono text-xs bg-ink-50 focus:bg-white text-ink-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{prettyJSON .Row.JSONData}}</textarea>
-      <p class="text-xs text-ink-500 mt-1.5">Must be valid JSON. Tip: paste an existing route as a starting point, or use the Caddyfile tab and let Caddy generate this for you.</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.raw_route_form.must_be_valid_json_tip_paste_an_existing_route_a_b01226b7"}}</p>
     </div>
   </div>
 
   {{/* v2.36.1 (issue #64): own listener(s). Filled from the Caddyfile block's
        site address when it names a custom port; editable for JSON-only routes. */}}
   <div class="mt-4">
-    <label class="block text-sm font-medium text-ink-800 mb-1.5">Listen on <span class="text-ink-400 font-normal text-xs">(optional)</span></label>
+    <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.raw_route_form.listen_on_456c76e6"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.raw_route_form.optional_0059798b"}}</span></label>
     <input type="text" name="listen" value="{{.Row.ListenDisplay}}" placeholder=":7070"
       class="w-full max-w-sm rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-    <p class="text-xs text-ink-500 mt-1">Give this route its own port(s), comma-separated — e.g. <code class="font-mono bg-ink-100 px-1 rounded">:7070</code> for a load-balancer health check. A Caddyfile block whose site address names a port (<code class="font-mono bg-ink-100 px-1 rounded">:7070 { … }</code>) fills this in automatically and takes precedence. Leave blank to serve on the normal :443/:80 listeners; ports 80 and 443 always mean those.</p>
+    <p class="text-xs text-ink-500 mt-1">{{t $ "page.raw_route_form.give_this_route_its_own_port_s_comma_separated_e_91d08314"}} <code class="font-mono bg-ink-100 px-1 rounded">:7070</code> {{t $ "page.raw_route_form.for_a_load_balancer_health_check_a_caddyfile_blo_b0002669"}}<code class="font-mono bg-ink-100 px-1 rounded">:7070 { … }</code>{{t $ "page.raw_route_form.fills_this_in_automatically_and_takes_precedence_287658f5"}}</p>
   </div>
 
   {{/* v2.7.1: TLS Certificate collapsed to match proxy-host and
@@ -72,23 +70,22 @@
        non-default cert is already picked. */}}
   <details class="pt-4 border-t border-ink-100"{{if gt .Row.CertificateID 0}} open{{end}}>
     <summary class="cursor-pointer select-none text-xs uppercase tracking-wider text-ink-500 hover:text-ink-700 font-medium transition">
-      TLS Certificate <span class="font-normal normal-case">(optional, defaults to auto Let's Encrypt)</span>
+      {{t $ "page.raw_route_form.tls_certificate_86e54f52"}} <span class="font-normal normal-case">{{t $ "page.raw_route_form.optional_defaults_to_auto_let_s_encrypt_7fd230f2"}}</span>
     </summary>
     <div class="mt-3">
       <select name="certificate_id" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <option value="0" {{if eq .Row.CertificateID 0}}selected{{end}}>Auto (Let's Encrypt / ZeroSSL)</option>
+        <option value="0" {{if eq .Row.CertificateID 0}}selected{{end}}>{{t $ "page.raw_route_form.auto_let_s_encrypt_zerossl_1cb00fb7"}}</option>
         {{range .Certificates}}
         <option value="{{.ID}}" {{if eq $.Row.CertificateID .ID}}selected{{end}}>{{.Name}} — {{.Domains}}</option>
         {{end}}
       </select>
       <p class="text-xs text-ink-500 mt-1.5">
-        Pick a custom cert to bind to the hostnames in this route's <code class="font-mono bg-ink-100 px-1 rounded">match.host</code>,
-        or leave Auto to let Caddy manage it. <a href="/certificates" class="text-brand-600 hover:text-brand-700">Manage certificates &rarr;</a>
+        {{t $ "page.raw_route_form.pick_a_custom_cert_to_bind_to_the_hostnames_in_t_1c033972"}} <code class="font-mono bg-ink-100 px-1 rounded">match.host</code>{{t $ "page.raw_route_form.or_leave_auto_to_let_caddy_manage_it_66b4f648"}} <a href="/certificates" class="text-brand-600 hover:text-brand-700">{{t $ "page.raw_route_form.manage_certificates_87840827"}}</a>
       </p>
       {{/* Issue #121: shown (and the picker + Force SSL disabled) while every
            site address in the Caddyfile is an explicit http:// address. */}}
       <p id="tls-http-only-note" class="hidden text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-2">
-        This route uses an explicit <code class="font-mono">http://</code> address, so it is served as plain HTTP: no certificate is used and CaddyUI won't wait for HTTPS. The certificate and Force&nbsp;SSL settings are ignored.
+        {{t $ "page.raw_route_form.this_route_uses_an_explicit_cfa23385"}} <code class="font-mono">http://</code> {{t $ "page.raw_route_form.address_so_it_is_served_as_plain_http_no_certifi_b435fdd1"}}
       </p>
     </div>
   </details>
@@ -163,32 +160,32 @@
   {{$profile := .Row.DNSProfileID}}
   <details class="pt-4 border-t border-ink-100"{{if $provider}} open{{end}}>
     <summary class="cursor-pointer select-none text-xs uppercase tracking-wider text-ink-500 hover:text-ink-700 font-medium transition">
-      Managed DNS
+      {{t $ "page.raw_route_form.managed_dns_32c57de2"}}
     </summary>
-    <p class="text-xs text-ink-400 mt-3 mb-3">Choose credentials and the authoritative zone for Let's Encrypt's <strong>DNS-01</strong> challenge. Public A-record creation for each <code class="font-mono bg-ink-100 px-1 rounded">match.host</code> is optional for internal or split-DNS routes.</p>
+    <p class="text-xs text-ink-400 mt-3 mb-3">{{t $ "page.raw_route_form.choose_credentials_and_the_authoritative_zone_fo_b32fa1f0"}} <strong>{{t $ "page.raw_route_form.dns_01_85510d81"}}</strong> {{t $ "page.raw_route_form.challenge_public_a_record_creation_for_each_76599729"}} <code class="font-mono bg-ink-100 px-1 rounded">match.host</code> {{t $ "page.raw_route_form.is_optional_for_internal_or_split_dns_routes_a78e0d65"}}</p>
     {{if .CurrentServerIP}}
-    <p class="text-xs text-ink-500 mb-3">The A record will point at <span class="font-mono text-ink-700">{{.CurrentServerIP}}</span> (this server's public IP). Change per-server IPs under <a href="/settings" class="text-brand-600 hover:underline">Settings → DNS</a>.</p>
+    <p class="text-xs text-ink-500 mb-3">{{t $ "page.raw_route_form.the_a_record_will_point_at_f5bfb6af"}} <span class="font-mono text-ink-700">{{.CurrentServerIP}}</span> {{t $ "page.raw_route_form.this_server_s_public_ip_change_per_server_ips_un_2e078582"}} <a href="/settings" class="text-brand-600 hover:underline">{{t $ "page.raw_route_form.settings_dns_96b76a37"}}</a>.</p>
     {{else}}
-    <p class="text-xs text-amber-700 mb-3">No public IP is configured. Set one under <a href="/settings" class="text-brand-600 hover:underline">Settings → DNS</a> to create A records, or turn that option off below for DNS-01 only.</p>
+    <p class="text-xs text-amber-700 mb-3">{{t $ "page.raw_route_form.no_public_ip_is_configured_set_one_under_06050053"}} <a href="/settings" class="text-brand-600 hover:underline">{{t $ "page.raw_route_form.settings_dns_96b76a37"}}</a> {{t $ "page.raw_route_form.to_create_a_records_or_turn_that_option_off_belo_9d7b8e92"}}</p>
     {{end}}
 
     <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
       <div class="sm:col-span-4">
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">DNS credentials</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.raw_route_form.dns_credentials_92850c4e"}}</label>
         <input type="hidden" id="dns-provider-hidden" name="dns_provider" value="{{$provider}}" />
         <select id="dns-provider-select" name="dns_profile_id"
           class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-          <option value="" data-provider="" {{if eq $provider ""}}selected{{end}}>None</option>
+          <option value="" data-provider="" {{if eq $provider ""}}selected{{end}}>{{t $ "page.raw_route_form.none_dc937b59"}}</option>
           {{range .DNSProfiles}}
           <option value="{{.ID}}" data-provider="{{.ProviderID}}" {{if and (eq $profile "") (eq $provider .ProviderID) .Legacy}}selected{{else if eq $profile .ID}}selected{{end}}>{{.DisplayName}}</option>
           {{end}}
         </select>
       </div>
       <div id="dns-zone-wrap" class="sm:col-span-8 {{if eq $provider ""}}hidden{{end}}">
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Zone / Domain</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.raw_route_form.zone_domain_25ae098a"}}</label>
         <select id="dns-zone-select" name="dns_zone_id"
           class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-          <option value="">{{if eq $provider ""}}Select a provider first{{else}}Loading zones…{{end}}</option>
+          <option value="">{{if eq $provider ""}}{{t $ "page.raw_route_form.select_a_provider_first_fbd4230d"}}{{else}}{{t $ "page.raw_route_form.loading_zones_dcdd33a8"}}{{end}}</option>
         </select>
         <input type="hidden" id="dns-zone-name" name="dns_zone_name" value="{{.Row.DNSZoneName}}" />
         <p id="dns-zone-hint" class="text-xs text-ink-400 mt-1 hidden"></p>
@@ -205,14 +202,14 @@
 
     <label class="mt-3 flex items-start gap-2.5 text-sm text-ink-700 cursor-pointer">
       <input id="dns-create-record" type="checkbox" name="dns_create_record" {{if not .Row.DNSSkipRecord}}checked{{end}} class="mt-0.5 rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-      <span>Create public A records<span class="block text-xs text-ink-500 mt-0.5 font-normal">Turn off for internal or split-DNS services. DNS-01 TXT records remain enabled.</span></span>
+      <span>{{t $ "page.raw_route_form.create_public_a_records_e9e3bb1d"}}<span class="block text-xs text-ink-500 mt-0.5 font-normal">{{t $ "page.raw_route_form.turn_off_for_internal_or_split_dns_services_dns_0_5d8d492d"}}</span></span>
     </label>
 
     {{if .Row.DNSRecordID}}
-    <p class="text-xs text-green-600 mt-3">✓ DNS record active &mdash; record ID: <span class="font-mono break-all">{{.Row.DNSRecordID}}</span></p>
+    <p class="text-xs text-green-600 mt-3">{{t $ "page.raw_route_form.dns_record_active_record_id_7f4772da"}} <span class="font-mono break-all">{{.Row.DNSRecordID}}</span></p>
     {{end}}
     {{if and .Row.DNSProvider .Row.DNSSkipRecord}}
-    <p class="text-xs text-blue-600 mt-3">DNS-01 only &mdash; public A-record creation is disabled.</p>
+    <p class="text-xs text-blue-600 mt-3">{{t $ "page.raw_route_form.dns_01_only_public_a_record_creation_is_disabled_79f0036a"}}</p>
     {{end}}
 
     {{/* v2.5.6: existing-record warning. The "Override" path was removed —
@@ -228,7 +225,7 @@
         <div class="flex-1 min-w-0">
           <div id="dns-record-warn-msg" class="font-medium"></div>
           <div id="dns-record-warn-detail" class="mt-1 font-mono text-[11px] opacity-80 break-all"></div>
-          <div id="dns-record-warn-help" class="mt-2 opacity-90">Delete the existing record in your provider's console, then save again — CaddyUI won't overwrite records it didn't create.</div>
+          <div id="dns-record-warn-help" class="mt-2 opacity-90">{{t $ "page.raw_route_form.delete_the_existing_record_in_your_provider_s_co_8fb7d6b1"}}</div>
         </div>
       </div>
     </div>
@@ -236,11 +233,11 @@
   {{end}}
 
   <div class="pt-2">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-3">Options</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-3">{{t $ "page.raw_route_form.options_d0db8b5e"}}</div>
     <div class="grid grid-cols-2 gap-3">
-      <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer"><input type="checkbox" name="enabled" {{if .Row.Enabled}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> Enabled (send to Caddy on sync)</label>
-      <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer"><input type="checkbox" name="ssl_forced" {{if .Row.ForceSSL}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> Force SSL (HTTPS redirect)</label>
-      <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer col-span-2"><input type="checkbox" name="block_common_exploits" {{if .Row.BlockCommonExploits}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> Block common exploits</label>
+      <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer"><input type="checkbox" name="enabled" {{if .Row.Enabled}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> {{t $ "page.raw_route_form.enabled_send_to_caddy_on_sync_b34d14e0"}}</label>
+      <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer"><input type="checkbox" name="ssl_forced" {{if .Row.ForceSSL}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> {{t $ "page.raw_route_form.force_ssl_https_redirect_f0b5a133"}}</label>
+      <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer col-span-2"><input type="checkbox" name="block_common_exploits" {{if .Row.BlockCommonExploits}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> {{t $ "page.raw_route_form.block_common_exploits_b11759b7"}}</label>
     </div>
   </div>
 
@@ -257,19 +254,19 @@
       <input type="checkbox" name="node_local" id="node-local" {{if .Row.NodeLocal}}checked{{end}}
         class="mt-0.5 rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
       <span>
-        <span class="text-sm text-ink-800 font-medium">This route is node-local — never sync it to other servers</span>
-        <span class="block text-xs text-ink-500 mt-0.5">Use when the route's upstreams only resolve on this node — Docker service names, VPN addresses, loopback ports. Full fleet syncs and “Also deploy to” will skip it and report it as skipped.</span>
+        <span class="text-sm text-ink-800 font-medium">{{t $ "page.raw_route_form.this_route_is_node_local_never_sync_it_to_other_s_87565f26"}}</span>
+        <span class="block text-xs text-ink-500 mt-0.5">{{t $ "page.raw_route_form.use_when_the_route_s_upstreams_only_resolve_on_t_e8872f0c"}}</span>
       </span>
     </label>
 
     <div id="deploy-targets"{{if .Row.NodeLocal}} class="hidden"{{end}}>
-      <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-2">Also deploy to</div>
-      <p class="text-xs text-ink-400 mb-3">Push a copy of this advanced route to additional servers at the same time. Certificates are not mirrored — each server will use its own auto-SSL.</p>
+      <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-2">{{t $ "page.raw_route_form.also_deploy_to_cb49f674"}}</div>
+      <p class="text-xs text-ink-400 mb-3">{{t $ "page.raw_route_form.push_a_copy_of_this_advanced_route_to_additional_2fbde929"}}</p>
       <div class="space-y-2">
         {{range .OtherServers}}
         <label class="flex items-center gap-2.5 cursor-pointer select-none">
           <input type="checkbox" name="deploy_to" value="{{.ID}}" {{if .IsDefaultDeployTarget}}checked disabled{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-          <span class="text-sm text-ink-700 font-medium">{{.Name}}</span>{{if .IsDefaultDeployTarget}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5 shrink-0" title="A default deployment target of this server — always deployed to. Change it under Caddy Fleet → edit this server.">default</span>{{end}}
+          <span class="text-sm text-ink-700 font-medium">{{.Name}}</span>{{if .IsDefaultDeployTarget}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5 shrink-0" title="{{t $ "page.raw_route_form.title.a_default_deployment_target_of_this_server_alway_bcede610"}}">{{t $ "page.raw_route_form.default_37a8eec1"}}</span>{{end}}
           {{if eq .Status "online"}}<span class="w-2 h-2 rounded-full bg-green-500 shrink-0"></span>{{else if eq .Status "offline"}}<span class="w-2 h-2 rounded-full bg-red-400 shrink-0"></span>{{else}}<span class="w-2 h-2 rounded-full bg-ink-300 shrink-0"></span>{{end}}
           <span class="text-xs text-ink-400 font-mono truncate">{{.AdminURL}}</span>
         </label>
@@ -291,25 +288,25 @@
 
   {{if .Users}}
   <div class="pt-4 border-t border-ink-100">
-    <label class="block text-sm font-medium text-ink-800 mb-1.5">Owner <span class="text-ink-400 font-normal">(admin only)</span></label>
+    <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.raw_route_form.owner_4b1b8aa3"}} <span class="text-ink-400 font-normal">{{t $ "page.raw_route_form.admin_only_14b52145"}}</span></label>
     <select name="owner_id" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-      <option value="0" {{if not .Row.OwnerID.Valid}}selected{{end}}>Global (admin — managed by you)</option>
+      <option value="0" {{if not .Row.OwnerID.Valid}}selected{{end}}>{{t $ "page.raw_route_form.global_admin_managed_by_you_ab3d0458"}}</option>
       {{range .Users}}
       <option value="{{.ID}}" {{if and $.Row.OwnerID.Valid (eq $.Row.OwnerID.Int64 .ID)}}selected{{end}}>{{.Email}}{{if .Name}} — {{.Name}}{{end}}</option>
       {{end}}
     </select>
-    <p class="text-xs text-ink-500 mt-1.5">Hand this advanced route off to a specific customer — they'll see and manage it in their own dashboard.</p>
+    <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.raw_route_form.hand_this_advanced_route_off_to_a_specific_custo_4f0ef137"}}</p>
   </div>
   {{end}}
 
   <div class="flex items-center gap-3 pt-4 border-t border-ink-100">
-    <button class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-5 py-2 rounded-lg shadow-sm transition">{{if .Row.ID}}Save changes{{else}}Create{{end}}</button>
-    <a href="/raw-routes" class="text-sm text-ink-500 hover:text-ink-900 transition">Cancel</a>
+    <button class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-5 py-2 rounded-lg shadow-sm transition">{{if .Row.ID}}{{t $ "page.raw_route_form.save_changes_dd0ae7a5"}}{{else}}{{t $ "page.raw_route_form.create_4759498a"}}{{end}}</button>
+    <a href="/raw-routes" class="text-sm text-ink-500 hover:text-ink-900 transition">{{t $ "page.raw_route_form.cancel_19766ed6"}}</a>
   </div>
 </form>
 
 <details class="mt-6 max-w-3xl">
-  <summary class="cursor-pointer text-sm text-ink-500 hover:text-ink-700 transition">Example: reverse proxy with per-path routing</summary>
+  <summary class="cursor-pointer text-sm text-ink-500 hover:text-ink-700 transition">{{t $ "page.raw_route_form.example_reverse_proxy_with_per_path_routing_03a9a5b7"}}</summary>
   <pre class="mt-2 bg-ink-900 text-ink-100 text-xs p-4 rounded-lg overflow-x-auto">{
   "match": [{"host": ["app.example.com"]}],
   "handle": [{
@@ -368,10 +365,10 @@
   var userPickedZone = !!currentZoneID;
 
   var hints = {
-    'porkbun':   'Domain must have API Access toggled ON in the Porkbun control panel.',
-    'namecheap': 'Namecheap must have your server IP whitelisted against this API key.',
-    'godaddy':   'GoDaddy API access requires 10+ domains on your account or a Discount Domain Club membership.',
-    'route53':   'Amazon Route 53 requires IAM permissions to list hosted zones and manage record sets in the selected public zone.'
+    'porkbun':   caddyuiT('js.raw_route_form.domain_must_have_api_access_toggled_on_in_the_po_daab9c69'),
+    'namecheap': caddyuiT('js.raw_route_form.namecheap_must_have_your_server_ip_whitelisted_a_d4211d51'),
+    'godaddy':   caddyuiT('js.raw_route_form.godaddy_api_access_requires_10_domains_on_your_a_725ad465'),
+    'route53':   caddyuiT('js.raw_route_form.amazon_route_53_requires_iam_permissions_to_list_95d653b1')
   };
 
   function normDom(s) {
@@ -470,16 +467,16 @@
     } else {
       mismatchBox.classList.remove('hidden');
       if (mismatchMsg) {
-        mismatchMsg.textContent = '“' + fqdn + '” isn\'t a subdomain of “' +
-          (zname || 'the selected zone') +
-          '”. Save will be rejected — pick a zone whose apex matches the hostname, or set the provider to (none) to skip managed DNS.';
+        mismatchMsg.textContent = '“' + fqdn + caddyuiT('js.raw_route_form.isn_t_a_subdomain_of_eef7a01d') +
+          (zname || caddyuiT('js.raw_route_form.the_selected_zone_ed018f57')) +
+          caddyuiT('js.raw_route_form.save_will_be_rejected_pick_a_zone_whose_apex_mat_c7911b2e');
       }
     }
   }
 
   function renderZones(providerID, zones, selectedID) {
     if (!zones || zones.length === 0) {
-      zoneSel.innerHTML = '<option value="">No zones available</option>';
+      zoneSel.innerHTML = ("<option value=\"\">" + caddyuiEscapeHTML(caddyuiT('js.raw_route_form.no_zones_available_bfd8cbe5')) + "</option>");
       syncZoneName();
       updateMismatchWarn();
       return;
@@ -512,7 +509,7 @@
       renderZones(providerID, cache[key], currentZoneID);
       return;
     }
-    zoneSel.replaceChildren(new Option('Loading zones…', ''));
+    zoneSel.replaceChildren(new Option(caddyuiT('js.raw_route_form.loading_zones_dcdd33a8'), ''));
     fetch('/api/dns-zones?provider=' + encodeURIComponent(providerID) +
           '&profile=' + encodeURIComponent(selectedProfileID()))
       .then(function(r) { return r.json(); })
@@ -528,7 +525,7 @@
         renderZones(providerID, cache[key], currentZoneID);
       })
       .catch(function(e) {
-        zoneSel.replaceChildren(new Option('Failed to load zones: ' + String(e && e.message ? e.message : e), ''));
+        zoneSel.replaceChildren(new Option(caddyuiT('js.raw_route_form.failed_to_load_zones_e340a54e') + String(e && e.message ? e.message : e), ''));
         syncZoneName();
       });
   }
@@ -543,7 +540,7 @@
     }
     if (v) loadZones(v);
     else {
-      zoneSel.replaceChildren(new Option('Select a provider first', ''));
+      zoneSel.replaceChildren(new Option(caddyuiT('js.raw_route_form.select_a_provider_first_fbd4230d'), ''));
       syncZoneName();
     }
   }
@@ -577,13 +574,13 @@
     }
     warnBox.className = 'mt-3 rounded-lg border px-3 py-2 text-xs ' +
       (anyExisting ? 'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-900/30 dark:border-amber-800 dark:text-amber-200' : 'bg-emerald-50 border-emerald-200 text-emerald-800');
-    warnMsg.textContent = 'Per-hostname A-record check on save:';
+    warnMsg.textContent = caddyuiT('js.raw_route_form.per_hostname_a_record_check_on_save_7e9c1cef');
     warnDetail.innerHTML = rows.map(function(r) {
       if (r.exists) {
         var content = (r.records || []).map(function(rec) { return rec.type + '→' + (rec.content || ''); }).join(', ');
-        return '<div>⚠ <strong>' + r.fqdn + '</strong> — already exists (' + content + '), CaddyUI will skip</div>';
+        return '<div>⚠ <strong>' + r.fqdn + ("</strong> " + caddyuiEscapeHTML(caddyuiT('js.raw_route_form.already_exists_3aa49c24')) + "") + content + ("" + caddyuiEscapeHTML(caddyuiT('js.raw_route_form.caddyui_will_skip_f55e16c2')) + "</div>");
       }
-      return '<div>✓ <strong>' + r.fqdn + '</strong> — will be created</div>';
+      return '<div>✓ <strong>' + r.fqdn + ("</strong> " + caddyuiEscapeHTML(caddyuiT('js.raw_route_form.will_be_created_cec345a4')) + "</div>");
     }).join('');
   }
 
@@ -711,7 +708,7 @@
       btn.disabled = true;
       out.classList.remove('hidden','text-green-600','text-red-600','text-ink-500');
       out.classList.add('text-ink-500');
-      out.textContent = 'Validating…';
+      out.textContent = caddyuiT('js.raw_route_form.validating_cd51f8c8');
       var fd = new FormData();
       fd.append('caddyfile_src', cfArea ? cfArea.value : '');
       fd.append('json_data',     jsArea ? jsArea.value : '');
@@ -725,14 +722,14 @@
             // gets parse + shape check (Caddy's admin API has no JSON-
             // only validate mode). Make the success message reflect that.
             out.textContent = (cfArea && cfArea.value.trim())
-              ? '✓ Caddyfile parses cleanly via /adapt'
-              : '✓ JSON parses and has the right shape (deeper validation happens at sync)';
+              ? caddyuiT('js.raw_route_form.caddyfile_parses_cleanly_via_adapt_1e1a0533')
+              : caddyuiT('js.raw_route_form.json_parses_and_has_the_right_shape_deeper_valid_72ee5e71');
           } else {
             out.classList.add('text-red-600');
-            out.textContent = '✗ ' + (d.error || 'Validation failed');
+            out.textContent = '✗ ' + (d.error || caddyuiT('js.raw_route_form.validation_failed_23a86f5a'));
           }
         })
-        .catch(function(e){ out.classList.remove('text-ink-500'); out.classList.add('text-red-600'); out.textContent = '✗ Request failed: ' + e.message; })
+        .catch(function(e){ out.classList.remove('text-ink-500'); out.classList.add('text-red-600'); out.textContent = caddyuiT('js.raw_route_form.request_failed_c6a8b379') + e.message; })
         .finally(function(){ btn.disabled = false; });
     });
   }

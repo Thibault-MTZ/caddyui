@@ -1,4 +1,4 @@
-{{define "title"}}{{t $ "settings.title"}} · CaddyUI{{end}}
+{{define "title"}}{{t $ "settings.title"}} {{t $ "page.settings.caddyui_a80cd555"}}{{end}}
 {{define "content"}}
 <div class="mb-6">
   <h1 class="text-2xl font-semibold tracking-tight text-ink-900">{{t $ "settings.title"}} <span class="text-ink-300 font-normal">/</span> {{.SettingsSectionLabel}}</h1>
@@ -159,13 +159,13 @@
        Ollama Cloud, Claude (Anthropic), or any OpenAI-compatible API. ── */}}
   <div id="settings-ai" class="scroll-mt-20 bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-4">
     <div>
-      <div class="text-sm font-semibold text-ink-900 mb-0.5">AI assistant</div>
-      <p class="text-xs text-ink-500">Enables a floating chat button (bottom-right) that answers Caddy/TLS/DNS questions and can create proxy hosts &amp; redirections via tool calling. Pick any backend — local Ollama for fully-offline, Ollama Cloud / Anthropic Claude / OpenAI for stronger reasoning.</p>
+      <div class="text-sm font-semibold text-ink-900 mb-0.5">{{t $ "page.settings.ai_assistant_ab6eb4ac"}}</div>
+      <p class="text-xs text-ink-500">{{t $ "page.settings.enables_a_floating_chat_button_bottom_right_that_baed651d"}}</p>
     </div>
     <div class="flex items-start justify-between gap-4">
       <div>
-        <label class="block text-sm font-medium text-ink-800">Enable AI assistant</label>
-        <p class="text-xs text-ink-500 mt-0.5">When off, the floating button is hidden everywhere.</p>
+        <label class="block text-sm font-medium text-ink-800">{{t $ "page.settings.enable_ai_assistant_8899288c"}}</label>
+        <p class="text-xs text-ink-500 mt-0.5">{{t $ "page.settings.when_off_the_floating_button_is_hidden_everywher_c4d0e398"}}</p>
       </div>
       <label class="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
         <input type="hidden" name="ai_enabled" value="0">
@@ -180,34 +180,34 @@
          as hidden inputs by being part of the same form), so switching
          doesn't wipe credentials you typed earlier. */}}
     <div>
-      <label class="block text-xs font-medium text-ink-700 mb-1">AI provider</label>
+      <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.ai_provider_87912545"}}</label>
       <select name="ai_provider" id="ai-provider-select"
         class="w-full max-w-md rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <option value="ollama"        {{if eq .AIProvider "ollama"}}selected{{end}}>Ollama — local (runs on your GPU, no cloud calls)</option>
-        <option value="ollama_cloud"  {{if eq .AIProvider "ollama_cloud"}}selected{{end}}>Ollama Cloud — managed, pay-per-token via ollama.com</option>
-        <option value="anthropic"     {{if eq .AIProvider "anthropic"}}selected{{end}}>Anthropic Claude — Haiku/Sonnet/Opus 4.x</option>
-        <option value="openai"        {{if eq .AIProvider "openai"}}selected{{end}}>OpenAI / OpenAI-compatible — also OpenRouter, Groq, Together, vLLM, LM Studio</option>
+        <option value="ollama"        {{if eq .AIProvider "ollama"}}selected{{end}}>{{t $ "page.settings.ollama_local_runs_on_your_gpu_no_cloud_calls_5e7212d4"}}</option>
+        <option value="ollama_cloud"  {{if eq .AIProvider "ollama_cloud"}}selected{{end}}>{{t $ "page.settings.ollama_cloud_managed_pay_per_token_via_ollama_co_d19cc77f"}}</option>
+        <option value="anthropic"     {{if eq .AIProvider "anthropic"}}selected{{end}}>{{t $ "page.settings.anthropic_claude_haiku_sonnet_opus_4_x_204a1da6"}}</option>
+        <option value="openai"        {{if eq .AIProvider "openai"}}selected{{end}}>{{t $ "page.settings.openai_openai_compatible_also_openrouter_groq_to_3057ca80"}}</option>
       </select>
-      <p class="text-xs text-ink-400 mt-1">All four backends share the same chat panel and tool-calling. Switching providers only changes who answers — your prompts and conversation history stay client-side.</p>
+      <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.all_four_backends_share_the_same_chat_panel_and_t_17945264"}}</p>
     </div>
 
     {{/* ── Provider: Ollama (local) ── */}}
     <div data-ai-provider-block="ollama" class="space-y-4 pt-2 {{if ne .AIProvider "ollama"}}hidden{{end}}">
       <div>
-        <label class="block text-xs font-medium text-ink-700 mb-1">Ollama base URL</label>
+        <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.ollama_base_url_f2c8d649"}}</label>
         <input type="text" name="ai_ollama_url" value="{{.AIOllamaURL}}"
           placeholder="http://ollama:11434"
           class="w-full max-w-md rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <p class="text-xs text-ink-400 mt-1">Default <code class="bg-ink-100 px-1 rounded">http://ollama:11434</code> assumes Ollama is in the same docker network. Use a full URL (e.g. <code class="bg-ink-100 px-1 rounded">http://192.168.1.10:11434</code>) for a remote host.</p>
+        <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.default_21b111cb"}} <code class="bg-ink-100 px-1 rounded">http://ollama:11434</code> {{t $ "page.settings.assumes_ollama_is_in_the_same_docker_network_use_a36ee693"}} <code class="bg-ink-100 px-1 rounded">http://192.168.1.10:11434</code>{{t $ "page.settings.for_a_remote_host_f5969be7"}}</p>
       </div>
       <div>
-        <label class="block text-xs font-medium text-ink-700 mb-1">Model</label>
+        <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.model_5e2c614c"}}</label>
         <input type="text" name="ai_ollama_model" value="{{.AIOllamaModel}}"
           placeholder="llama3.2:latest"
           class="w-full max-w-md rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <p class="text-xs text-ink-400 mt-1">Any model you've pulled into Ollama. Run <code class="bg-ink-100 px-1 rounded">ollama list</code> on the Ollama host to see what's installed.</p>
+        <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.any_model_you_ve_pulled_into_ollama_run_08d2a90d"}} <code class="bg-ink-100 px-1 rounded">ollama list</code> {{t $ "page.settings.on_the_ollama_host_to_see_what_s_installed_3ab8b9c4"}}</p>
         <div class="mt-2 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/30 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
-          <strong>Pick a big enough model.</strong> The 3B-class default (<code class="bg-amber-100/50 dark:bg-amber-900/50 px-1 rounded">llama3.2</code>) is fast but tends to hallucinate Caddy syntax. For accurate Caddy answers, use <code class="bg-amber-100/50 dark:bg-amber-900/50 px-1 rounded">qwen2.5:14b</code> / <code class="bg-amber-100/50 dark:bg-amber-900/50 px-1 rounded">qwen2.5-coder:14b</code> / <code class="bg-amber-100/50 dark:bg-amber-900/50 px-1 rounded">gemma2:9b</code> / <code class="bg-amber-100/50 dark:bg-amber-900/50 px-1 rounded">llama3.1:8b</code>. Pull with <code class="bg-amber-100/50 dark:bg-amber-900/50 px-1 rounded">ollama pull qwen2.5:14b</code>.
+          <strong>{{t $ "page.settings.pick_a_big_enough_model_6432ff31"}}</strong> {{t $ "page.settings.the_3b_class_default_a95e07d2"}}<code class="bg-amber-100/50 dark:bg-amber-900/50 px-1 rounded">llama3.2</code>{{t $ "page.settings.is_fast_but_tends_to_hallucinate_caddy_syntax_fo_d59b1ba6"}} <code class="bg-amber-100/50 dark:bg-amber-900/50 px-1 rounded">qwen2.5:14b</code> / <code class="bg-amber-100/50 dark:bg-amber-900/50 px-1 rounded">qwen2.5-coder:14b</code> / <code class="bg-amber-100/50 dark:bg-amber-900/50 px-1 rounded">gemma2:9b</code> / <code class="bg-amber-100/50 dark:bg-amber-900/50 px-1 rounded">llama3.1:8b</code>{{t $ "page.settings.pull_with_346c6b69"}} <code class="bg-amber-100/50 dark:bg-amber-900/50 px-1 rounded">ollama pull qwen2.5:14b</code>.
         </div>
       </div>
     </div>
@@ -216,21 +216,21 @@
     <div data-ai-provider-block="ollama_cloud" class="space-y-4 pt-2 {{if ne .AIProvider "ollama_cloud"}}hidden{{end}}">
       <div>
         <label class="block text-xs font-medium text-ink-700 mb-1">
-          Ollama Cloud API key
-          {{if .AIOllamaCloudKeySet}}<span class="text-ink-400 font-normal ml-1">(leave blank to keep existing)</span>{{end}}
+          {{t $ "page.settings.ollama_cloud_api_key_6a61ebdd"}}
+          {{if .AIOllamaCloudKeySet}}<span class="text-ink-400 font-normal ml-1">{{t $ "page.settings.leave_blank_to_keep_existing_c4da8786"}}</span>{{end}}
         </label>
         <input type="password" name="ai_ollama_cloud_api_key" value=""
-          placeholder="{{if .AIOllamaCloudKeySet}}•••••••• (key set){{else}}ollama_...{{end}}"
+          placeholder="{{if .AIOllamaCloudKeySet}}{{t $ "page.settings.placeholder.key_set_f428c915"}}{{else}}ollama_...{{end}}"
           autocomplete="new-password" spellcheck="false"
           class="w-full max-w-md rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <p class="text-xs text-ink-400 mt-1">Generate at <code class="bg-ink-100 px-1 rounded">ollama.com/settings/keys</code>. Sent as a Bearer token to <code class="bg-ink-100 px-1 rounded">https://ollama.com/api/chat</code>.</p>
+        <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.generate_at_a2d78922"}} <code class="bg-ink-100 px-1 rounded">ollama.com/settings/keys</code>{{t $ "page.settings.sent_as_a_bearer_token_to_c9549539"}} <code class="bg-ink-100 px-1 rounded">https://ollama.com/api/chat</code>.</p>
       </div>
       <div>
-        <label class="block text-xs font-medium text-ink-700 mb-1">Model</label>
+        <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.model_5e2c614c"}}</label>
         <input type="text" name="ai_ollama_cloud_model" value="{{.AIOllamaCloudModel}}"
           placeholder="qwen3-coder:480b-cloud"
           class="w-full max-w-md rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <p class="text-xs text-ink-400 mt-1">Hosted models from ollama.com — large MoE models that won't fit on your GPU. Examples: <code class="bg-ink-100 px-1 rounded">qwen3-coder:480b-cloud</code>, <code class="bg-ink-100 px-1 rounded">gpt-oss:120b</code>, <code class="bg-ink-100 px-1 rounded">deepseek-v3.1:671b</code>.</p>
+        <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.hosted_models_from_ollama_com_large_moe_models_t_1d6c0acc"}} <code class="bg-ink-100 px-1 rounded">qwen3-coder:480b-cloud</code>, <code class="bg-ink-100 px-1 rounded">gpt-oss:120b</code>, <code class="bg-ink-100 px-1 rounded">deepseek-v3.1:671b</code>.</p>
       </div>
     </div>
 
@@ -238,50 +238,50 @@
     <div data-ai-provider-block="anthropic" class="space-y-4 pt-2 {{if ne .AIProvider "anthropic"}}hidden{{end}}">
       <div>
         <label class="block text-xs font-medium text-ink-700 mb-1">
-          Anthropic API key
-          {{if .AIAnthropicKeySet}}<span class="text-ink-400 font-normal ml-1">(leave blank to keep existing)</span>{{end}}
+          {{t $ "page.settings.anthropic_api_key_97d1086e"}}
+          {{if .AIAnthropicKeySet}}<span class="text-ink-400 font-normal ml-1">{{t $ "page.settings.leave_blank_to_keep_existing_c4da8786"}}</span>{{end}}
         </label>
         <input type="password" name="ai_anthropic_api_key" value=""
-          placeholder="{{if .AIAnthropicKeySet}}•••••••• (key set){{else}}sk-ant-...{{end}}"
+          placeholder="{{if .AIAnthropicKeySet}}{{t $ "page.settings.placeholder.key_set_f428c915"}}{{else}}sk-ant-...{{end}}"
           autocomplete="new-password" spellcheck="false"
           class="w-full max-w-md rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <p class="text-xs text-ink-400 mt-1">Generate at <code class="bg-ink-100 px-1 rounded">console.anthropic.com</code>. Sent as <code class="bg-ink-100 px-1 rounded">x-api-key</code> to <code class="bg-ink-100 px-1 rounded">api.anthropic.com/v1/messages</code>.</p>
+        <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.generate_at_a2d78922"}} <code class="bg-ink-100 px-1 rounded">console.anthropic.com</code>{{t $ "page.settings.sent_as_7f108972"}} <code class="bg-ink-100 px-1 rounded">x-api-key</code> {{t $ "page.settings.to_663ea1bf"}} <code class="bg-ink-100 px-1 rounded">api.anthropic.com/v1/messages</code>.</p>
       </div>
       <div>
-        <label class="block text-xs font-medium text-ink-700 mb-1">Model</label>
+        <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.model_5e2c614c"}}</label>
         <input type="text" name="ai_anthropic_model" value="{{.AIAnthropicModel}}"
           placeholder="claude-haiku-4-5-20251001"
           class="w-full max-w-md rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <p class="text-xs text-ink-400 mt-1">Pinned snapshot ID. Recommended: <code class="bg-ink-100 px-1 rounded">claude-haiku-4-5-20251001</code> (fastest, cheapest), <code class="bg-ink-100 px-1 rounded">claude-sonnet-4-6</code> (best balance), or <code class="bg-ink-100 px-1 rounded">claude-opus-4-7</code> (most capable). Aliases without dates also work.</p>
+        <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.pinned_snapshot_id_recommended_037ed989"}} <code class="bg-ink-100 px-1 rounded">claude-haiku-4-5-20251001</code> {{t $ "page.settings.fastest_cheapest_575f2423"}} <code class="bg-ink-100 px-1 rounded">claude-sonnet-4-6</code> {{t $ "page.settings.best_balance_or_f2da03d9"}} <code class="bg-ink-100 px-1 rounded">claude-opus-4-7</code> {{t $ "page.settings.most_capable_aliases_without_dates_also_work_1a9aedb3"}}</p>
       </div>
     </div>
 
     {{/* ── Provider: OpenAI / OpenAI-compatible ── */}}
     <div data-ai-provider-block="openai" class="space-y-4 pt-2 {{if ne .AIProvider "openai"}}hidden{{end}}">
       <div>
-        <label class="block text-xs font-medium text-ink-700 mb-1">Base URL</label>
+        <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.base_url_70589413"}}</label>
         <input type="text" name="ai_openai_base_url" value="{{.AIOpenAIBaseURL}}"
           placeholder="https://api.openai.com/v1"
           class="w-full max-w-md rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <p class="text-xs text-ink-400 mt-1">Default talks to OpenAI. Swap to <code class="bg-ink-100 px-1 rounded">https://openrouter.ai/api/v1</code>, <code class="bg-ink-100 px-1 rounded">https://api.groq.com/openai/v1</code>, <code class="bg-ink-100 px-1 rounded">https://api.together.xyz/v1</code>, or any self-hosted vLLM / LM Studio endpoint that speaks the OpenAI <code class="bg-ink-100 px-1 rounded">/chat/completions</code> schema.</p>
+        <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.default_talks_to_openai_swap_to_3fd70c69"}} <code class="bg-ink-100 px-1 rounded">https://openrouter.ai/api/v1</code>, <code class="bg-ink-100 px-1 rounded">https://api.groq.com/openai/v1</code>, <code class="bg-ink-100 px-1 rounded">https://api.together.xyz/v1</code>{{t $ "page.settings.or_any_self_hosted_vllm_lm_studio_endpoint_that_s_a28f7d2f"}} <code class="bg-ink-100 px-1 rounded">/chat/completions</code> {{t $ "page.settings.schema_05757c91"}}</p>
       </div>
       <div>
         <label class="block text-xs font-medium text-ink-700 mb-1">
-          API key
-          {{if .AIOpenAIKeySet}}<span class="text-ink-400 font-normal ml-1">(leave blank to keep existing)</span>{{end}}
+          {{t $ "page.settings.api_key_16f0ee47"}}
+          {{if .AIOpenAIKeySet}}<span class="text-ink-400 font-normal ml-1">{{t $ "page.settings.leave_blank_to_keep_existing_c4da8786"}}</span>{{end}}
         </label>
         <input type="password" name="ai_openai_api_key" value=""
-          placeholder="{{if .AIOpenAIKeySet}}•••••••• (key set){{else}}sk-...{{end}}"
+          placeholder="{{if .AIOpenAIKeySet}}{{t $ "page.settings.placeholder.key_set_f428c915"}}{{else}}sk-...{{end}}"
           autocomplete="new-password" spellcheck="false"
           class="w-full max-w-md rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <p class="text-xs text-ink-400 mt-1">Sent as a Bearer token. For self-hosted vLLM / LM Studio that don't require auth, put any non-empty placeholder.</p>
+        <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.sent_as_a_bearer_token_for_self_hosted_vllm_lm_s_e3bc06e6"}}</p>
       </div>
       <div>
-        <label class="block text-xs font-medium text-ink-700 mb-1">Model</label>
+        <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.model_5e2c614c"}}</label>
         <input type="text" name="ai_openai_model" value="{{.AIOpenAIModel}}"
           placeholder="gpt-4o-mini"
           class="w-full max-w-md rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <p class="text-xs text-ink-400 mt-1">Examples: <code class="bg-ink-100 px-1 rounded">gpt-4o-mini</code>, <code class="bg-ink-100 px-1 rounded">gpt-4o</code>, <code class="bg-ink-100 px-1 rounded">o3-mini</code>. For OpenRouter use the <code class="bg-ink-100 px-1 rounded">vendor/model</code> form (e.g. <code class="bg-ink-100 px-1 rounded">anthropic/claude-3.5-sonnet</code>).</p>
+        <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.examples_1889f033"}} <code class="bg-ink-100 px-1 rounded">gpt-4o-mini</code>, <code class="bg-ink-100 px-1 rounded">gpt-4o</code>, <code class="bg-ink-100 px-1 rounded">o3-mini</code>{{t $ "page.settings.for_openrouter_use_the_0cb95495"}} <code class="bg-ink-100 px-1 rounded">vendor/model</code> {{t $ "page.settings.form_e_g_771605c3"}} <code class="bg-ink-100 px-1 rounded">anthropic/claude-3.5-sonnet</code>).</p>
       </div>
     </div>
 
@@ -302,23 +302,23 @@
          system prompt when non-empty. Lets users tune the assistant's
          voice, persona, or domain knowledge without writing a Modelfile. */}}
     <div class="pt-3 border-t border-ink-100">
-      <label class="block text-sm font-medium text-ink-800 mb-1">Custom system prompt <span class="text-ink-400 font-normal">(optional)</span></label>
-      <p class="text-xs text-ink-500 mb-2">Overrides the built-in CaddyUI system prompt. Leave blank to use the default (which steers the model toward Caddy v2 syntax with concrete examples). Useful if you want a different persona, want the assistant to know about your in-house naming conventions, or want to make it more / less verbose than the default.</p>
-      <textarea name="ai_system_prompt" rows="6" placeholder="Leave blank to use the built-in default."
+      <label class="block text-sm font-medium text-ink-800 mb-1">{{t $ "page.settings.custom_system_prompt_0cac62cf"}} <span class="text-ink-400 font-normal">{{t $ "page.settings.optional_0059798b"}}</span></label>
+      <p class="text-xs text-ink-500 mb-2">{{t $ "page.settings.overrides_the_built_in_caddyui_system_prompt_lea_d860c766"}}</p>
+      <textarea name="ai_system_prompt" rows="6" placeholder="{{t $ "page.settings.placeholder.leave_blank_to_use_the_built_in_default_1e16968e"}}"
         class="w-full font-mono text-xs rounded-lg border border-ink-200 px-3 py-2 bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition resize-y">{{.AISystemPrompt}}</textarea>
-      <p class="text-xs text-ink-400 mt-1">Tip: paste the built-in prompt's examples block (Caddyfile snippets for AdGuardHome / Nextcloud / wildcard) into your custom prompt to keep the model anchored on real syntax.</p>
+      <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.tip_paste_the_built_in_prompt_s_examples_block_c_af04c370"}}</p>
     </div>
     {{/* issue #109: request timeout. Slow local-inference rigs (large models,
          heavy CPU offload) can take minutes to prefill; raise this so chat turns
          aren't cut off with "context deadline exceeded". */}}
     <div class="pt-3 border-t border-ink-100">
-      <label class="block text-sm font-medium text-ink-800 mb-1">Request timeout <span class="text-ink-400 font-normal">(seconds)</span></label>
-      <p class="text-xs text-ink-500 mb-2">How long to wait for a single chat reply before giving up. The default (90s) is fine for hosted APIs and fast local models; raise it for slow local inference (large models or heavy CPU offload). Range 5–3600.</p>
+      <label class="block text-sm font-medium text-ink-800 mb-1">{{t $ "page.settings.request_timeout_70f60044"}} <span class="text-ink-400 font-normal">{{t $ "page.settings.seconds_ff72fcfc"}}</span></label>
+      <p class="text-xs text-ink-500 mb-2">{{t $ "page.settings.how_long_to_wait_for_a_single_chat_reply_before_g_7091a7c1"}}</p>
       <input type="number" name="ai_request_timeout_sec" value="{{.AIRequestTimeout}}" min="5" max="3600" step="5"
         class="w-40 rounded-lg border border-ink-200 px-3 py-2 bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
     </div>
     <div class="pt-3 border-t border-ink-100">
-      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">Save settings</button>
+      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">{{t $ "page.settings.save_settings_7f3a3b14"}}</button>
     </div>
   </div>
 
@@ -327,51 +327,51 @@
   {{/* ── SMTP ── */}}
   <div id="settings-smtp" class="scroll-mt-20 bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-5">
     <div>
-      <div class="text-sm font-semibold text-ink-900 mb-0.5">Email (SMTP)</div>
-      <p class="text-xs text-ink-500">CaddyUI will send email alerts for certificate expiry and proxy upstream health changes.</p>
+      <div class="text-sm font-semibold text-ink-900 mb-0.5">{{t $ "page.settings.email_smtp_1ff51d1f"}}</div>
+      <p class="text-xs text-ink-500">{{t $ "page.settings.caddyui_will_send_email_alerts_for_certificate_e_57ec5ba5"}}</p>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="sm:col-span-2">
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">SMTP Host</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.smtp_host_4e66fa8c"}}</label>
         <input name="smtp_host" value="{{.SMTPHost}}" type="text" placeholder="smtp.example.com"
           class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Port</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.port_72e9a59f"}}</label>
         <input name="smtp_port" value="{{.SMTPPort}}" type="number" min="1" max="65535" placeholder="587"
           class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
       </div>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Security</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.security_8f6fb4eb"}}</label>
       <div class="flex flex-wrap gap-4">
         <label class="flex items-center gap-2 text-sm cursor-pointer">
           <input type="radio" name="smtp_security" value="starttls" {{if eq .SMTPSecurity "starttls"}}checked{{end}} class="accent-brand-600" />
-          <span class="text-ink-700">STARTTLS <span class="text-ink-400">(port 587)</span></span>
+          <span class="text-ink-700">{{t $ "page.settings.starttls_8487724b"}} <span class="text-ink-400">{{t $ "page.settings.port_587_e0ee7a60"}}</span></span>
         </label>
         <label class="flex items-center gap-2 text-sm cursor-pointer">
           <input type="radio" name="smtp_security" value="tls" {{if eq .SMTPSecurity "tls"}}checked{{end}} class="accent-brand-600" />
-          <span class="text-ink-700">TLS / SSL <span class="text-ink-400">(port 465)</span></span>
+          <span class="text-ink-700">{{t $ "page.settings.tls_ssl_cd9bb86a"}} <span class="text-ink-400">{{t $ "page.settings.port_465_90b510d0"}}</span></span>
         </label>
         <label class="flex items-center gap-2 text-sm cursor-pointer">
           <input type="radio" name="smtp_security" value="none" {{if eq .SMTPSecurity "none"}}checked{{end}} class="accent-brand-600" />
-          <span class="text-ink-700">None <span class="text-ink-400">(port 25)</span></span>
+          <span class="text-ink-700">{{t $ "page.settings.none_dc937b59"}} <span class="text-ink-400">{{t $ "page.settings.port_25_66532098"}}</span></span>
         </label>
       </div>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Username</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.username_e3b89e9d"}}</label>
         <input name="smtp_username" value="{{.SMTPUsername}}" type="text" autocomplete="off" placeholder="user@example.com"
           class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
       </div>
       <div>
         <label class="block text-sm font-medium text-ink-800 mb-1.5">
-          Password
-          <span class="text-ink-400 font-normal text-xs ml-1">(leave blank to keep existing)</span>
+          {{t $ "page.settings.password_e7cf3ef4"}}
+          <span class="text-ink-400 font-normal text-xs ml-1">{{t $ "page.settings.leave_blank_to_keep_existing_c4da8786"}}</span>
         </label>
         <input name="smtp_password" value="" type="password" autocomplete="new-password" placeholder="••••••••"
           class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
@@ -383,22 +383,22 @@
       <input id="smtp_skip_verify" name="smtp_skip_verify" type="checkbox" value="1" {{if .SMTPSkipVerify}}checked{{end}}
         class="mt-0.5 accent-brand-600 cursor-pointer" />
       <label for="smtp_skip_verify" class="text-sm text-ink-700 cursor-pointer">
-        Skip TLS certificate verification
-        <span class="block text-xs text-ink-400 font-normal mt-0.5">Use only if your mail server uses a self-signed or untrusted certificate. Disables certificate chain validation.</span>
+        {{t $ "page.settings.skip_tls_certificate_verification_c03ab9d1"}}
+        <span class="block text-xs text-ink-400 font-normal mt-0.5">{{t $ "page.settings.use_only_if_your_mail_server_uses_a_self_signed_o_9d3313e1"}}</span>
       </label>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">From address</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.from_address_d465bcfa"}}</label>
         <input name="smtp_from" value="{{.SMTPFrom}}" type="email" placeholder="caddyui@example.com"
           class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">To address(es)</label>
-        <input name="smtp_to" value="{{.SMTPTo}}" type="text" placeholder="admin@example.com, ops@example.com"
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.to_address_es_9721eea8"}}</label>
+        <input name="smtp_to" value="{{.SMTPTo}}" type="text" placeholder="{{t $ "page.settings.placeholder.admin_example_com_ops_example_com_d11ea523"}}"
           class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-        <p class="text-xs text-ink-500 mt-1.5">Comma-separate multiple recipients.</p>
+        <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.settings.comma_separate_multiple_recipients_00d2cb0f"}}</p>
       </div>
     </div>
 
@@ -409,14 +409,14 @@
          is type="button" with onclick so it fires an independent fetch
          against /settings/test-email without submitting the form. */}}
     <div class="pt-3 border-t border-ink-100 flex flex-wrap items-center gap-3">
-      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">Save settings</button>
+      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">{{t $ "page.settings.save_settings_7f3a3b14"}}</button>
       {{if .SMTPConfigured}}
       <button id="test-email-btn" type="button" onclick="testEmail()" class="inline-flex items-center bg-white hover:bg-ink-50 border border-ink-200 text-ink-700 font-medium text-sm px-4 py-2 rounded-lg transition">
-        Send test email
+        {{t $ "page.settings.send_test_email_46ebd7db"}}
       </button>
       <span id="test-email-result" class="text-sm"></span>
       {{else}}
-      <span class="text-xs text-ink-400 italic">Save SMTP settings to enable the test button</span>
+      <span class="text-xs text-ink-400 italic">{{t $ "page.settings.save_smtp_settings_to_enable_the_test_button_7dec2177"}}</span>
       {{end}}
     </div>
   </div>
@@ -424,65 +424,65 @@
   {{/* ── Notifications / Webhook ── */}}
   <div id="settings-notifications" class="scroll-mt-20 bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-5">
     <div>
-      <div class="text-sm font-semibold text-ink-900 mb-0.5">Notification Thresholds</div>
-      <p class="text-xs text-ink-500">Controls when cert-expiry and upstream alerts are sent (via email and/or webhook).</p>
+      <div class="text-sm font-semibold text-ink-900 mb-0.5">{{t $ "page.settings.notification_thresholds_b5b4727f"}}</div>
+      <p class="text-xs text-ink-500">{{t $ "page.settings.controls_when_cert_expiry_and_upstream_alerts_ar_20880942"}}</p>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Notify days before cert expiry</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.notify_days_before_cert_expiry_17b2d8b8"}}</label>
       <input name="days_before" value="{{.DaysBefore}}" type="number" min="1" max="365"
         class="w-32 rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-      <p class="text-xs text-ink-500 mt-1.5">Alert when a custom certificate has fewer than this many days left. Default: 14.</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.settings.alert_when_a_custom_certificate_has_fewer_than_t_b4266c33"}}</p>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Webhook URL <span class="text-ink-400 font-normal">(optional)</span></label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.webhook_url_84805a75"}} <span class="text-ink-400 font-normal">{{t $ "page.settings.optional_0059798b"}}</span></label>
       <input name="webhook_url" value="{{.WebhookURL}}" type="url" placeholder="https://hooks.example.com/notify"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-      <p class="text-xs text-ink-500 mt-1.5">Optional. CaddyUI will POST JSON payloads here in addition to email. Upstream checks run every 5 minutes; cert checks run every 24 hours.</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.settings.optional_caddyui_will_post_json_payloads_here_in_30ee5a5e"}}</p>
     </div>
 
     <div>
-      <label for="webhook-secret" class="block text-sm font-medium text-ink-800 mb-1.5">Webhook Secret <span class="text-ink-400 font-normal">(optional)</span></label>
+      <label for="webhook-secret" class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.webhook_secret_af8d0918"}} <span class="text-ink-400 font-normal">{{t $ "page.settings.optional_0059798b"}}</span></label>
       <input id="webhook-secret" name="webhook_secret" value="{{.WebhookSecret}}" type="password" placeholder=""
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-      <p class="text-xs text-ink-500 mt-1.5">If set, each webhook POST includes an X-Signature-256 header with HMAC-SHA256 of the payload (compatible with GitHub's webhook format)</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.settings.if_set_each_webhook_post_includes_an_x_signature_65e35274"}}</p>
     </div>
 
     {{/* v2.12.51: ntfy.sh push channel. Free, no account needed for
          public topics on ntfy.sh; self-hostable for private topics.
          Sent ALONGSIDE email + generic webhook — not a replacement. */}}
     <div class="pt-3 border-t border-ink-100">
-      <div class="text-sm font-semibold text-ink-900 mb-1">ntfy.sh push <span class="text-xs text-ink-400 font-normal">(optional)</span></div>
-      <p class="text-xs text-ink-500 mb-3">Free push notifications to your phone via the <a href="https://ntfy.sh" target="_blank" rel="noopener" class="text-brand-600 hover:text-brand-700">ntfy.sh app</a>. Public ntfy.sh topics need no account; for private alerts, self-host or use a paid reserved topic with a bearer token.</p>
+      <div class="text-sm font-semibold text-ink-900 mb-1">{{t $ "page.settings.ntfy_sh_push_50449ee0"}} <span class="text-xs text-ink-400 font-normal">{{t $ "page.settings.optional_0059798b"}}</span></div>
+      <p class="text-xs text-ink-500 mb-3">{{t $ "page.settings.free_push_notifications_to_your_phone_via_the_e48fa53c"}} <a href="https://ntfy.sh" target="_blank" rel="noopener" class="text-brand-600 hover:text-brand-700">{{t $ "page.settings.ntfy_sh_app_1029edbd"}}</a>{{t $ "page.settings.public_ntfy_sh_topics_need_no_account_for_privat_cd971080"}}</p>
     </div>
     <div>
-      <label for="notify-ntfy-url" class="block text-sm font-medium text-ink-800 mb-1.5">ntfy URL</label>
+      <label for="notify-ntfy-url" class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.ntfy_url_aa91877c"}}</label>
       <input id="notify-ntfy-url" name="notify_ntfy_url" value="{{.NtfyURL}}" type="url" placeholder="https://ntfy.sh/your-topic-name"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-      <p class="text-xs text-ink-500 mt-1.5">Full URL with topic. Examples: <code class="bg-ink-100 px-1 rounded">https://ntfy.sh/cert-alerts-jK3xPq</code> (public) or <code class="bg-ink-100 px-1 rounded">https://ntfy.example.com/caddyui</code> (self-hosted).</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.settings.full_url_with_topic_examples_3ac5338d"}} <code class="bg-ink-100 px-1 rounded">https://ntfy.sh/cert-alerts-jK3xPq</code> {{t $ "page.settings.public_or_594066a7"}} <code class="bg-ink-100 px-1 rounded">https://ntfy.example.com/caddyui</code> {{t $ "page.settings.self_hosted_594f313e"}}</p>
     </div>
     <div>
       <label for="notify-ntfy-token" class="block text-sm font-medium text-ink-800 mb-1.5">
-        Bearer Token <span class="text-ink-400 font-normal">(optional)</span>
-        {{if .NtfyTokenSet}}<span class="text-ink-400 font-normal ml-1">(leave blank to keep existing)</span>{{end}}
+        {{t $ "page.settings.bearer_token_105f8fe5"}} <span class="text-ink-400 font-normal">{{t $ "page.settings.optional_0059798b"}}</span>
+        {{if .NtfyTokenSet}}<span class="text-ink-400 font-normal ml-1">{{t $ "page.settings.leave_blank_to_keep_existing_c4da8786"}}</span>{{end}}
       </label>
       <input id="notify-ntfy-token" name="notify_ntfy_token" value="" type="password" autocomplete="new-password"
-        placeholder="{{if .NtfyTokenSet}}•••••••• (token set){{else}}tk_AAAAAAAAAAAAAAAAAAAAAAAA{{end}}"
+        placeholder="{{if .NtfyTokenSet}}{{t $ "page.settings.placeholder.token_set_27db671e"}}{{else}}tk_AAAAAAAAAAAAAAAAAAAAAAAA{{end}}"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-      <p class="text-xs text-ink-500 mt-1.5">Required for protected topics on a self-hosted ntfy or paid reserved topics. Sent as <code class="bg-ink-100 px-1 rounded">Authorization: Bearer ...</code> header.</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.settings.required_for_protected_topics_on_a_self_hosted_n_24900ba9"}} <code class="bg-ink-100 px-1 rounded">Authorization: Bearer ...</code> {{t $ "page.settings.header_cfa998dd"}}</p>
     </div>
 
     {{/* Save + Test webhook buttons — same pattern as the SMTP card. */}}
     <div class="pt-3 border-t border-ink-100 flex flex-wrap items-center gap-3">
-      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">Save settings</button>
+      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">{{t $ "page.settings.save_settings_7f3a3b14"}}</button>
       {{if .WebhookURL}}
       <button id="test-webhook-btn" type="button" onclick="testWebhook()" class="inline-flex items-center bg-white hover:bg-ink-50 border border-ink-200 text-ink-700 font-medium text-sm px-4 py-2 rounded-lg transition">
-        Send test webhook
+        {{t $ "page.settings.send_test_webhook_14939819"}}
       </button>
       <span id="test-result" class="text-sm"></span>
       {{else}}
-      <span class="text-xs text-ink-400 italic">Save a Webhook URL to enable the test button</span>
+      <span class="text-xs text-ink-400 italic">{{t $ "page.settings.save_a_webhook_url_to_enable_the_test_button_688c6b19"}}</span>
       {{end}}
     </div>
   </div>
@@ -549,8 +549,8 @@
   {{/* ── DNS — per-server public IPs (v2.4.0) ── */}}
   <div id="settings-dns-ips" class="scroll-mt-20 bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-3">
     <div>
-      <div class="text-sm font-semibold text-ink-900 mb-0.5">DNS · Server Public IPs</div>
-      <p class="text-xs text-ink-500">Every Caddy server can have its own WAN IP. When a proxy host is created on a server, its managed DNS A record is pointed at that server's IP below. Changing an IP retargets only that server's records in the background.</p>
+      <div class="text-sm font-semibold text-ink-900 mb-0.5">{{t $ "page.settings.dns_server_public_ips_727a3903"}}</div>
+      <p class="text-xs text-ink-500">{{t $ "page.settings.every_caddy_server_can_have_its_own_wan_ip_when_a_033e0548"}}</p>
     </div>
     {{if .Servers}}
     <div class="space-y-2">
@@ -561,40 +561,40 @@
           <div class="text-xs text-ink-400 font-mono truncate" title="{{.AdminURL}}">{{.AdminURL}}</div>
         </div>
         <div class="sm:col-span-8">
-          <input name="server_ip_{{.ID}}" value="{{.PublicIP}}" type="text" placeholder="1.2.3.4 — WAN IP of {{.Name}}"
+          <input name="server_ip_{{.ID}}" value="{{.PublicIP}}" type="text" placeholder="{{t $ "page.settings.placeholder.1_2_3_4_wan_ip_of_b6800c70"}} {{.Name}}"
             class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
         </div>
       </div>
       {{end}}
     </div>
     {{else}}
-    <p class="text-xs text-amber-700">No Caddy environments configured yet — add one under <a href="/servers" class="text-brand-600 hover:underline">Administration → Caddy Fleet</a> first.</p>
+    <p class="text-xs text-amber-700">{{t $ "page.settings.no_caddy_environments_configured_yet_add_one_und_2a1858a6"}} <a href="/servers" class="text-brand-600 hover:underline">{{t $ "page.settings.administration_caddy_fleet_b35e4a57"}}</a> {{t $ "page.settings.first_0eac7d77"}}</p>
     {{end}}
     <details class="pt-2 border-t border-ink-100">
-      <summary class="text-xs text-ink-500 cursor-pointer hover:text-ink-700">Legacy fallback IP (optional)</summary>
+      <summary class="text-xs text-ink-500 cursor-pointer hover:text-ink-700">{{t $ "page.settings.legacy_fallback_ip_optional_fd13a272"}}</summary>
       <div class="pt-2">
-        <label class="block text-xs font-medium text-ink-700 mb-1">Default Server IP <span class="text-ink-400 font-normal">(used when a server row above is blank)</span></label>
+        <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.default_server_ip_b4679991"}} <span class="text-ink-400 font-normal">{{t $ "page.settings.used_when_a_server_row_above_is_blank_983fe0aa"}}</span></label>
         <input name="server_ip" value="{{.ServerIP}}" type="text" placeholder="1.2.3.4"
           class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-        <p class="text-xs text-ink-400 mt-1">Most users don't need this — set the per-server IPs above instead. Kept for backwards compatibility with pre-v2.4.0 setups.</p>
+        <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.most_users_don_t_need_this_set_the_per_server_ip_ffd0ba9c"}}</p>
       </div>
     </details>
     {{/* issue #98: verification resolver override for deploy/readiness checks */}}
     <div class="pt-3 border-t border-ink-100">
-      <label class="block text-sm font-medium text-ink-800 mb-1">Verification resolver <span class="text-ink-400 font-normal">(optional)</span></label>
-      <input name="dns_verify_resolver" value="{{.DNSVerifyResolver}}" type="text" placeholder="192.168.1.10:53, 192.168.1.11:53  —or—  https://dns.google/dns-query"
+      <label class="block text-sm font-medium text-ink-800 mb-1">{{t $ "page.settings.verification_resolver_6ab20a91"}} <span class="text-ink-400 font-normal">{{t $ "page.settings.optional_0059798b"}}</span></label>
+      <input name="dns_verify_resolver" value="{{.DNSVerifyResolver}}" type="text" placeholder="{{t $ "page.settings.placeholder.192_168_1_10_53_192_168_1_11_53_or_https_dns_goo_8b337d50"}}"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-      <p class="text-xs text-ink-500 mt-1">DNS server(s) CaddyUI uses to verify records during deploy/readiness checks. Leave blank to use Cloudflare DNS-over-HTTPS (the default). Enter one or more plain DNS servers (comma-separated; <code class="font-mono">:53</code> assumed, IPv6 as <code class="font-mono">[::1]:53</code>) to use trusted, internal, or split-horizon resolvers, or a DoH URL that supports the JSON API. Multiple servers are tried in order. Useful when outbound DNS to Cloudflare is filtered.</p>
+      <p class="text-xs text-ink-500 mt-1">{{t $ "page.settings.dns_server_s_caddyui_uses_to_verify_records_duri_a5f1fa43"}} <code class="font-mono">:53</code> {{t $ "page.settings.assumed_ipv6_as_c39cdc1a"}} <code class="font-mono">[::1]:53</code>{{t $ "page.settings.to_use_trusted_internal_or_split_horizon_resolve_8b5e6926"}}</p>
     </div>
     {{/* issue #116: resolver override for Caddy's own ACME DNS-01 challenge */}}
     <div class="pt-3 border-t border-ink-100">
-      <label class="block text-sm font-medium text-ink-800 mb-1">ACME DNS-01 resolvers <span class="text-ink-400 font-normal">(optional)</span></label>
+      <label class="block text-sm font-medium text-ink-800 mb-1">{{t $ "page.settings.acme_dns_01_resolvers_5d4ccf26"}} <span class="text-ink-400 font-normal">{{t $ "page.settings.optional_0059798b"}}</span></label>
       <input name="acme_dns_resolvers" value="{{.ACMEDNSResolvers}}" type="text" placeholder="1.1.1.1:53, 8.8.8.8:53"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-      <p class="text-xs text-ink-500 mt-1">DNS server(s) <strong>Caddy itself</strong> uses to check ACME DNS-01 TXT-record propagation when issuing or renewing a Managed DNS certificate — separate from the "Verification resolver" above, which only affects CaddyUI's own deploy/readiness checks. Leave blank to use the container's default resolver. Enter one or more plain DNS servers (comma-separated; <code class="font-mono">:53</code> assumed, IPv6 as <code class="font-mono">[::1]:53</code>). Useful for split-horizon DNS, where the internal resolver can't see the public DNS zone used for ACME validation.</p>
+      <p class="text-xs text-ink-500 mt-1">{{t $ "page.settings.dns_server_s_9a7e9897"}} <strong>{{t $ "page.settings.caddy_itself_e809b64f"}}</strong> {{t $ "page.settings.uses_to_check_acme_dns_01_txt_record_propagation_f59270f5"}} <code class="font-mono">:53</code> {{t $ "page.settings.assumed_ipv6_as_c39cdc1a"}} <code class="font-mono">[::1]:53</code>{{t $ "page.settings.useful_for_split_horizon_dns_where_the_internal_r_7bc9e307"}}</p>
     </div>
     <div class="pt-3 border-t border-ink-100">
-      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">Save settings</button>
+      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">{{t $ "page.settings.save_settings_7f3a3b14"}}</button>
     </div>
   </div>
 
@@ -608,28 +608,28 @@
       <div class="flex items-center gap-2 mb-0.5">
         <div class="text-sm font-semibold text-ink-900">{{.DisplayName}} DNS</div>
         {{if .Enabled}}
-          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700"><span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>active</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700"><span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>{{t $ "page.settings.active_96879611"}}</span>
         {{else if .Configured}}
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700" title="Credentials present but no server public IP set">waiting for server IP</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700" title="{{t $ "page.settings.title.credentials_present_but_no_server_public_ip_set_89870691"}}">{{t $ "page.settings.waiting_for_server_ip_442afef0"}}</span>
         {{else}}
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">disabled</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">{{t $ "page.settings.disabled_17eb3c01"}}</span>
         {{end}}
-        <a href="/docs#{{.DocsAnchor}}" class="ml-auto text-xs text-brand-600 hover:underline">Setup guide →</a>
+        <a href="/docs#{{.DocsAnchor}}" class="ml-auto text-xs text-brand-600 hover:underline">{{t $ "page.settings.setup_guide_a6cbe273"}}</a>
       </div>
-      <p class="text-xs text-ink-500">Automatically create and delete DNS records when proxy hosts are added, edited, or removed. Leave every field blank to keep {{.DisplayName}} disabled.</p>
+      <p class="text-xs text-ink-500">{{t $ "page.settings.automatically_create_and_delete_dns_records_when_8e1703d1"}} {{.DisplayName}} {{t $ "page.settings.disabled_4535006d"}}</p>
     </div>
 
     {{range .Credentials}}
     <div>
       <label class="block text-sm font-medium text-ink-800 mb-1.5">
         {{.Label}}
-        {{if .Optional}}<span class="text-ink-400 font-normal text-xs">(optional)</span>{{end}}
-        {{if .Secret}}<span class="text-ink-400 font-normal text-xs">(leave blank to keep existing)</span>{{end}}
+        {{if .Optional}}<span class="text-ink-400 font-normal text-xs">{{t $ "page.settings.optional_0059798b"}}</span>{{end}}
+        {{if .Secret}}<span class="text-ink-400 font-normal text-xs">{{t $ "page.settings.leave_blank_to_keep_existing_c4da8786"}}</span>{{end}}
       </label>
       {{if .Secret}}
       <input name="{{.Key}}" value="" type="password" autocomplete="new-password" placeholder="{{if .Placeholder}}{{.Placeholder}}{{else}}••••••••{{end}}"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-      {{if .Configured}}<p class="text-xs text-green-600 mt-1">✓ Configured.</p>{{end}}
+      {{if .Configured}}<p class="text-xs text-green-600 mt-1">{{t $ "page.settings.configured_2fc4da50"}}</p>{{end}}
       {{else}}
       {{/* Non-secret fields (Namecheap API user, whitelisted IP) are shown inline and always-overwrite. */}}
       <input name="{{.Key}}" value="{{.Value}}" type="text" autocomplete="off" placeholder="{{.Placeholder}}"
@@ -646,47 +646,47 @@
       <input id="cf_proxied" name="cf_proxied" type="checkbox" value="1" {{if index .ExtraFlags "Proxied"}}checked{{end}}
         class="mt-0.5 accent-brand-600 cursor-pointer" />
       <label for="cf_proxied" class="text-sm text-ink-700 cursor-pointer">
-        Enable Cloudflare proxy (orange cloud)
-        <span class="block text-xs text-ink-400 font-normal mt-0.5">Routes traffic through Cloudflare's network for DDoS protection and CDN. Disable for DNS-only mode.</span>
+        {{t $ "page.settings.enable_cloudflare_proxy_orange_cloud_b4516cfc"}}
+        <span class="block text-xs text-ink-400 font-normal mt-0.5">{{t $ "page.settings.routes_traffic_through_cloudflare_s_network_for_d_32145de3"}}</span>
       </label>
     </div>
     <details class="pt-3 border-t border-ink-100" {{if $.DNSCredentialProfiles}}open{{end}}>
-      <summary class="text-xs font-medium text-ink-600 cursor-pointer hover:text-ink-800">Additional Cloudflare credential profiles</summary>
+      <summary class="text-xs font-medium text-ink-600 cursor-pointer hover:text-ink-800">{{t $ "page.settings.additional_cloudflare_credential_profiles_907c092f"}}</summary>
       <div class="pt-3 space-y-3">
-        <p class="text-xs text-ink-500">Use these when different zones live under different Cloudflare accounts or tokens. The proxy, redirect, and raw route DNS pickers can select a profile per row.</p>
+        <p class="text-xs text-ink-500">{{t $ "page.settings.use_these_when_different_zones_live_under_differ_ff2f433c"}}</p>
         {{range $.DNSCredentialProfiles}}
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3 rounded-lg border border-ink-100 bg-ink-50/40 p-3">
           <input type="hidden" name="dns_profile_id" value="{{.ID}}" />
           <div class="md:col-span-3">
-            <label class="block text-xs font-medium text-ink-700 mb-1">Profile name</label>
-            <input name="dns_profile_name" value="{{.Name}}" type="text" placeholder="Production account"
+            <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.profile_name_d3663280"}}</label>
+            <input name="dns_profile_name" value="{{.Name}}" type="text" placeholder="{{t $ "page.settings.placeholder.production_account_ad5ada0c"}}"
               class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
           </div>
           <div class="md:col-span-4">
-            <label class="block text-xs font-medium text-ink-700 mb-1">API token <span class="text-ink-400 font-normal">(leave blank to keep existing)</span></label>
-            <input name="dns_profile_token" value="" type="password" autocomplete="new-password" placeholder="{{if .TokenSet}}configured{{else}}paste token here{{end}}"
+            <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.api_token_63a6d0f6"}} <span class="text-ink-400 font-normal">{{t $ "page.settings.leave_blank_to_keep_existing_c4da8786"}}</span></label>
+            <input name="dns_profile_token" value="" type="password" autocomplete="new-password" placeholder="{{if .TokenSet}}{{t $ "page.settings.placeholder.configured_20158224"}}{{else}}{{t $ "page.settings.placeholder.paste_token_here_872f907f"}}{{end}}"
               class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
           </div>
           <div class="md:col-span-2">
-            <label class="block text-xs font-medium text-ink-700 mb-1">Proxy</label>
+            <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.proxy_a68ee416"}}</label>
             <select name="dns_profile_proxied"
               class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-              <option value="0" {{if not .Proxied}}selected{{end}}>DNS only</option>
-              <option value="1" {{if .Proxied}}selected{{end}}>Proxied</option>
+              <option value="0" {{if not .Proxied}}selected{{end}}>{{t $ "page.settings.dns_only_9f7f82a4"}}</option>
+              <option value="1" {{if .Proxied}}selected{{end}}>{{t $ "page.settings.proxied_1e5e35d7"}}</option>
             </select>
           </div>
           <div class="md:col-span-3">
-            <label class="block text-xs font-medium text-ink-700 mb-1">Allowed zones</label>
+            <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.allowed_zones_34e6dc6e"}}</label>
             <textarea name="dns_profile_zone_allowlist" rows="2" placeholder="example.com&#10;other.com"
               class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{.ZoneAllowlistRaw}}</textarea>
           </div>
           {{if .ID}}
           <label class="md:col-span-12 flex items-center gap-2 text-xs text-red-600">
             <input type="checkbox" name="dns_profile_delete" value="{{.ID}}" class="rounded border-red-300 text-red-600 focus:ring-red-500" />
-            Remove this profile on save
+            {{t $ "page.settings.remove_this_profile_on_save_33194acc"}}
           </label>
           {{else}}
-          <p class="md:col-span-12 text-xs text-ink-400">Fill this blank row and save to add another Cloudflare profile.</p>
+          <p class="md:col-span-12 text-xs text-ink-400">{{t $ "page.settings.fill_this_blank_row_and_save_to_add_another_clou_6f1c6220"}}</p>
           {{end}}
         </div>
         {{end}}
@@ -697,13 +697,13 @@
     {{/* Porkbun-only: per-domain API-Access reminder. */}}
     {{if eq .ID "porkbun"}}
     <div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-      <strong>Before each domain works:</strong> on the Porkbun control panel go to <em>Domain Management → Details → API Access</em> and toggle it ON. Without this, the API will reject operations even with valid keys.
+      <strong>{{t $ "page.settings.before_each_domain_works_3d65ea2f"}}</strong> {{t $ "page.settings.on_the_porkbun_control_panel_go_to_46d34d6e"}} <em>{{t $ "page.settings.domain_management_details_api_access_f5c88235"}}</em> {{t $ "page.settings.and_toggle_it_on_without_this_the_api_will_rejec_769cb3d9"}}
     </div>
     {{end}}
 
     {{if eq .ID "route53"}}
     <div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-      <strong>Use a dedicated IAM principal:</strong> grant only hosted-zone listing plus record-set read/write permissions for the zones CaddyUI manages. The setup guide includes a least-privilege policy template. CaddyUI pins DNS-01 to the selected public hosted-zone ID; private zones remain hidden because public ACME resolvers cannot query them.
+      <strong>{{t $ "page.settings.use_a_dedicated_iam_principal_84796270"}}</strong> {{t $ "page.settings.grant_only_hosted_zone_listing_plus_record_set_r_94899aed"}}
     </div>
     {{end}}
 
@@ -714,14 +714,14 @@
          original "all zones allowed" behaviour. */}}
     <details class="pt-2 border-t border-ink-100" {{if .ZoneAllowlist}}open{{end}}>
       <summary class="text-xs font-medium text-ink-600 cursor-pointer hover:text-ink-800 flex items-center gap-2">
-        <span>Limit to specific zones</span>
-        {{if .ZoneAllowlist}}<span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-brand-50 text-brand-700">{{len .ZoneAllowlist}} locked</span>{{else}}<span class="text-ink-400 font-normal">(optional — currently unrestricted)</span>{{end}}
+        <span>{{t $ "page.settings.limit_to_specific_zones_632b59ee"}}</span>
+        {{if .ZoneAllowlist}}<span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-brand-50 text-brand-700">{{len .ZoneAllowlist}} {{t $ "page.settings.locked_14493f5f"}}</span>{{else}}<span class="text-ink-400 font-normal">{{t $ "page.settings.optional_currently_unrestricted_50b366b4"}}</span>{{end}}
       </summary>
       <div class="pt-2 space-y-2">
         <textarea name="{{.ID}}_zone_allowlist" rows="3" placeholder="example.com&#10;other.com"
           class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{.ZoneAllowlistRaw}}</textarea>
         <p class="text-xs text-ink-500">
-          One base domain per line (or comma-separated). When set, CaddyUI will <strong>only</strong> create, update, or delete DNS records on these zones — every other zone the API key can see is hidden from the proxy-host zone picker and refused at the API layer. Leave blank to allow every zone the credentials can reach.
+          {{t $ "page.settings.one_base_domain_per_line_or_comma_separated_when_982ff339"}} <strong>{{t $ "page.settings.only_f905b195"}}</strong> {{t $ "page.settings.create_update_or_delete_dns_records_on_these_zon_6e24da53"}}
         </p>
       </div>
     </details>
@@ -732,10 +732,10 @@
          main settings form. */}}
     {{if .Configured}}
     <div class="pt-3 border-t border-ink-100 flex items-center justify-between gap-3">
-      <p class="text-xs text-ink-500">Remove the saved {{.DisplayName}} credentials from CaddyUI. Existing DNS records stay in place.</p>
+      <p class="text-xs text-ink-500">{{t $ "page.settings.remove_the_saved_c638b6ca"}} {{.DisplayName}} {{t $ "page.settings.credentials_from_caddyui_existing_dns_records_st_15260d4e"}}</p>
       <button type="submit" form="clear-dns-{{.ID}}"
               class="shrink-0 inline-flex items-center text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 px-2.5 py-1.5 rounded-md border border-red-200 hover:border-red-300 transition">
-        Clear credentials
+        {{t $ "page.settings.clear_credentials_7e2eda51"}}
       </button>
     </div>
     {{end}}
@@ -754,48 +754,48 @@
   <div id="settings-captcha" class="scroll-mt-20 bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-5">
     <div>
       <div class="flex items-center gap-2 mb-0.5">
-        <div class="text-sm font-semibold text-ink-900">CAPTCHA protection</div>
+        <div class="text-sm font-semibold text-ink-900">{{t $ "page.settings.captcha_protection_86630707"}}</div>
         {{if .CaptchaDisabledByEnv}}
-          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700" title="CADDYUI_CAPTCHA_DISABLE is set — challenge is bypassed regardless of the provider below"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>overridden by env</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700" title="{{t $ "page.settings.title.caddyui_captcha_disable_is_set_challenge_is_bypa_b74974b8"}}"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>{{t $ "page.settings.overridden_by_env_99184c1f"}}</span>
         {{else if eq .CaptchaProvider "turnstile"}}
-          {{if .TurnstileEnabled}}<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700"><span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>Turnstile active</span>{{else}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">Turnstile — keys missing</span>{{end}}
+          {{if .TurnstileEnabled}}<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700"><span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>{{t $ "page.settings.turnstile_active_1bee78ca"}}</span>{{else}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">{{t $ "page.settings.turnstile_keys_missing_ad74960c"}}</span>{{end}}
         {{else if eq .CaptchaProvider "recaptcha"}}
-          {{if .RecaptchaEnabled}}<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700"><span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>reCAPTCHA v3 active</span>{{else}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">reCAPTCHA v3 — keys missing</span>{{end}}
+          {{if .RecaptchaEnabled}}<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700"><span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>{{t $ "page.settings.recaptcha_v3_active_3b10976d"}}</span>{{else}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">{{t $ "page.settings.recaptcha_v3_keys_missing_415e6f4d"}}</span>{{end}}
         {{else}}
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">disabled</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">{{t $ "page.settings.disabled_17eb3c01"}}</span>
         {{end}}
       </div>
-      <p class="text-xs text-ink-500">Applied to sign-in, TOTP verification, and new-user creation. Pick a provider you already have an account with — Turnstile is free and privacy-friendly; reCAPTCHA is a good fallback if Cloudflare is having an outage.</p>
+      <p class="text-xs text-ink-500">{{t $ "page.settings.applied_to_sign_in_totp_verification_and_new_use_7eac2f6d"}}</p>
     </div>
 
     {{if .CaptchaDisabledByEnv}}
     <div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
-      <span class="font-medium">Kill switch active:</span> <code class="font-mono bg-amber-100 px-1 py-0.5 rounded">CADDYUI_CAPTCHA_DISABLE</code> is set in the container env, so no challenge is shown or verified. Remove or unset that env var and restart to re-enable the provider below.
+      <span class="font-medium">{{t $ "page.settings.kill_switch_active_8b7bb514"}}</span> <code class="font-mono bg-amber-100 px-1 py-0.5 rounded">CADDYUI_CAPTCHA_DISABLE</code> {{t $ "page.settings.is_set_in_the_container_env_so_no_challenge_is_s_2841a26c"}}
     </div>
     {{end}}
 
     <div>
-      <div class="text-sm font-medium text-ink-800 mb-2">Provider</div>
+      <div class="text-sm font-medium text-ink-800 mb-2">{{t $ "page.settings.provider_472590ae"}}</div>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <label class="flex items-start gap-2.5 p-3 rounded-lg border border-ink-200 cursor-pointer hover:border-ink-300 hover:bg-ink-50 transition has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
           <input type="radio" name="captcha_provider" value="off" data-captcha-provider {{if eq .CaptchaProvider "off"}}checked{{end}} class="mt-0.5 text-brand-600 focus:ring-brand-500" />
           <div>
-            <div class="text-sm font-medium text-ink-900">Off</div>
-            <div class="text-xs text-ink-500 mt-0.5">No challenge. Fine for private/LAN-only deployments.</div>
+            <div class="text-sm font-medium text-ink-900">{{t $ "page.settings.off_ca7981b4"}}</div>
+            <div class="text-xs text-ink-500 mt-0.5">{{t $ "page.settings.no_challenge_fine_for_private_lan_only_deploymen_12c6d535"}}</div>
           </div>
         </label>
         <label class="flex items-start gap-2.5 p-3 rounded-lg border border-ink-200 cursor-pointer hover:border-ink-300 hover:bg-ink-50 transition has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
           <input type="radio" name="captcha_provider" value="turnstile" data-captcha-provider {{if eq .CaptchaProvider "turnstile"}}checked{{end}} class="mt-0.5 text-brand-600 focus:ring-brand-500" />
           <div>
-            <div class="text-sm font-medium text-ink-900">Cloudflare Turnstile</div>
-            <div class="text-xs text-ink-500 mt-0.5">Managed widget, invisible when possible.</div>
+            <div class="text-sm font-medium text-ink-900">{{t $ "page.settings.cloudflare_turnstile_09fec677"}}</div>
+            <div class="text-xs text-ink-500 mt-0.5">{{t $ "page.settings.managed_widget_invisible_when_possible_0735e3c1"}}</div>
           </div>
         </label>
         <label class="flex items-start gap-2.5 p-3 rounded-lg border border-ink-200 cursor-pointer hover:border-ink-300 hover:bg-ink-50 transition has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
           <input type="radio" name="captcha_provider" value="recaptcha" data-captcha-provider {{if eq .CaptchaProvider "recaptcha"}}checked{{end}} class="mt-0.5 text-brand-600 focus:ring-brand-500" />
           <div>
-            <div class="text-sm font-medium text-ink-900">Google reCAPTCHA v3</div>
-            <div class="text-xs text-ink-500 mt-0.5">Score-based, invisible. Good Cloudflare fallback.</div>
+            <div class="text-sm font-medium text-ink-900">{{t $ "page.settings.google_recaptcha_v3_5a3f8424"}}</div>
+            <div class="text-xs text-ink-500 mt-0.5">{{t $ "page.settings.score_based_invisible_good_cloudflare_fallback_8f04abc5"}}</div>
           </div>
         </label>
       </div>
@@ -805,16 +805,16 @@
          The JS below toggles the hidden class on data-captcha-panel elements
          in response to radio changes so admins don't see irrelevant fields. */}}
     <div data-captcha-panel="turnstile" class="space-y-3 {{if ne .CaptchaProvider "turnstile"}}hidden{{end}}">
-      <p class="text-xs text-ink-500">Get your keys at <a href="https://dash.cloudflare.com/?to=/:account/turnstile" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:underline">dash.cloudflare.com → Turnstile</a>. Use the "Managed" widget type.</p>
+      <p class="text-xs text-ink-500">{{t $ "page.settings.get_your_keys_at_da9dda87"}} <a href="https://dash.cloudflare.com/?to=/:account/turnstile" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:underline">{{t $ "page.settings.dash_cloudflare_com_turnstile_a09d973a"}}</a>{{t $ "page.settings.use_the_managed_widget_type_c889fa7c"}}</p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-ink-800 mb-1.5">Site Key <span class="text-ink-400 font-normal text-xs">(public)</span></label>
+          <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.site_key_fd05d01e"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.settings.public_25fed06f"}}</span></label>
           <input name="turnstile_site_key" value="{{.TurnstileSiteKey}}" type="text" autocomplete="off" placeholder="0x4AAAAAAA…"
             class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-ink-800 mb-1.5">Secret Key <span class="text-ink-400 font-normal text-xs">(server-side)</span>{{if .TurnstileSecretKeySet}}<span class="text-ink-400 font-normal text-xs ml-1">(leave blank to keep existing)</span>{{end}}</label>
-          <input name="turnstile_secret_key" value="" type="password" autocomplete="new-password" placeholder="{{if .TurnstileSecretKeySet}}•••••••• (key set){{else}}0x4AAAAAAA…{{end}}"
+          <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.secret_key_eeefa4ca"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.settings.server_side_f07eddae"}}</span>{{if .TurnstileSecretKeySet}}<span class="text-ink-400 font-normal text-xs ml-1">{{t $ "page.settings.leave_blank_to_keep_existing_c4da8786"}}</span>{{end}}</label>
+          <input name="turnstile_secret_key" value="" type="password" autocomplete="new-password" placeholder="{{if .TurnstileSecretKeySet}}{{t $ "page.settings.placeholder.key_set_f428c915"}}{{else}}0x4AAAAAAA…{{end}}"
             class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
         </div>
       </div>
@@ -825,24 +825,24 @@
          (captchaDefaultMinScore = 0.5). v3 only — v2 checkbox is not
          supported to keep the UX consistent with Turnstile's managed mode. */}}
     <div data-captcha-panel="recaptcha" class="space-y-3 {{if ne .CaptchaProvider "recaptcha"}}hidden{{end}}">
-      <p class="text-xs text-ink-500">Get your keys at <a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:underline">google.com/recaptcha/admin</a>. Pick reCAPTCHA v3 (score-based) — v2 is not supported here.</p>
+      <p class="text-xs text-ink-500">{{t $ "page.settings.get_your_keys_at_da9dda87"}} <a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:underline">google.com/recaptcha/admin</a>{{t $ "page.settings.pick_recaptcha_v3_score_based_v2_is_not_supporte_8e02f935"}}</p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-ink-800 mb-1.5">Site Key <span class="text-ink-400 font-normal text-xs">(public)</span></label>
+          <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.site_key_fd05d01e"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.settings.public_25fed06f"}}</span></label>
           <input name="recaptcha_site_key" value="{{.RecaptchaSiteKey}}" type="text" autocomplete="off" placeholder="6Lc…"
             class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-ink-800 mb-1.5">Secret Key <span class="text-ink-400 font-normal text-xs">(server-side)</span>{{if .RecaptchaSecretKeySet}}<span class="text-ink-400 font-normal text-xs ml-1">(leave blank to keep existing)</span>{{end}}</label>
-          <input name="recaptcha_secret_key" value="" type="password" autocomplete="new-password" placeholder="{{if .RecaptchaSecretKeySet}}•••••••• (key set){{else}}6Lc…{{end}}"
+          <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.secret_key_eeefa4ca"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.settings.server_side_f07eddae"}}</span>{{if .RecaptchaSecretKeySet}}<span class="text-ink-400 font-normal text-xs ml-1">{{t $ "page.settings.leave_blank_to_keep_existing_c4da8786"}}</span>{{end}}</label>
+          <input name="recaptcha_secret_key" value="" type="password" autocomplete="new-password" placeholder="{{if .RecaptchaSecretKeySet}}{{t $ "page.settings.placeholder.key_set_f428c915"}}{{else}}6Lc…{{end}}"
             class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
         </div>
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Minimum score <span class="text-ink-400 font-normal text-xs">(0.0 bot &rarr; 1.0 human)</span></label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.minimum_score_e7461df9"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.settings.0_0_bot_1_0_human_ca41e9fa"}}</span></label>
         <input name="recaptcha_min_score" value="{{.RecaptchaMinScore}}" type="number" step="0.1" min="0" max="1" placeholder="0.5"
           class="w-full sm:w-40 rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-        <p class="text-xs text-ink-500 mt-1.5">Challenges below this score are rejected. Google recommends <span class="font-mono">0.5</span> as a starting point; raise it if you still see bot traffic, lower it if legit users are bouncing.</p>
+        <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.settings.challenges_below_this_score_are_rejected_google_r_89db6852"}} <span class="font-mono">0.5</span> {{t $ "page.settings.as_a_starting_point_raise_it_if_you_still_see_bo_b78e870d"}}</p>
       </div>
     </div>
   </div>
@@ -873,25 +873,25 @@
   {{/* v2.12.6: per-section save button rendered after the captcha card (the
        card itself closes above; this floats as a sibling, same form). */}}
   <div class="flex items-center pt-1 pb-3">
-    <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">Save settings</button>
+    <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">{{t $ "page.settings.save_settings_7f3a3b14"}}</button>
   </div>
 
   {{/* ── Security policy (v2.9.5) ── 2FA enforcement and future auth settings */}}
   <div id="settings-security" class="scroll-mt-20 bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-5">
     <div>
-      <div class="text-sm font-semibold text-ink-900 mb-0.5">Security policy</div>
-      <p class="text-xs text-ink-500">Authentication requirements applied to all users.</p>
+      <div class="text-sm font-semibold text-ink-900 mb-0.5">{{t $ "page.settings.security_policy_5929ef96"}}</div>
+      <p class="text-xs text-ink-500">{{t $ "page.settings.authentication_requirements_applied_to_all_users_cc11b9d4"}}</p>
     </div>
     <div class="py-4 border-b border-ink-100">
-      <label class="block text-sm font-medium text-ink-900 mb-1.5">Trusted proxy IPs/CIDRs</label>
-      <p class="text-xs text-ink-500 mb-2">One per line or comma-separated. Used to extract real client IPs from X-Forwarded-For headers (e.g. Cloudflare, load balancers). IP allowlists and blocklists then check that real address. Only list proxies you control: anything listed here can claim any client address.</p>
+      <label class="block text-sm font-medium text-ink-900 mb-1.5">{{t $ "page.settings.trusted_proxy_ips_cidrs_4228d1e2"}}</label>
+      <p class="text-xs text-ink-500 mb-2">{{t $ "page.settings.one_per_line_or_comma_separated_used_to_extract_r_635c15fe"}}</p>
       <textarea name="trusted_proxies" rows="3"
         placeholder="103.21.244.0/22&#10;103.22.200.0/22&#10;10.0.0.0/8"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{.TrustedProxies}}</textarea>
     </div>
     <div class="py-4 border-b border-ink-100">
-      <label class="block text-sm font-medium text-ink-900 mb-1.5">Client IP headers</label>
-      <p class="text-xs text-ink-500 mb-2">Checked in order after the direct peer matches Trusted proxy IPs/CIDRs. Caddy defaults to X-Forwarded-For; Cloudflare users can put CF-Connecting-IP first.</p>
+      <label class="block text-sm font-medium text-ink-900 mb-1.5">{{t $ "page.settings.client_ip_headers_c4fe7fb8"}}</label>
+      <p class="text-xs text-ink-500 mb-2">{{t $ "page.settings.checked_in_order_after_the_direct_peer_matches_t_bb518156"}}</p>
       <input type="text" name="client_ip_headers" value="{{.ClientIPHeaders}}"
         placeholder="CF-Connecting-IP, X-Forwarded-For"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
@@ -901,17 +901,17 @@
          path outside these directories still serves — it just cannot be
          previewed or copied here. */}}
     <div class="py-4 border-b border-ink-100">
-      <label class="block text-sm font-medium text-ink-900 mb-1.5">Extra certificate directories</label>
-      <p class="text-xs text-ink-500 mb-2">One absolute path per line. CaddyUI only opens certificate and key files inside these directories — for the expiry column, Inspect, and fleet copy-by-value. Caddy loads certificates itself, so a file outside them still serves normally; it just shows as unreadable here. Add a directory only if your certificates are mounted somewhere unusual.</p>
+      <label class="block text-sm font-medium text-ink-900 mb-1.5">{{t $ "page.settings.extra_certificate_directories_b4a12cc4"}}</label>
+      <p class="text-xs text-ink-500 mb-2">{{t $ "page.settings.one_absolute_path_per_line_caddyui_only_opens_ce_e6401c10"}}</p>
       <textarea name="certificate_read_roots" rows="3"
         placeholder="/opt/tls&#10;/mnt/certs"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{.CertificateReadRoots}}</textarea>
-      <p class="text-xs text-ink-500 mt-1.5">Allowed now: <span class="font-mono break-all">{{.CertificateReadRootsEffective}}</span></p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.settings.allowed_now_7a417d44"}} <span class="font-mono break-all">{{.CertificateReadRootsEffective}}</span></p>
     </div>
     <div class="py-4 border-b border-ink-100 flex items-start justify-between gap-4">
       <div>
-        <label class="block text-sm font-medium text-ink-900 mb-1">Disable HTTP/3 (QUIC)</label>
-        <p class="text-xs text-ink-500">Restricts Caddy to HTTP/1.1 and HTTP/2 only. Fixes "proxy mismatch" or certificate errors on older Android clients (Bitwarden, Chrome). Requires a Caddy reload to take effect.</p>
+        <label class="block text-sm font-medium text-ink-900 mb-1">{{t $ "page.settings.disable_http_3_quic_11700883"}}</label>
+        <p class="text-xs text-ink-500">{{t $ "page.settings.restricts_caddy_to_http_1_1_and_http_2_only_fixe_017ff26e"}}</p>
       </div>
       <label class="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
         <input type="checkbox" name="disable_http3" {{if eq .DisableHTTP3 "1"}}checked{{end}}
@@ -920,8 +920,8 @@
       </label>
     </div>
     <div class="py-4 border-b border-ink-100">
-      <label class="block text-sm font-medium text-ink-900 mb-1.5">Admin panel IP allowlist</label>
-      <p class="text-xs text-ink-500 mb-2">⚠️ One IP or CIDR per line. When set, only listed IPs can access CaddyUI. <strong>Make sure your own IP is included before saving!</strong></p>
+      <label class="block text-sm font-medium text-ink-900 mb-1.5">{{t $ "page.settings.admin_panel_ip_allowlist_d81eadd6"}}</label>
+      <p class="text-xs text-ink-500 mb-2">{{t $ "page.settings.one_ip_or_cidr_per_line_when_set_only_listed_ips_3003516b"}} <strong>{{t $ "page.settings.make_sure_your_own_ip_is_included_before_saving_26ba5dbd"}}</strong></p>
 
       {{/* v2.65.0 (issue #140): show the address this very request arrived
            with, and where it was read from. Saving a list that does not
@@ -929,38 +929,38 @@
            to check short of trying it. */}}
       <div class="mb-2 rounded-lg border border-ink-200 bg-ink-50 px-3 py-2">
         <div class="flex items-baseline gap-2 flex-wrap">
-          <span class="text-xs text-ink-600">You are connecting from</span>
+          <span class="text-xs text-ink-600">{{t $ "page.settings.you_are_connecting_from_a377c36e"}}</span>
           <code class="text-sm font-mono font-semibold text-ink-900">{{.CurrentClientIP}}</code>
           {{if .CurrentClientIPViaProxy}}
-            <span class="ui-status ui-status--info">via trusted proxy</span>
+            <span class="ui-status ui-status--info">{{t $ "page.settings.via_trusted_proxy_0985f6cc"}}</span>
           {{else}}
-            <span class="ui-status ui-status--info">direct connection</span>
+            <span class="ui-status ui-status--info">{{t $ "page.settings.direct_connection_7b333eab"}}</span>
           {{end}}
         </div>
         <p class="text-xs text-ink-500 mt-1">
           {{if .CurrentClientIPViaProxy}}
-            Read from a forwarding header, because the machine that opened this connection is a trusted proxy. This is the address the allowlist checks — include it, or a range containing it.
+            {{t $ "page.settings.read_from_a_forwarding_header_because_the_machin_44844117"}}
           {{else}}
-            This is the address of the connection itself, and what the allowlist checks. <strong>If CaddyUI sits behind a reverse proxy and this looks like the proxy rather than your own address</strong>, add the proxy under <em>Trusted proxy IPs/CIDRs</em> above first — otherwise every visitor arrives as this one address and the allowlist cannot tell them apart.
+            {{t $ "page.settings.this_is_the_address_of_the_connection_itself_and_5be557e3"}} <strong>{{t $ "page.settings.if_caddyui_sits_behind_a_reverse_proxy_and_this_l_5117d132"}}</strong>{{t $ "page.settings.add_the_proxy_under_06bd824c"}} <em>{{t $ "page.settings.trusted_proxy_ips_cidrs_4228d1e2"}}</em> {{t $ "page.settings.above_first_otherwise_every_visitor_arrives_as_t_514b32ed"}}
           {{end}}
         </p>
       </div>
 
       <textarea name="admin_allowlist" rows="4"
-        placeholder="Leave blank to allow all IPs&#10;192.168.1.0/24&#10;10.0.0.1"
+        placeholder="{{t $ "page.settings.placeholder.leave_blank_to_allow_all_ips_192_168_1_0_24_10_0_d0e1f617"}}"
         class="w-full text-sm px-3 py-2 rounded-lg border border-ink-200 bg-white text-ink-900 focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono">{{.AdminAllowlist}}</textarea>
 
       {{if .AdminAllowlistFromEnv}}
-      <p class="text-xs text-amber-700 mt-2"><strong>Overridden by the environment.</strong> <code class="font-mono">CADDYUI_ADMIN_ALLOWLIST</code> is set on this container and takes precedence over the list above, which is saved but not in force. Remove the variable to go back to using it.</p>
+      <p class="text-xs text-amber-700 mt-2"><strong>{{t $ "page.settings.overridden_by_the_environment_d04b352a"}}</strong> <code class="font-mono">CADDYUI_ADMIN_ALLOWLIST</code> {{t $ "page.settings.is_set_on_this_container_and_takes_precedence_ov_f8d9731b"}}</p>
       {{end}}
-      <p class="text-xs text-ink-500 mt-2">Locked out? Set <code class="font-mono">CADDYUI_ADMIN_ALLOWLIST</code> in your compose file and restart — it overrides this list, and <code class="font-mono">CADDYUI_ADMIN_ALLOWLIST=off</code> disables the gate entirely while you get back in. What you saved here is left untouched.</p>
+      <p class="text-xs text-ink-500 mt-2">{{t $ "page.settings.locked_out_set_a6947d37"}} <code class="font-mono">CADDYUI_ADMIN_ALLOWLIST</code> {{t $ "page.settings.in_your_compose_file_and_restart_it_overrides_th_d43fe774"}} <code class="font-mono">CADDYUI_ADMIN_ALLOWLIST=off</code> {{t $ "page.settings.disables_the_gate_entirely_while_you_get_back_in_ef4d8f63"}}</p>
     </div>
     {{/* issue #100: fleet-wide IP blocklist */}}
     <div class="py-4 border-b border-ink-100">
-      <label class="block text-sm font-medium text-ink-900 mb-1.5">Global IP blocklist</label>
-      <p class="text-xs text-ink-500 mb-2">One IP or CIDR per line (or comma-separated). Blocked with <strong>403</strong> across every host, ahead of routing — the fleet-wide counterpart to a host's own blocklist. Populated by the <strong>Block everywhere</strong> action on a visitor's analytics page; remove entries here to unblock.</p>
+      <label class="block text-sm font-medium text-ink-900 mb-1.5">{{t $ "page.settings.global_ip_blocklist_88b7ed17"}}</label>
+      <p class="text-xs text-ink-500 mb-2">{{t $ "page.settings.one_ip_or_cidr_per_line_or_comma_separated_block_53a90d2d"}} <strong>403</strong> {{t $ "page.settings.across_every_host_ahead_of_routing_the_fleet_wid_7447c8e3"}} <strong>{{t $ "page.settings.block_everywhere_b210a422"}}</strong> {{t $ "page.settings.action_on_a_visitor_s_analytics_page_remove_entr_372ef62e"}}</p>
       <textarea name="global_ip_blocklist" rows="4"
-        placeholder="Leave blank to block nothing&#10;203.0.113.5/32&#10;198.51.100.0/24"
+        placeholder="{{t $ "page.settings.placeholder.leave_blank_to_block_nothing_203_0_113_5_32_198_5_69ebb5c6"}}"
         class="w-full text-sm px-3 py-2 rounded-lg border border-ink-200 bg-white text-ink-900 focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono">{{.GlobalIPBlocklist}}</textarea>
     </div>
 
@@ -969,17 +969,17 @@
       <label class="flex items-center gap-2 cursor-pointer">
         <input type="checkbox" name="oidc_enabled" {{if .OIDCEnabled}}checked{{end}}
           class="w-4 h-4 rounded border-ink-300 text-brand-600 focus:ring-brand-500">
-        <span class="text-sm font-medium text-ink-900">Single sign-on (OIDC)</span>
+        <span class="text-sm font-medium text-ink-900">{{t $ "page.settings.single_sign_on_oidc_22c712af"}}</span>
       </label>
-      <p class="text-xs text-ink-500">Let admins sign in through an external identity provider (Authelia, Authentik, Keycloak, Google, …) alongside local password + TOTP. Register CaddyUI as a confidential client and set its redirect URL to the callback below.</p>
+      <p class="text-xs text-ink-500">{{t $ "page.settings.let_admins_sign_in_through_an_external_identity_p_f0764162"}}</p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block text-xs font-medium text-ink-700 mb-1">Issuer URL</label>
+          <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.issuer_url_4d03ba8a"}}</label>
           <input name="oidc_issuer" value="{{.OIDCIssuer}}" type="url" placeholder="https://sso.example.com/application/o/caddyui/"
             class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
         </div>
         <div>
-          <label class="block text-xs font-medium text-ink-700 mb-1">Redirect URL <span class="text-ink-400 font-normal">(callback)</span></label>
+          <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.redirect_url_35e46192"}} <span class="text-ink-400 font-normal">{{t $ "page.settings.callback_0b747609"}}</span></label>
           <input name="oidc_redirect_url" value="{{.OIDCRedirectURL}}" type="url" placeholder="https://caddyui.example.com/auth/oidc/callback"
             class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
           {{/* v2.65.0 (issue #139): the placeholder is the full callback URL,
@@ -987,89 +987,89 @@
                so it read as a recommendation to use the bare /auth/oidc path.
                Spell the whole thing out below the field instead, where it
                cannot be clipped, and build it from this request's own host. */}}
-          <p class="text-xs text-ink-500 mt-1">Register this exact URL with your provider — including the <strong>/callback</strong> on the end:</p>
+          <p class="text-xs text-ink-500 mt-1">{{t $ "page.settings.register_this_exact_url_with_your_provider_inclu_194e2cea"}} <strong>/callback</strong> {{t $ "page.settings.on_the_end_0467ed50"}}</p>
           <code class="mt-1 block w-full select-all break-all rounded-md bg-ink-50 border border-ink-200 px-2 py-1.5 text-xs font-mono text-ink-900">{{.OIDCSuggestedRedirectURL}}</code>
         </div>
         <div>
-          <label class="block text-xs font-medium text-ink-700 mb-1">Client ID</label>
+          <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.client_id_8726db01"}}</label>
           <input name="oidc_client_id" value="{{.OIDCClientID}}" type="text" autocomplete="off"
             class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
         </div>
         <div>
-          <label class="block text-xs font-medium text-ink-700 mb-1">Client secret</label>
-          <input name="oidc_client_secret" value="" type="password" autocomplete="new-password" placeholder="{{if .OIDCClientSecretSet}}•••••••• (leave blank to keep){{else}}client secret{{end}}"
+          <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.client_secret_4aded5fa"}}</label>
+          <input name="oidc_client_secret" value="" type="password" autocomplete="new-password" placeholder="{{if .OIDCClientSecretSet}}{{t $ "page.settings.placeholder.leave_blank_to_keep_a9aa0b61"}}{{else}}{{t $ "page.settings.placeholder.client_secret_e9345243"}}{{end}}"
             class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
         </div>
         <div>
-          <label class="block text-xs font-medium text-ink-700 mb-1">Button label</label>
-          <input name="oidc_button_label" value="{{.OIDCButtonLabel}}" type="text" placeholder="Sign in with SSO"
+          <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.button_label_57a9536e"}}</label>
+          <input name="oidc_button_label" value="{{.OIDCButtonLabel}}" type="text" placeholder="{{t $ "page.settings.placeholder.sign_in_with_sso_73e984e9"}}"
             class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
         </div>
       </div>
       <label class="flex items-start gap-2 cursor-pointer">
         <input type="checkbox" name="oidc_auto_create" {{if .OIDCAutoCreate}}checked{{end}}
           class="mt-0.5 w-4 h-4 rounded border-ink-300 text-brand-600 focus:ring-brand-500">
-        <span class="text-sm text-ink-700">Auto-create accounts<span class="block text-xs text-ink-500">Provision a user on first SSO sign-in (verified email required). Off = only users that already exist in CaddyUI can sign in via SSO.</span></span>
+        <span class="text-sm text-ink-700">{{t $ "page.settings.auto_create_accounts_14cb9080"}}<span class="block text-xs text-ink-500">{{t $ "page.settings.provision_a_user_on_first_sso_sign_in_verified_e_6b74961e"}}</span></span>
       </label>
 
       {{/* v2.65.0 (issue #139): decide what an auto-created account may do.
            Before this, every SSO account arrived read-only and had to be
            promoted by hand under Users, with nothing in the UI saying so. */}}
       <div class="mt-4 pt-4 border-t border-ink-100 space-y-3">
-        <p class="text-xs font-medium text-ink-700">Access level for auto-created accounts</p>
+        <p class="text-xs font-medium text-ink-700">{{t $ "page.settings.access_level_for_auto_created_accounts_e985f97b"}}</p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
           <div>
-            <label class="block text-xs font-medium text-ink-700 mb-1">Default role</label>
+            <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.default_role_671aa005"}}</label>
             <select name="oidc_default_role" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-              <option value="view" {{if or (eq .OIDCDefaultRole "view") (eq .OIDCDefaultRole "")}}selected{{end}}>View — read-only (default)</option>
-              <option value="user" {{if eq .OIDCDefaultRole "user"}}selected{{end}}>User — can manage their own resources</option>
-              <option value="admin" {{if eq .OIDCDefaultRole "admin"}}selected{{end}}>Admin — full access</option>
+              <option value="view" {{if or (eq .OIDCDefaultRole "view") (eq .OIDCDefaultRole "")}}selected{{end}}>{{t $ "page.settings.view_read_only_default_ed22a705"}}</option>
+              <option value="user" {{if eq .OIDCDefaultRole "user"}}selected{{end}}>{{t $ "page.settings.user_can_manage_their_own_resources_d743c764"}}</option>
+              <option value="admin" {{if eq .OIDCDefaultRole "admin"}}selected{{end}}>{{t $ "page.settings.admin_full_access_c2de60c1"}}</option>
             </select>
           </div>
-          <p class="text-xs text-ink-500 sm:pt-6">Given to a new SSO account when no group rule below matches. Existing accounts keep the role they already have — this only applies at creation.</p>
+          <p class="text-xs text-ink-500 sm:pt-6">{{t $ "page.settings.given_to_a_new_sso_account_when_no_group_rule_be_a603f82f"}}</p>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
           <div>
-            <label class="block text-xs font-medium text-ink-700 mb-1">Groups claim <span class="text-ink-400 font-normal">(optional)</span></label>
+            <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.groups_claim_eee6faa8"}} <span class="text-ink-400 font-normal">{{t $ "page.settings.optional_0059798b"}}</span></label>
             <input name="oidc_groups_claim" value="{{.OIDCGroupsClaim}}" type="text" autocomplete="off" placeholder="groups"
               class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
           </div>
-          <p class="text-xs text-ink-500 sm:pt-6">The ID-token claim holding the user's groups — usually <code class="font-mono">groups</code>. Your provider has to be configured to include it in the token. Leave blank to use the default role for everyone.</p>
+          <p class="text-xs text-ink-500 sm:pt-6">{{t $ "page.settings.the_id_token_claim_holding_the_user_s_groups_usu_4449b317"}} <code class="font-mono">groups</code>{{t $ "page.settings.your_provider_has_to_be_configured_to_include_it_7d404f61"}}</p>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
           <div>
-            <label class="block text-xs font-medium text-ink-700 mb-1">Group → role rules</label>
-            <textarea name="oidc_role_mappings" rows="3" placeholder="caddyui-admins|admin&#10;infra|user"
+            <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.group_role_rules_9ae1a002"}}</label>
+            <textarea name="oidc_role_mappings" rows="3" placeholder="{{t $ "page.settings.placeholder.caddyui_admins_admin_infra_user_7e770365"}}"
               class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{.OIDCRoleMappings}}</textarea>
           </div>
-          <p class="text-xs text-ink-500 sm:pt-6">One <code class="font-mono">group|role</code> per line, role being <code class="font-mono">admin</code>, <code class="font-mono">user</code> or <code class="font-mono">view</code>. <strong>First match wins</strong>, so put the most privileged first. Group names are matched case-insensitively; a rule naming an unknown role is ignored rather than guessed at.</p>
+          <p class="text-xs text-ink-500 sm:pt-6">{{t $ "page.settings.one_8b125077"}} <code class="font-mono">group|role</code> {{t $ "page.settings.per_line_role_being_5b4ef4e6"}} <code class="font-mono">admin</code>, <code class="font-mono">user</code> {{t $ "page.settings.or_7175517a"}} <code class="font-mono">view</code>. <strong>{{t $ "page.settings.first_match_wins_c0556de8"}}</strong>{{t $ "page.settings.so_put_the_most_privileged_first_group_names_are_1eb6a1cd"}}</p>
         </div>
       </div>
     </div>
 
     <div class="py-4 border-b border-ink-100">
-      <label class="block text-xs font-medium text-ink-700 mb-1">Session duration (days)</label>
+      <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.session_duration_days_5de2ea80"}}</label>
       <div class="flex items-center gap-2">
         <input type="number" name="session_duration_days" min="1" max="365"
           value="{{if .SessionDays}}{{.SessionDays}}{{else}}7{{end}}"
           class="w-24 rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <span class="text-xs text-ink-500">days · Default: 7</span>
+        <span class="text-xs text-ink-500">{{t $ "page.settings.days_default_7_09a48bfc"}}</span>
       </div>
-      <p class="text-xs text-ink-400 mt-1">New sessions will use this duration. Existing sessions are not affected.</p>
+      <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.new_sessions_will_use_this_duration_existing_ses_f5720efa"}}</p>
     </div>
     <div class="py-4 border-b border-ink-100">
-      <label class="block text-sm font-medium text-ink-900 mb-1.5">Max Login Attempts (per IP)</label>
-      <p class="text-xs text-ink-500 mb-2">Blocks an IP after this many failed login attempts in a 15-minute window. 0 disables brute-force protection.</p>
+      <label class="block text-sm font-medium text-ink-900 mb-1.5">{{t $ "page.settings.max_login_attempts_per_ip_d5787ca1"}}</label>
+      <p class="text-xs text-ink-500 mb-2">{{t $ "page.settings.blocks_an_ip_after_this_many_failed_login_attemp_d76f8f43"}}</p>
       <input type="number" name="max_login_attempts" min="0"
         value="{{.MaxLoginAttempts}}"
-        placeholder="0 = no limit"
+        placeholder="{{t $ "page.settings.placeholder.0_no_limit_314b24ad"}}"
         class="w-40 rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
     </div>
     <div class="flex items-start justify-between gap-4 mt-4 pt-4 border-t border-ink-100">
       <div>
-        <label class="block text-sm font-medium text-ink-800">Require two-factor authentication (TOTP) for everyone</label>
-        <p class="text-xs text-ink-500 mt-0.5">Site-wide policy. Any user who has not enrolled TOTP is sent to the setup page and cannot reach the rest of CaddyUI until they finish. It does not enrol anyone for you, and it cannot switch TOTP on or off for one account — each person manages their own under <strong>user menu → My two-factor authentication</strong>.</p>
-        <p class="text-xs text-amber-700 mt-1">This applies to you too. If your own account has no TOTP yet, saving this sends you straight to enrolment, and you will need to finish it before you can reach this page again — including to switch the policy back off.</p>
+        <label class="block text-sm font-medium text-ink-800">{{t $ "page.settings.require_two_factor_authentication_totp_for_every_753dc3f7"}}</label>
+        <p class="text-xs text-ink-500 mt-0.5">{{t $ "page.settings.site_wide_policy_any_user_who_has_not_enrolled_t_1e519496"}} <strong>{{t $ "page.settings.user_menu_my_two_factor_authentication_bfca2f8a"}}</strong>.</p>
+        <p class="text-xs text-amber-700 mt-1">{{t $ "page.settings.this_applies_to_you_too_if_your_own_account_has_n_09f8ed50"}}</p>
       </div>
       <label class="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
         <input type="checkbox" name="require_totp" value="1" {{if eq .RequireTOTP "1"}}checked{{end}} class="sr-only peer">
@@ -1085,20 +1085,20 @@
   <div id="settings-access-logs" class="scroll-mt-20 bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-5">
     <div>
       <div class="flex items-center gap-2 mb-0.5">
-        <div class="text-sm font-semibold text-ink-900">Caddy file access logs</div>
-        {{if .AccessLogEnabled}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700">enabled</span>{{else}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">disabled</span>{{end}}
+        <div class="text-sm font-semibold text-ink-900">{{t $ "page.settings.caddy_file_access_logs_23c190b7"}}</div>
+        {{if .AccessLogEnabled}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700">{{t $ "page.settings.enabled_fb9cf756"}}</span>{{else}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">{{t $ "page.settings.disabled_17eb3c01"}}</span>{{end}}
       </div>
-      <p class="text-xs text-ink-500">Write Caddy access events to a rotating file independently from CaddyUI Visitor Analytics. The analytics network writer is preserved when both features are enabled.</p>
+      <p class="text-xs text-ink-500">{{t $ "page.settings.write_caddy_access_events_to_a_rotating_file_ind_201ac6e9"}}</p>
     </div>
 
     <div class="flex items-start gap-2">
       <input type="hidden" name="fleet_access_log_enabled" value="0">
       <input id="fleet_access_log_enabled" name="fleet_access_log_enabled" type="checkbox" value="1" {{if .AccessLogEnabled}}checked{{end}} class="mt-0.5 accent-brand-600 cursor-pointer">
-      <label for="fleet_access_log_enabled" class="text-sm text-ink-700 cursor-pointer">Enable file access logging</label>
+      <label for="fleet_access_log_enabled" class="text-sm text-ink-700 cursor-pointer">{{t $ "page.settings.enable_file_access_logging_196330d6"}}</label>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Apply to Caddy servers</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.apply_to_caddy_servers_3b7a89ad"}}</label>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {{range .Servers}}
           {{if ne .Type "external"}}
@@ -1113,45 +1113,45 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Log file path</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.log_file_path_6143cfde"}}</label>
         <input type="text" name="fleet_access_log_path" value="{{.AccessLogPath}}" required
           class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Generated HTTP servers</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.generated_http_servers_0561513d"}}</label>
         <select name="fleet_access_log_scope" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-          <option value="all" {{if eq .AccessLogScope "all"}}selected{{end}}>HTTP and HTTPS</option>
-          <option value="https" {{if eq .AccessLogScope "https"}}selected{{end}}>HTTPS only</option>
-          <option value="http" {{if eq .AccessLogScope "http"}}selected{{end}}>HTTP only</option>
+          <option value="all" {{if eq .AccessLogScope "all"}}selected{{end}}>{{t $ "page.settings.http_and_https_d5bae9f6"}}</option>
+          <option value="https" {{if eq .AccessLogScope "https"}}selected{{end}}>{{t $ "page.settings.https_only_c047ae7d"}}</option>
+          <option value="http" {{if eq .AccessLogScope "http"}}selected{{end}}>{{t $ "page.settings.http_only_718c2bed"}}</option>
         </select>
       </div>
     </div>
-    <p class="text-xs text-ink-400 -mt-3">The path is inside each Caddy container. Mount its parent directory if logs must survive container replacement.</p>
+    <p class="text-xs text-ink-400 -mt-3">{{t $ "page.settings.the_path_is_inside_each_caddy_container_mount_it_0b5c8067"}}</p>
 
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
       <div>
-        <label class="block text-xs font-medium text-ink-700 mb-1">Format</label>
+        <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.format_2f343666"}}</label>
         <select name="fleet_access_log_format" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white">
-          <option value="json" {{if eq .AccessLogFormat "json"}}selected{{end}}>Native JSON</option>
-          <option value="console" {{if eq .AccessLogFormat "console"}}selected{{end}}>Console</option>
+          <option value="json" {{if eq .AccessLogFormat "json"}}selected{{end}}>{{t $ "page.settings.native_json_e66fe13c"}}</option>
+          <option value="console" {{if eq .AccessLogFormat "console"}}selected{{end}}>{{t $ "page.settings.console_29a40861"}}</option>
         </select>
       </div>
       <div>
-        <label class="block text-xs font-medium text-ink-700 mb-1">Max size (MB)</label>
+        <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.max_size_mb_d0384d5f"}}</label>
         <input type="number" min="1" max="1000000" name="fleet_access_log_roll_size_mb" value="{{.AccessLogRollSize}}" required class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white">
       </div>
       <div>
-        <label class="block text-xs font-medium text-ink-700 mb-1">Retained files</label>
+        <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.retained_files_3b213bdf"}}</label>
         <input type="number" min="0" max="100000" name="fleet_access_log_roll_keep" value="{{.AccessLogRollKeep}}" required class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white">
       </div>
       <div>
-        <label class="block text-xs font-medium text-ink-700 mb-1">Retention (days)</label>
+        <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.retention_days_b620b7e3"}}</label>
         <input type="number" min="0" max="36500" name="fleet_access_log_roll_keep_days" value="{{.AccessLogRollDays}}" required class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white">
       </div>
     </div>
 
     <div class="pt-3 border-t border-ink-100">
-      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">Save and sync fleet</button>
+      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">{{t $ "page.settings.save_and_sync_fleet_e0dcdc18"}}</button>
     </div>
   </div>
 
@@ -1159,37 +1159,37 @@
   <div id="settings-metrics" class="scroll-mt-20 bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-5">
     <div>
       <div class="flex items-center gap-2 mb-0.5">
-        <div class="text-sm font-semibold text-ink-900">Prometheus metrics</div>
-        {{if .MetricsEnabled}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700">enabled</span>{{else}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">disabled</span>{{end}}
+        <div class="text-sm font-semibold text-ink-900">{{t $ "page.settings.prometheus_metrics_05be9e15"}}</div>
+        {{if .MetricsEnabled}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700">{{t $ "page.settings.enabled_fb9cf756"}}</span>{{else}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">{{t $ "page.settings.disabled_17eb3c01"}}</span>{{end}}
       </div>
-      <p class="text-xs text-ink-500">Enable Caddy's HTTP metrics and preserve the detailed global metrics configuration across every CaddyUI route sync.</p>
+      <p class="text-xs text-ink-500">{{t $ "page.settings.enable_caddy_s_http_metrics_and_preserve_the_det_eb8a915e"}}</p>
     </div>
 
     <div class="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800">
-      Prometheus scrapes <code class="font-mono">/metrics</code> on Caddy's protected admin endpoint. Keep that endpoint on a private network or loopback address; never publish the unauthenticated admin port to the internet.
+      {{t $ "page.settings.prometheus_scrapes_01549239"}} <code class="font-mono">/metrics</code> {{t $ "page.settings.on_caddy_s_protected_admin_endpoint_keep_that_en_84512c2f"}}
     </div>
 
     <div class="flex items-start gap-2">
       <input type="hidden" name="prometheus_metrics_enabled" value="0">
       <input id="prometheus_metrics_enabled" name="prometheus_metrics_enabled" type="checkbox" value="1" {{if .MetricsEnabled}}checked{{end}} class="mt-0.5 accent-brand-600 cursor-pointer">
-      <label for="prometheus_metrics_enabled" class="text-sm text-ink-700 cursor-pointer">Enable Prometheus metrics on selected servers</label>
+      <label for="prometheus_metrics_enabled" class="text-sm text-ink-700 cursor-pointer">{{t $ "page.settings.enable_prometheus_metrics_on_selected_servers_91d43e6a"}}</label>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <label class="flex items-start gap-2 rounded-lg border border-ink-200 px-3 py-3 text-sm text-ink-700 cursor-pointer">
         <input type="hidden" name="prometheus_metrics_per_host" value="0">
         <input type="checkbox" name="prometheus_metrics_per_host" value="1" {{if .MetricsPerHost}}checked{{end}} class="mt-0.5 accent-brand-600">
-        <span>Per-host labels <span class="block text-xs text-ink-400 mt-0.5">Adds the request host to HTTP metric labels.</span></span>
+        <span>{{t $ "page.settings.per_host_labels_3798941a"}} <span class="block text-xs text-ink-400 mt-0.5">{{t $ "page.settings.adds_the_request_host_to_http_metric_labels_3702f171"}}</span></span>
       </label>
       <label class="flex items-start gap-2 rounded-lg border border-ink-200 px-3 py-3 text-sm text-ink-700 cursor-pointer">
         <input type="hidden" name="prometheus_metrics_observe_catchall_hosts" value="0">
         <input type="checkbox" name="prometheus_metrics_observe_catchall_hosts" value="1" {{if .MetricsObserveCatchAll}}checked{{end}} class="mt-0.5 accent-amber-600">
-        <span>Observe catch-all hosts <span class="block text-xs text-ink-400 mt-0.5">Requires per-host labels and Caddy 2.11+. May create high-cardinality data on public HTTP listeners.</span></span>
+        <span>{{t $ "page.settings.observe_catch_all_hosts_8135804a"}} <span class="block text-xs text-ink-400 mt-0.5">{{t $ "page.settings.requires_per_host_labels_and_caddy_2_11_may_crea_6a4a84cc"}}</span></span>
       </label>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Manage metrics on Caddy servers</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.manage_metrics_on_caddy_servers_445bf730"}}</label>
       <div class="space-y-2">
         {{range .Servers}}
           {{if ne .Type "external"}}
@@ -1199,17 +1199,17 @@
               <span>{{.Name}}</span><span class="ml-auto text-xs text-ink-400">{{.Status}}</span>
             </span>
             {{if index $.MetricsServerSelected .ID}}
-            <span class="block mt-1.5 pl-6 text-xs text-ink-500">Scrape target: <code class="font-mono break-all">{{index $.MetricsScrapeTargets .ID}}</code></span>
+            <span class="block mt-1.5 pl-6 text-xs text-ink-500">{{t $ "page.settings.scrape_target_b10002b6"}} <code class="font-mono break-all">{{index $.MetricsScrapeTargets .ID}}</code></span>
             {{end}}
           </label>
           {{end}}
         {{end}}
       </div>
-      <p class="text-xs text-ink-400 mt-2">Only checked servers are managed. CaddyUI leaves metrics on every unselected server untouched, including settings loaded from a Caddyfile or written directly through the admin API.</p>
+      <p class="text-xs text-ink-400 mt-2">{{t $ "page.settings.only_checked_servers_are_managed_caddyui_leaves_m_a48441fb"}}</p>
     </div>
 
     <div class="pt-3 border-t border-ink-100">
-      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">Validate, save, and sync fleet</button>
+      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">{{t $ "page.settings.validate_save_and_sync_fleet_61ab449f"}}</button>
     </div>
   </div>
 
@@ -1217,24 +1217,24 @@
   <div id="settings-crowdsec" class="scroll-mt-20 bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-5">
     <div>
       <div class="flex items-center gap-2 mb-0.5">
-        <div class="text-sm font-semibold text-ink-900">CrowdSec bouncer</div>
-        {{if .CrowdSecEnabled}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700">enabled</span>{{else}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">disabled</span>{{end}}
+        <div class="text-sm font-semibold text-ink-900">{{t $ "page.settings.crowdsec_bouncer_3017c8e8"}}</div>
+        {{if .CrowdSecEnabled}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700">{{t $ "page.settings.enabled_fb9cf756"}}</span>{{else}}<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">{{t $ "page.settings.disabled_17eb3c01"}}</span>{{end}}
       </div>
-      <p class="text-xs text-ink-500">Synchronize remediation decisions from CrowdSec LAPI and run the CrowdSec handler before every protected CaddyUI-generated route.</p>
+      <p class="text-xs text-ink-500">{{t $ "page.settings.synchronize_remediation_decisions_from_crowdsec_l_49d484a5"}}</p>
     </div>
 
     <div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-      Requires a custom Caddy build containing <code class="font-mono">crowdsec</code> and <code class="font-mono">http.handlers.crowdsec</code> from <code class="font-mono">github.com/hslatman/caddy-crowdsec-bouncer/http</code>. CaddyUI validates both modules before enabling the integration.
+      {{t $ "page.settings.requires_a_custom_caddy_build_containing_60ad0e0f"}} <code class="font-mono">crowdsec</code> {{t $ "page.settings.and_6201111b"}} <code class="font-mono">http.handlers.crowdsec</code> {{t $ "page.settings.from_75857a45"}} <code class="font-mono">github.com/hslatman/caddy-crowdsec-bouncer/http</code>{{t $ "page.settings.caddyui_validates_both_modules_before_enabling_t_f365296a"}}
     </div>
 
     <div class="flex items-start gap-2">
       <input type="hidden" name="crowdsec_enabled" value="0">
       <input id="crowdsec_enabled" name="crowdsec_enabled" type="checkbox" value="1" {{if .CrowdSecEnabled}}checked{{end}} class="mt-0.5 accent-brand-600 cursor-pointer">
-      <label for="crowdsec_enabled" class="text-sm text-ink-700 cursor-pointer">Enable CrowdSec bouncer</label>
+      <label for="crowdsec_enabled" class="text-sm text-ink-700 cursor-pointer">{{t $ "page.settings.enable_crowdsec_bouncer_b579f60b"}}</label>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Apply to Caddy servers</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.apply_to_caddy_servers_3b7a89ad"}}</label>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {{range .Servers}}
           {{if ne .Type "external"}}
@@ -1244,7 +1244,7 @@
               <span>{{.Name}}</span><span class="ml-auto text-xs text-ink-400">{{.Status}}</span>
             </label>
             {{if and $.CrowdSecEnabled (index $.CrowdSecServerSelected .ID)}}
-            <button type="button" onclick="testCrowdSec({{.ID}}, this)" class="mt-2 text-xs text-brand-600 hover:underline">Test LAPI connection</button>
+            <button type="button" onclick="testCrowdSec({{.ID}}, this)" class="mt-2 text-xs text-brand-600 hover:underline">{{t $ "page.settings.test_lapi_connection_eec11c32"}}</button>
             {{end}}
           </div>
           {{end}}
@@ -1254,41 +1254,41 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">CrowdSec LAPI URL</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.crowdsec_lapi_url_5ed70c6b"}}</label>
         <input type="url" name="crowdsec_api_url" value="{{.CrowdSecAPIURL}}" required placeholder="http://crowdsec:8080/" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white">
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Bouncer API key {{if .CrowdSecAPIKeySet}}<span class="font-normal text-ink-400">(leave blank to keep)</span>{{end}}</label>
-        <input type="password" name="crowdsec_api_key" value="" autocomplete="new-password" placeholder="{{if .CrowdSecAPIKeySet}}•••••••• (key set){{else}}Required{{end}}" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white">
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.bouncer_api_key_9cdb7d03"}} {{if .CrowdSecAPIKeySet}}<span class="font-normal text-ink-400">{{t $ "page.settings.leave_blank_to_keep_5448a0e3"}}</span>{{end}}</label>
+        <input type="password" name="crowdsec_api_key" value="" autocomplete="new-password" placeholder="{{if .CrowdSecAPIKeySet}}{{t $ "page.settings.placeholder.key_set_f428c915"}}{{else}}{{t $ "page.settings.placeholder.required_4850b174"}}{{end}}" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white">
       </div>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Decision refresh interval</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.decision_refresh_interval_bad310f5"}}</label>
         <input type="text" name="crowdsec_ticker_interval" value="{{.CrowdSecTicker}}" required placeholder="15s" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white">
       </div>
       <div class="space-y-3 pt-1">
-        <label class="flex items-start gap-2 text-sm text-ink-700 cursor-pointer"><input type="hidden" name="crowdsec_streaming" value="0"><input type="checkbox" name="crowdsec_streaming" value="1" {{if .CrowdSecStreaming}}checked{{end}} class="mt-0.5 accent-brand-600"><span>Streaming mode <span class="block text-xs text-ink-400">Cache active decisions locally.</span></span></label>
-        <label class="flex items-start gap-2 text-sm text-ink-700 cursor-pointer"><input type="hidden" name="crowdsec_hard_fails" value="0"><input type="checkbox" name="crowdsec_hard_fails" value="1" {{if .CrowdSecHardFails}}checked{{end}} class="mt-0.5 accent-red-600"><span>Hard-fail when LAPI is unavailable <span class="block text-xs text-ink-400">Off by default to preserve service availability.</span></span></label>
+        <label class="flex items-start gap-2 text-sm text-ink-700 cursor-pointer"><input type="hidden" name="crowdsec_streaming" value="0"><input type="checkbox" name="crowdsec_streaming" value="1" {{if .CrowdSecStreaming}}checked{{end}} class="mt-0.5 accent-brand-600"><span>{{t $ "page.settings.streaming_mode_3bb80aa3"}} <span class="block text-xs text-ink-400">{{t $ "page.settings.cache_active_decisions_locally_118b4261"}}</span></span></label>
+        <label class="flex items-start gap-2 text-sm text-ink-700 cursor-pointer"><input type="hidden" name="crowdsec_hard_fails" value="0"><input type="checkbox" name="crowdsec_hard_fails" value="1" {{if .CrowdSecHardFails}}checked{{end}} class="mt-0.5 accent-red-600"><span>{{t $ "page.settings.hard_fail_when_lapi_is_unavailable_f2827525"}} <span class="block text-xs text-ink-400">{{t $ "page.settings.off_by_default_to_preserve_service_availability_fab8d095"}}</span></span></label>
       </div>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Excluded hosts</label>
-        <textarea name="crowdsec_excluded_hosts" rows="3" placeholder="status.example.com&#10;health.example.com" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white">{{.CrowdSecExcludedHosts}}</textarea>
-        <p class="text-xs text-ink-400 mt-1">Exact hostnames, one per line. A multi-domain route is excluded when any hostname matches.</p>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.excluded_hosts_235c54e6"}}</label>
+        <textarea name="crowdsec_excluded_hosts" rows="3" placeholder="{{t $ "page.settings.placeholder.status_example_com_health_example_com_9a4995be"}}" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white">{{.CrowdSecExcludedHosts}}</textarea>
+        <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.exact_hostnames_one_per_line_a_multi_domain_rout_d324780d"}}</p>
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Excluded paths</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.settings.excluded_paths_aba54d4b"}}</label>
         <textarea name="crowdsec_excluded_paths" rows="3" placeholder="/health*&#10;/webhooks/crowdsec*" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white">{{.CrowdSecExcludedPaths}}</textarea>
-        <p class="text-xs text-ink-400 mt-1">Caddy path patterns, one per line. Matching requests bypass only CrowdSec and continue to the normal route.</p>
+        <p class="text-xs text-ink-400 mt-1">{{t $ "page.settings.caddy_path_patterns_one_per_line_matching_reques_6e994f78"}}</p>
       </div>
     </div>
 
     <div class="pt-3 border-t border-ink-100">
-      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">Validate, save, and sync fleet</button>
+      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">{{t $ "page.settings.validate_save_and_sync_fleet_61ab449f"}}</button>
     </div>
   </div>
 
@@ -1319,19 +1319,19 @@
   <div id="analytics" class="scroll-mt-20 bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-5">
     <div>
       <div class="flex items-center gap-2 mb-0.5">
-        <div class="text-sm font-semibold text-ink-900">Visitor Analytics</div>
+        <div class="text-sm font-semibold text-ink-900">{{t $ "analytics.visitor_analytics"}}</div>
         {{if .AnalyticsEnabled}}
           {{if and .AnalyticsIngestStats (index .AnalyticsIngestStats "Healthy")}}
-          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700"><span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>receiving events</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700"><span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>{{t $ "analytics.receiving_events"}}</span>
           {{else}}
-          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>enabled — no events yet</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>{{t $ "analytics.enabled_no_events_yet"}}</span>
           {{end}}
         {{else}}
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">disabled</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">{{t $ "analytics.disabled"}}</span>
         {{end}}
-        <a href="/analytics" class="ml-auto text-xs text-brand-600 hover:underline">Open dashboard →</a>
+        <a href="/analytics" class="ml-auto text-xs text-brand-600 hover:underline">{{t $ "analytics.open_dashboard"}}</a>
       </div>
-      <p class="text-xs text-ink-500">Stream Caddy's access logs into CaddyUI for per-host visitor and pageview stats. No cookies, no query strings — only host, path, status, and truncated user-agent are stored. Retained 30 days.</p>
+      <p class="text-xs text-ink-500">{{t $ "analytics.settings.description"}} {{if eq .AnalyticsRetentionDays 0}}{{t $ "analytics.settings.retained_forever"}}{{else if eq .AnalyticsRetentionDays 1}}{{t $ "analytics.settings.retained_one_day" "days" .AnalyticsRetentionDays}}{{else}}{{t $ "analytics.settings.retained_days" "days" .AnalyticsRetentionDays}}{{end}}</p>
     </div>
 
     {{/* Enable toggle. Same hidden-input trick as smtp_skip_verify so an
@@ -1343,20 +1343,17 @@
       <input id="analytics_enabled" name="analytics_enabled" type="checkbox" value="1" {{if .AnalyticsEnabled}}checked{{end}}
         class="mt-0.5 accent-brand-600 cursor-pointer" />
       <label for="analytics_enabled" class="text-sm text-ink-700 cursor-pointer">
-        Forward Caddy access logs to CaddyUI
-        <span class="block text-xs text-ink-400 font-normal mt-0.5">On save, CaddyUI adds a <code class="font-mono">net</code> log writer to the live Caddy config pointed at the ingest target below. Disabling removes it. Existing events stay in the DB until they age out.</span>
+        {{t $ "analytics.settings.forward"}}
+        <span class="block text-xs text-ink-400 font-normal mt-0.5">{{t $ "analytics.on_save_caddyui_adds_a"}} <code class="font-mono">net</code> {{t $ "analytics.settings.forward_help"}}</span>
       </label>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Ingest target <span class="text-ink-400 font-normal text-xs">(host:port Caddy connects to)</span></label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "analytics.ingest_target"}} <span class="text-ink-400 font-normal text-xs">{{t $ "analytics.host_port_caddy_connects_to"}}</span></label>
       <input name="analytics_ingest_target" value="{{.AnalyticsTarget}}" type="text" autocomplete="off" placeholder="{{.AnalyticsTargetPlaceholder}}"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
       <p class="text-xs text-ink-500 mt-1.5">
-        Default <code class="font-mono text-ink-700">{{.AnalyticsTargetPlaceholder}}</code> assumes both containers share a Docker network and CaddyUI's service name is <code class="font-mono">caddyui</code>.
-        On host-network deployments use <code class="font-mono">host.docker.internal:9019</code> (macOS/Windows) or the LAN IP (Linux).
-        The listener binds on <code class="font-mono">:9019</code> inside the CaddyUI container — no host port exposed by default.
-        Nodes on <em>other hosts</em> cannot resolve Docker service names: give each remote node its own ingest target on its <a href="/servers" class="underline">Caddy Fleet</a> entry (the CaddyUI host as that node sees it, e.g. <code class="font-mono">10.8.0.1:9019</code>) and publish port 9019.
+        {{t $ "analytics.default"}} <code class="font-mono text-ink-700">{{.AnalyticsTargetPlaceholder}}</code> {{t $ "analytics.settings.target_docker"}} <code class="font-mono">caddyui</code>{{t $ "analytics.on_host_network_deployments_use"}} <code class="font-mono">host.docker.internal:9019</code> {{t $ "analytics.settings.target_host_network"}} <code class="font-mono">:9019</code> {{t $ "analytics.settings.target_listener"}} <em>{{t $ "analytics.other_hosts"}}</em> {{t $ "analytics.settings.target_remote"}} <a href="/servers" class="underline">{{t $ "analytics.caddy_fleet"}}</a> {{t $ "analytics.settings.target_example"}} <code class="font-mono">10.8.0.1:9019</code>{{t $ "analytics.and_publish_port_9019"}}
       </p>
     </div>
 
@@ -1366,54 +1363,54 @@
         <input id="analytics_soft_start" name="analytics_soft_start" type="checkbox" value="1" {{if .AnalyticsSoftStart}}checked{{end}}
           class="mt-0.5 accent-brand-600 cursor-pointer" />
         <label for="analytics_soft_start" class="text-sm text-ink-700 cursor-pointer">
-          Allow Caddy to start without CaddyUI
-          <span class="block text-xs text-ink-400 font-normal mt-0.5">Recommended. Adds <code class="font-mono">soft_start</code> so an unavailable analytics listener cannot prevent Caddy from loading its config. Logs fall back to stderr until the connection recovers.</span>
+          {{t $ "analytics.allow_caddy_to_start_without_caddyui"}}
+          <span class="block text-xs text-ink-400 font-normal mt-0.5">{{t $ "analytics.recommended_adds"}} <code class="font-mono">soft_start</code> {{t $ "analytics.settings.soft_start_help"}}</span>
         </label>
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Connection timeout <span class="text-ink-400 font-normal text-xs">(seconds)</span></label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "analytics.connection_timeout"}} <span class="text-ink-400 font-normal text-xs">{{t $ "analytics.seconds"}}</span></label>
         <input name="analytics_dial_timeout_sec" value="{{.AnalyticsDialTimeoutSec}}" type="number" min="1" max="60" step="1"
           class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-        <p class="text-xs text-ink-500 mt-1.5">Limits how long Caddy waits for the analytics socket before falling back. Default: <code class="font-mono">5s</code>.</p>
+        <p class="text-xs text-ink-500 mt-1.5">{{t $ "analytics.settings.timeout_help"}} <code class="font-mono">5s</code>.</p>
       </div>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Exclude IPs <span class="text-ink-400 font-normal text-xs">(one per line or comma-separated)</span></label>
-      <textarea name="analytics_exclude_ips" rows="3" placeholder="10.0.0.0/8&#10;192.168.1.42&#10;2001:db8::/32"
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "analytics.exclude_ips"}} <span class="text-ink-400 font-normal text-xs">{{t $ "analytics.one_per_line_or_comma_separated"}}</span></label>
+      <textarea name="analytics_exclude_ips" rows="3" placeholder="{{t $ "page.settings.placeholder.10_0_0_0_8_192_168_1_42_2001_db8_32_7d5d63a9"}}"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{.AnalyticsExcludeRaw}}</textarea>
-      <p class="text-xs text-ink-500 mt-1.5">Drops events from these IPs/CIDRs before the DB insert — useful for hiding your own LAN, an uptime-monitor provider, or a VPN subnet. Changes take effect immediately (no Caddy reload required).</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "analytics.settings.exclude_help"}}</p>
     </div>
 
     {{/* v2.43.0: retention + storage */}}
     <div data-analytics-retention>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Keep raw events for <span class="text-ink-400 font-normal text-xs">(days · 0 = forever)</span></label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "analytics.keep_raw_events_for"}} <span class="text-ink-400 font-normal text-xs">{{t $ "analytics.days_0_forever"}}</span></label>
       <input name="analytics_retention_days" value="{{.AnalyticsRetentionDays}}" type="number" min="0" max="3650" step="1"
         class="w-40 rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-      <p class="text-xs text-ink-500 mt-1.5">Older events are deleted every hour, in small batches. Per-day totals per host are kept separately for long-range charts, so shortening this does not blank the Analytics history. Deleting rows frees space <em>inside</em> the database file; <strong>Reclaim space</strong> below returns it to the disk.</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "analytics.settings.retention_help"}} <em>{{t $ "analytics.inside"}}</em> {{t $ "analytics.the_database_file"}} <strong>{{t $ "analytics.reclaim_space"}}</strong> {{t $ "analytics.below_returns_it_to_the_disk"}}</p>
     </div>
 
     {{with .AnalyticsStorage}}
     <div class="pt-3 border-t border-ink-100" data-analytics-storage>
-      <div class="text-xs font-medium text-ink-600 mb-2">Storage</div>
+      <div class="text-xs font-medium text-ink-600 mb-2">{{t $ "analytics.storage"}}</div>
       <dl class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-        {{if .SQLite}}<div><dt class="text-ink-500">Database file</dt><dd class="font-mono text-ink-800">{{fmtBytes .DBBytes}}</dd></div>
-        <div><dt class="text-ink-500">Reclaimable</dt><dd class="font-mono text-ink-800">{{fmtBytes .FreePageBytes}}</dd></div>{{end}}
-        <div><dt class="text-ink-500">Oldest event</dt><dd class="font-mono text-ink-800">{{if .Oldest.IsZero}}—{{else}}{{fmtIn .Oldest "2006-01-02"}}{{end}}</dd></div>
-        <div><dt class="text-ink-500">Newest event</dt><dd class="font-mono text-ink-800">{{if .Newest.IsZero}}—{{else}}{{fmtRel .Newest}}{{end}}</dd></div>
+        {{if .SQLite}}<div><dt class="text-ink-500">{{t $ "analytics.database_file"}}</dt><dd class="font-mono text-ink-800">{{fmtBytes .DBBytes}}</dd></div>
+        <div><dt class="text-ink-500">{{t $ "analytics.reclaimable"}}</dt><dd class="font-mono text-ink-800">{{fmtBytes .FreePageBytes}}</dd></div>{{end}}
+        <div><dt class="text-ink-500">{{t $ "analytics.oldest_event"}}</dt><dd class="font-mono text-ink-800">{{if .Oldest.IsZero}}—{{else}}{{fmtIn .Oldest "2006-01-02"}}{{end}}</dd></div>
+        <div><dt class="text-ink-500">{{t $ "analytics.newest_event"}}</dt><dd class="font-mono text-ink-800">{{if .Newest.IsZero}}—{{else}}{{fmtRelT $ .Newest}}{{end}}</dd></div>
       </dl>
       <div class="mt-3 text-xs text-ink-600 space-y-1">
         {{with .LastPrune}}
-          <div>Last prune: {{if not .FinishedAt}}<span class="ui-status ui-status--info">running</span> since {{fmtRel .StartedAt}}{{else if .Error}}<span class="ui-status ui-status--danger">failed</span> {{fmtRel .StartedAt}} — <span class="font-mono">{{.Error}}</span>{{else}}{{fmtRel .StartedAt}} — removed <span class="font-mono">{{.Deleted}}</span> events{{if ge .Remaining 0}}, <span class="font-mono">{{.Remaining}}</span> kept{{end}}{{if .Cutoff}} (older than {{fmtIn .Cutoff "2006-01-02"}}){{end}}{{end}}</div>
-        {{else}}<div>Last prune: not yet run.</div>{{end}}
+          <div>{{t $ "analytics.last_prune"}} {{if not .FinishedAt}}<span class="ui-status ui-status--info">{{t $ "analytics.running"}}</span> {{t $ "analytics.since"}} {{fmtRelT $ .StartedAt}}{{else if .Error}}<span class="ui-status ui-status--danger">{{t $ "analytics.failed"}}</span> {{fmtRelT $ .StartedAt}} — <span class="font-mono">{{.Error}}</span>{{else}}{{fmtRelT $ .StartedAt}} {{t $ "analytics.removed"}} <span class="font-mono">{{.Deleted}}</span> {{t $ "analytics.prune_events"}}{{if ge .Remaining 0}}, <span class="font-mono">{{.Remaining}}</span> {{t $ "analytics.kept"}}{{end}}{{if .Cutoff}} {{t $ "analytics.older_than"}} {{fmtIn .Cutoff "2006-01-02"}}){{end}}{{end}}</div>
+        {{else}}<div>{{t $ "analytics.last_prune_not_yet_run"}}</div>{{end}}
         {{with .LastVacuum}}
-          <div>Last reclaim: {{if not .FinishedAt}}<span class="ui-status ui-status--info">running</span> since {{fmtRel .StartedAt}}{{else if .Error}}<span class="ui-status ui-status--danger">failed</span> {{fmtRel .StartedAt}} — <span class="font-mono">{{.Error}}</span>{{else}}{{fmtRel .StartedAt}} — <span class="font-mono">{{fmtBytes .BeforeBytes}} → {{fmtBytes .AfterBytes}}</span>{{end}}</div>
+          <div>{{t $ "analytics.last_reclaim"}} {{if not .FinishedAt}}<span class="ui-status ui-status--info">{{t $ "analytics.running"}}</span> {{t $ "analytics.since"}} {{fmtRelT $ .StartedAt}}{{else if .Error}}<span class="ui-status ui-status--danger">{{t $ "analytics.failed"}}</span> {{fmtRelT $ .StartedAt}} — <span class="font-mono">{{.Error}}</span>{{else}}{{fmtRelT $ .StartedAt}} — <span class="font-mono">{{fmtBytes .BeforeBytes}} → {{fmtBytes .AfterBytes}}</span>{{end}}</div>
         {{end}}
       </div>
       <div class="mt-3 flex flex-wrap items-center gap-2">
-        <button type="submit" formaction="/settings/analytics/prune" formmethod="post" class="ui-button ui-button--secondary text-xs"{{if .PruneRunning}} disabled{{end}}>Prune now</button>
-        {{if .SQLite}}<button type="submit" formaction="/settings/analytics/vacuum" formmethod="post" class="ui-button ui-button--secondary text-xs"{{if not .VacuumPossible}} disabled title="{{.VacuumBlockedBy}}"{{end}}>Reclaim space</button>{{end}}
-        <span class="text-xs text-ink-400">{{if .SQLite}}Reclaim rewrites the database file without the deleted rows. It needs free disk for a full copy and pauses writes (including analytics ingest) while it runs — a few seconds per GB. Run it after a large prune, at a quiet moment.{{else}}On MariaDB, run <code class="font-mono">OPTIMIZE TABLE access_events</code> to reclaim space.{{end}}</span>
+        <button type="submit" formaction="/settings/analytics/prune" formmethod="post" class="ui-button ui-button--secondary text-xs"{{if .PruneRunning}} disabled{{end}}>{{t $ "analytics.prune_now"}}</button>
+        {{if .SQLite}}<button type="submit" formaction="/settings/analytics/vacuum" formmethod="post" class="ui-button ui-button--secondary text-xs"{{if not .VacuumPossible}} disabled title="{{.VacuumBlockedBy}}"{{end}}>{{t $ "analytics.reclaim_space"}}</button>{{end}}
+        <span class="text-xs text-ink-400">{{if .SQLite}}{{t $ "analytics.settings.reclaim_help"}}{{else}}{{t $ "analytics.on_mariadb_run"}} <code class="font-mono">OPTIMIZE TABLE access_events</code> {{t $ "analytics.to_reclaim_space"}}{{end}}</span>
       </div>
     </div>
     {{end}}
@@ -1423,13 +1420,13 @@
          so reading them is safe from the request handler's goroutine. */}}
     {{if .AnalyticsIngestStats}}
     <div class="pt-3 border-t border-ink-100">
-      <div class="text-xs font-medium text-ink-600 mb-2">Ingest pipeline</div>
+      <div class="text-xs font-medium text-ink-600 mb-2">{{t $ "analytics.ingest_pipeline"}}</div>
       <dl class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
-        <div><dt class="text-ink-500">Connections</dt><dd class="font-mono text-ink-800">{{index .AnalyticsIngestStats "Connections"}}</dd></div>
-        <div><dt class="text-ink-500">Events</dt><dd class="font-mono text-ink-800">{{index .AnalyticsIngestStats "Events"}}</dd></div>
-        <div><dt class="text-ink-500">Excluded</dt><dd class="font-mono text-ink-800">{{index .AnalyticsIngestStats "Excluded"}}</dd></div>
-        <div><dt class="text-ink-500">Errors</dt><dd class="font-mono text-ink-800">{{index .AnalyticsIngestStats "Errors"}}</dd></div>
-        <div><dt class="text-ink-500">Last event</dt><dd class="font-mono text-ink-800">{{fmtRel (index .AnalyticsIngestStats "LastEvent")}}</dd></div>
+        <div><dt class="text-ink-500">{{t $ "analytics.connections"}}</dt><dd class="font-mono text-ink-800">{{index .AnalyticsIngestStats "Connections"}}</dd></div>
+        <div><dt class="text-ink-500">{{t $ "analytics.events"}}</dt><dd class="font-mono text-ink-800">{{index .AnalyticsIngestStats "Events"}}</dd></div>
+        <div><dt class="text-ink-500">{{t $ "analytics.excluded"}}</dt><dd class="font-mono text-ink-800">{{index .AnalyticsIngestStats "Excluded"}}</dd></div>
+        <div><dt class="text-ink-500">{{t $ "analytics.errors"}}</dt><dd class="font-mono text-ink-800">{{index .AnalyticsIngestStats "Errors"}}</dd></div>
+        <div><dt class="text-ink-500">{{t $ "analytics.last_event"}}</dt><dd class="font-mono text-ink-800">{{fmtRelT $ (index .AnalyticsIngestStats "LastEvent")}}</dd></div>
       </dl>
     </div>
     {{end}}
@@ -1451,7 +1448,7 @@
      big settings form. onsubmit confirm() gates the destructive POST. */}}
 {{if eq .SettingsSection "dns"}}{{range .DNSProviders}}{{if .Configured}}
 <form id="clear-dns-{{.ID}}" method="post" action="/settings/dns-provider/{{.ID}}/clear" class="hidden"
-      onsubmit="return confirm('Clear all {{.DisplayName}} API credentials? Existing DNS records on {{.DisplayName}} stay in place — this only removes the keys stored in CaddyUI.')"></form>
+      onsubmit="return confirm(caddyuiT('js.settings.clear_all_value1_api_credentials_existing_dns_re_058f1c7d', {value1: {{.DisplayName}}, value2: {{.DisplayName}}}))"></form>
 {{end}}{{end}}{{end}}
 
 {{/* The Test Email and Test Webhook buttons used to live in their own
@@ -1462,9 +1459,9 @@
 {{if eq .SettingsSection "notifications"}}
 {{/* ── Notifier status ── */}}
 <div id="settings-notifier" class="scroll-mt-20 max-w-2xl mt-4 bg-white border border-ink-200 rounded-xl shadow-card p-6">
-  <div class="text-sm font-semibold text-ink-800 mb-3">Notifier Status</div>
+  <div class="text-sm font-semibold text-ink-800 mb-3">{{t $ "page.settings.notifier_status_eb5298c5"}}</div>
   <div id="notifier-status" class="text-sm text-ink-600">
-    <span class="text-ink-400 text-xs">Loading…</span>
+    <span class="text-ink-400 text-xs">{{t $ "page.settings.loading_ba3bbbe1"}}</span>
   </div>
 </div>
 
@@ -1472,19 +1469,19 @@
 {{if eq .SettingsSection "backup"}}
 {{/* ── Backup ── */}}
 <div id="settings-backup" class="scroll-mt-20 max-w-2xl mt-4 bg-white border border-ink-200 rounded-xl shadow-card p-5">
-  <div class="text-sm font-semibold text-ink-800 mb-1">Database Backup</div>
+  <div class="text-sm font-semibold text-ink-800 mb-1">{{t $ "page.settings.database_backup_5be3df07"}}</div>
   {{if eq .DatabaseBackend "mariadb"}}
-  <p class="text-xs text-ink-500 mb-3">MariaDB is active. Use <code class="bg-ink-100 px-1 rounded text-xs">mariadb-dump</code>, your hosting provider, or your database platform's scheduled backup and point-in-time recovery tools.</p>
+  <p class="text-xs text-ink-500 mb-3">{{t $ "page.settings.mariadb_is_active_use_a9d22cfe"}} <code class="bg-ink-100 px-1 rounded text-xs">mariadb-dump</code>{{t $ "page.settings.your_hosting_provider_or_your_database_platform_s_33657ddf"}}</p>
   <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-sm font-medium px-4 py-2 rounded-lg border border-emerald-200">
-    MariaDB managed backup
+    {{t $ "page.settings.mariadb_managed_backup_dc3730f7"}}
   </span>
   {{else}}
-  {{if .BackupOK}}<div class="mb-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">Backup written: <span class="font-mono">{{.BackupOK}}</span></div>{{end}}
-  {{if .BackupErr}}<div class="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">Backup failed: {{.BackupErr}}</div>{{end}}
-  <p class="text-xs text-ink-500 mb-3">Download a consistent snapshot of the CaddyUI database. To restore, stop the server, replace the <code class="bg-ink-100 px-1 rounded text-xs">caddyui.db</code> file, and restart.</p>
+  {{if .BackupOK}}<div class="mb-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{{t $ "page.settings.backup_written_91bf0e45"}} <span class="font-mono">{{.BackupOK}}</span></div>{{end}}
+  {{if .BackupErr}}<div class="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{{t $ "page.settings.backup_failed_93b1cd54"}} {{.BackupErr}}</div>{{end}}
+  <p class="text-xs text-ink-500 mb-3">{{t $ "page.settings.download_a_consistent_snapshot_of_the_caddyui_da_fa43f59c"}} <code class="bg-ink-100 px-1 rounded text-xs">caddyui.db</code> {{t $ "page.settings.file_and_restart_d528901d"}}</p>
   <a href="/backup" class="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-    Download Backup
+    {{t $ "page.settings.download_backup_3bfb114e"}}
   </a>
 
   {{/* issue #104: scheduled off-host backups */}}
@@ -1492,28 +1489,28 @@
     <label class="flex items-center gap-2 cursor-pointer">
       <input type="checkbox" name="backup_schedule_enabled" {{if .BackupScheduleEnabled}}checked{{end}}
         class="w-4 h-4 rounded border-ink-300 text-brand-600 focus:ring-brand-500">
-      <span class="text-sm font-medium text-ink-800">Scheduled backups</span>
+      <span class="text-sm font-medium text-ink-800">{{t $ "page.settings.scheduled_backups_2c132001"}}</span>
     </label>
-    <p class="text-xs text-ink-500">Write a snapshot to a directory on an interval and keep the newest N. Point the directory at a mounted volume, network share, or object-store gateway to keep copies off the host.</p>
+    <p class="text-xs text-ink-500">{{t $ "page.settings.write_a_snapshot_to_a_directory_on_an_interval_a_08338552"}}</p>
     <div>
-      <label class="block text-xs font-medium text-ink-700 mb-1">Backup directory <span class="text-ink-400 font-normal">(path inside the CaddyUI container)</span></label>
+      <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.settings.backup_directory_734dd02d"}} <span class="text-ink-400 font-normal">{{t $ "page.settings.path_inside_the_caddyui_container_6127df2c"}}</span></label>
       <input name="backup_schedule_dir" value="{{.BackupScheduleDir}}" type="text" placeholder="/backups"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
     </div>
     <div class="flex flex-wrap items-center gap-2 text-sm text-ink-700">
-      <span>Every</span>
+      <span>{{t $ "page.settings.every_9b8617fd"}}</span>
       <input name="backup_schedule_interval_hours" value="{{.BackupScheduleInterval}}" type="number" min="1" max="8760" placeholder="24"
         class="w-24 rounded border border-ink-200 px-3 py-1.5 text-sm">
-      <span>hours, keep the newest</span>
+      <span>{{t $ "page.settings.hours_keep_the_newest_fe1a6fd7"}}</span>
       <input name="backup_schedule_keep" value="{{.BackupScheduleKeep}}" type="number" min="0" max="1000" placeholder="7"
         class="w-24 rounded border border-ink-200 px-3 py-1.5 text-sm">
-      <span>(0 = keep all).</span>
+      <span>{{t $ "page.settings.0_keep_all_08779ffb"}}</span>
     </div>
     <div class="flex items-center gap-2 pt-1">
-      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">Save settings</button>
-      <button type="submit" formaction="/settings/backup/run" formmethod="post" class="inline-flex items-center border border-ink-300 hover:bg-ink-50 text-ink-700 font-medium text-sm px-4 py-2 rounded-lg transition">Back up now</button>
+      <button type="submit" class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm transition">{{t $ "page.settings.save_settings_7f3a3b14"}}</button>
+      <button type="submit" formaction="/settings/backup/run" formmethod="post" class="inline-flex items-center border border-ink-300 hover:bg-ink-50 text-ink-700 font-medium text-sm px-4 py-2 rounded-lg transition">{{t $ "page.settings.back_up_now_02a2840b"}}</button>
     </div>
-    <p class="text-xs text-ink-400">Back up now uses the <em>saved</em> directory — Save first if you just changed it.</p>
+    <p class="text-xs text-ink-400">{{t $ "page.settings.back_up_now_uses_the_c0feed2e"}} <em>{{t $ "page.settings.saved_d81c55f4"}}</em> {{t $ "page.settings.directory_save_first_if_you_just_changed_it_1da59324"}}</p>
   </div>
   {{end}}
 </div>
@@ -1537,25 +1534,25 @@ function testEmail() {
   var btn = document.getElementById('test-email-btn');
   var result = document.getElementById('test-email-result');
   btn.disabled = true;
-  btn.textContent = 'Sending…';
+  btn.textContent = caddyuiT('js.settings.sending_b8ed5279');
   fetch('/settings/test-email', {method: 'POST'})
     .then(function(r) { return r.json(); })
     .then(function(d) {
       if (d.ok) {
-        result.textContent = '✓ Sent!';
+        result.textContent = caddyuiT('js.settings.sent_4e3440e4');
         result.className = 'text-sm text-brand-700';
       } else {
-        result.textContent = 'Failed: ' + (d.error || 'unknown error');
+        result.textContent = caddyuiT('js.settings.failed_c5bc2648') + (d.error || caddyuiT('js.settings.unknown_error_3e4443e5'));
         result.className = 'text-sm text-red-700';
       }
     })
     .catch(function(e) {
-      result.textContent = 'Error: ' + e.message;
+      result.textContent = caddyuiT('js.settings.error_8eecdde0') + e.message;
       result.className = 'text-sm text-red-700';
     })
     .finally(function() {
       btn.disabled = false;
-      btn.textContent = 'Send test email';
+      btn.textContent = caddyuiT('js.settings.send_test_email_46ebd7db');
     });
 }
 
@@ -1563,27 +1560,27 @@ function testWebhook() {
   var btn = document.getElementById('test-webhook-btn');
   var result = document.getElementById('test-result');
   btn.disabled = true;
-  btn.textContent = 'Sending…';
+  btn.textContent = caddyuiT('js.settings.sending_b8ed5279');
   fetch('/settings/test-webhook', {method: 'POST'})
     .then(function(r) { return r.json(); })
     .then(function(d) {
-      result.textContent = d.ok ? '✓ Sent! HTTP ' + d.status_code : 'Failed';
+      result.textContent = d.ok ? caddyuiT('js.settings.sent_http_a6d4ff81') + d.status_code : caddyuiT('js.settings.failed_031a8f0f');
       result.className = d.ok ? 'text-sm text-brand-700' : 'text-sm text-red-700';
     })
     .catch(function(e) {
-      result.textContent = 'Error: ' + e.message;
+      result.textContent = caddyuiT('js.settings.error_8eecdde0') + e.message;
       result.className = 'text-sm text-red-700';
     })
     .finally(function() {
       btn.disabled = false;
-      btn.textContent = 'Send test webhook';
+      btn.textContent = caddyuiT('js.settings.send_test_webhook_14939819');
     });
 }
 
 function testCrowdSec(serverID, btn) {
   var original = btn.textContent;
   btn.disabled = true;
-  btn.textContent = 'Testing…';
+  btn.textContent = caddyuiT('js.settings.testing_407b7a04');
   fetch('/settings/test-crowdsec', {
     method: 'POST',
     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -1593,11 +1590,11 @@ function testCrowdSec(serverID, btn) {
       return r.json().then(function(d) { return {ok: r.ok && d.ok, data: d}; });
     })
     .then(function(result) {
-      btn.textContent = result.ok ? '✓ LAPI connection healthy' : 'Failed: ' + (result.data.error || 'unknown error');
+      btn.textContent = result.ok ? caddyuiT('js.settings.lapi_connection_healthy_6fd87b12') : caddyuiT('js.settings.failed_c5bc2648') + (result.data.error || caddyuiT('js.settings.unknown_error_3e4443e5'));
       btn.className = result.ok ? 'mt-2 text-xs text-brand-700' : 'mt-2 text-xs text-red-700';
     })
     .catch(function(e) {
-      btn.textContent = 'Error: ' + e.message;
+      btn.textContent = caddyuiT('js.settings.error_8eecdde0') + e.message;
       btn.className = 'mt-2 text-xs text-red-700';
     })
     .finally(function() {
@@ -1615,26 +1612,26 @@ function testCrowdSec(serverID, btn) {
     .then(function(d) {
       if (!d) return;
       var el = document.getElementById('notifier-status');
-      var certCheck  = d.last_check    ? new Date(d.last_check).toLocaleString()    : 'Never';
-      var upCheck    = d.upstream_check ? new Date(d.upstream_check).toLocaleString() : 'Never';
+      var certCheck  = d.last_check    ? new Date(d.last_check).toLocaleString()    : caddyuiEscapeHTML(caddyuiT('js.settings.never_6300ef80'));
+      var upCheck    = d.upstream_check ? new Date(d.upstream_check).toLocaleString() : caddyuiEscapeHTML(caddyuiT('js.settings.never_6300ef80'));
       var certList   = (d.last_notified || []).map(function(n) {
-        return '<span class="font-mono">' + escHTML(n.domain) + '</span> (' + escHTML(n.days_left) + 'd left)';
-      }).join(', ') || '<span class="text-ink-400">None</span>';
+        return '<span class="font-mono">' + escHTML(n.domain) + '</span> (' + escHTML(n.days_left) + caddyuiEscapeHTML(caddyuiT('js.settings.d_left_fc8caac4'));
+      }).join(', ') || ("<span class=\"text-ink-400\">" + caddyuiEscapeHTML(caddyuiT('js.settings.none_dc937b59')) + "</span>");
 
       var upAlerts = (d.upstream_alerts || []).slice(-10).reverse();
       var upHtml = upAlerts.length ? upAlerts.map(function(a) {
         var cls = a.event === 'down' ? 'text-red-600' : 'text-brand-700';
         return '<span class="font-mono">' + escHTML(a.upstream) + '</span> '
-          + '<span class="' + cls + '">' + escHTML(a.event) + '</span>'
-          + ' on ' + escHTML(a.server)
+          + '<span class="' + cls + '">' + escHTML(a.event === 'down' ? caddyuiT('js.settings.upstream_down') : a.event === 'up' ? caddyuiT('js.settings.upstream_up') : a.event) + '</span>'
+          + ' ' + caddyuiEscapeHTML(caddyuiT('js.settings.alert_on_server')) + ' ' + escHTML(a.server)
           + ' <span class="text-ink-400">(' + new Date(a.alerted_at).toLocaleString() + ')</span>';
-      }).join('<br>') : '<span class="text-ink-400">None</span>';
+      }).join('<br>') : ("<span class=\"text-ink-400\">" + caddyuiEscapeHTML(caddyuiT('js.settings.none_dc937b59')) + "</span>");
 
       el.innerHTML = '<dl class="space-y-2 text-xs">'
-        + '<div class="flex gap-2"><dt class="text-ink-400 w-36 shrink-0">Cert check</dt><dd class="text-ink-700">' + certCheck + '</dd></div>'
-        + '<div class="flex gap-2"><dt class="text-ink-400 w-36 shrink-0">Cert alerts sent</dt><dd class="text-ink-700">' + certList + '</dd></div>'
-        + '<div class="flex gap-2"><dt class="text-ink-400 w-36 shrink-0">Upstream check</dt><dd class="text-ink-700">' + upCheck + '</dd></div>'
-        + '<div class="flex gap-2 items-start"><dt class="text-ink-400 w-36 shrink-0">Upstream alerts</dt><dd class="text-ink-700 space-y-0.5">' + upHtml + '</dd></div>'
+        + ("<div class=\"flex gap-2\"><dt class=\"text-ink-400 w-36 shrink-0\">" + caddyuiEscapeHTML(caddyuiT('js.settings.cert_check_3f748f9c')) + "</dt><dd class=\"text-ink-700\">") + certCheck + '</dd></div>'
+        + ("<div class=\"flex gap-2\"><dt class=\"text-ink-400 w-36 shrink-0\">" + caddyuiEscapeHTML(caddyuiT('js.settings.cert_alerts_sent_323fefeb')) + "</dt><dd class=\"text-ink-700\">") + certList + '</dd></div>'
+        + ("<div class=\"flex gap-2\"><dt class=\"text-ink-400 w-36 shrink-0\">" + caddyuiEscapeHTML(caddyuiT('js.settings.upstream_check_6c7a4c78')) + "</dt><dd class=\"text-ink-700\">") + upCheck + '</dd></div>'
+        + ("<div class=\"flex gap-2 items-start\"><dt class=\"text-ink-400 w-36 shrink-0\">" + caddyuiEscapeHTML(caddyuiT('js.settings.upstream_alerts_e9ae9eb9')) + "</dt><dd class=\"text-ink-700 space-y-0.5\">") + upHtml + '</dd></div>'
         + '</dl>';
     })
     .catch(function() {});

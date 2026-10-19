@@ -1,9 +1,9 @@
-{{define "title"}}Deploying {{.FirstDomain}} · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.proxy_host_deploying.deploying_4338bdb0"}} {{.FirstDomain}} {{t $ "page.proxy_host_deploying.caddyui_a80cd555"}}{{end}}
 {{define "content"}}
 <div class="max-w-2xl mx-auto">
   <div class="mb-6">
-    <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Deploying <span class="font-mono text-brand-600">{{.FirstDomain}}</span></h1>
-    <p class="text-sm text-ink-500 mt-1.5">DNS usually propagates in 15–60 seconds. HTTPS certificates can take another 30–90 seconds on first request. Feel free to skip ahead at any time.</p>
+    <h1 class="text-2xl font-semibold tracking-tight text-ink-900">{{t $ "page.proxy_host_deploying.deploying_4338bdb0"}} <span class="font-mono text-brand-600">{{.FirstDomain}}</span></h1>
+    <p class="text-sm text-ink-500 mt-1.5">{{t $ "page.proxy_host_deploying.dns_usually_propagates_in_15_60_seconds_https_ce_9e5ae59d"}}</p>
   </div>
 
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5">
@@ -11,8 +11,8 @@
       <li id="step-saved" class="flex items-start gap-3" data-state="ready">
         <span class="step-icon flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold bg-green-100 text-green-700">✓</span>
         <div class="flex-1 min-w-0">
-          <div class="text-sm font-medium text-ink-800">Proxy host saved</div>
-          <div class="text-xs text-ink-500 mt-0.5">Forwarding {{.FirstDomain}} → <span class="font-mono">{{.Host.ForwardScheme}}://{{.Host.ForwardHost}}:{{.Host.ForwardPort}}</span></div>
+          <div class="text-sm font-medium text-ink-800">{{t $ "page.proxy_host_deploying.proxy_host_saved_935f2553"}}</div>
+          <div class="text-xs text-ink-500 mt-0.5">{{t $ "page.proxy_host_deploying.forwarding_70a938ee"}} {{.FirstDomain}} → <span class="font-mono">{{.Host.ForwardScheme}}://{{.Host.ForwardHost}}:{{.Host.ForwardPort}}</span></div>
         </div>
       </li>
 
@@ -21,11 +21,11 @@
         <span class="step-icon flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold bg-green-100 text-green-700">✓</span>
         <div class="flex-1 min-w-0">
           {{if .Host.DNSSkipRecord}}
-          <div class="text-sm font-medium text-ink-800">DNS-01 enabled with {{.ProviderName}}</div>
-          <div class="text-xs text-ink-500 mt-0.5">Public A-record creation skipped; ACME TXT records use zone <span class="font-mono">{{.Host.DNSZoneName}}</span></div>
+          <div class="text-sm font-medium text-ink-800">{{t $ "page.proxy_host_deploying.dns_01_enabled_with_ee7d509a"}} {{.ProviderName}}</div>
+          <div class="text-xs text-ink-500 mt-0.5">{{t $ "page.proxy_host_deploying.public_a_record_creation_skipped_acme_txt_record_f277b262"}} <span class="font-mono">{{.Host.DNSZoneName}}</span></div>
           {{else}}
-          <div class="text-sm font-medium text-ink-800">DNS record created in {{.ProviderName}}</div>
-          <div class="text-xs text-ink-500 mt-0.5">A record added to zone <span class="font-mono">{{.Host.DNSZoneName}}</span>{{if .Host.DNSRecordID}} · record ID <span class="font-mono">{{.Host.DNSRecordID}}</span>{{end}}</div>
+          <div class="text-sm font-medium text-ink-800">{{t $ "page.proxy_host_deploying.dns_record_created_in_d687f9b2"}} {{.ProviderName}}</div>
+          <div class="text-xs text-ink-500 mt-0.5">{{t $ "page.proxy_host_deploying.a_record_added_to_zone_7e0db857"}} <span class="font-mono">{{.Host.DNSZoneName}}</span>{{if .Host.DNSRecordID}} {{t $ "page.proxy_host_deploying.record_id_1022b2c5"}} <span class="font-mono">{{.Host.DNSRecordID}}</span>{{end}}</div>
           {{end}}
         </div>
       </li>
@@ -39,8 +39,8 @@
           </svg>
         </span>
         <div class="flex-1 min-w-0">
-          <div class="text-sm font-medium text-ink-800">DNS propagating…</div>
-          <div id="step-dns-detail" class="text-xs text-ink-500 mt-0.5">Querying public resolver (Cloudflare 1.1.1.1)</div>
+          <div class="text-sm font-medium text-ink-800">{{t $ "page.proxy_host_deploying.dns_propagating_e06b659a"}}</div>
+          <div id="step-dns-detail" class="text-xs text-ink-500 mt-0.5">{{t $ "page.proxy_host_deploying.querying_public_resolver_cloudflare_1_1_1_1_b964f3f8"}}</div>
         </div>
       </li>
 
@@ -52,8 +52,8 @@
           </svg>
         </span>
         <div class="flex-1 min-w-0">
-          <div class="text-sm font-medium text-ink-800">HTTPS certificate</div>
-          <div id="step-cert-detail" class="text-xs text-ink-500 mt-0.5">Waiting for DNS before testing TLS handshake on port 443</div>
+          <div class="text-sm font-medium text-ink-800">{{t $ "page.proxy_host_deploying.https_certificate_46743144"}}</div>
+          <div id="step-cert-detail" class="text-xs text-ink-500 mt-0.5">{{t $ "page.proxy_host_deploying.waiting_for_dns_before_testing_tls_handshake_on_p_44924700"}}</div>
         </div>
       </li>
       {{end}}
@@ -62,16 +62,16 @@
     <div id="deploy-status-banner" class="hidden mt-5 rounded-lg px-3 py-2 text-xs flex items-start gap-2"></div>
 
     <div class="mt-5 pt-4 border-t border-ink-100 flex items-center justify-between gap-3">
-      <div id="deploy-elapsed" class="text-xs text-ink-400">Elapsed: <span id="deploy-elapsed-s">0</span>s</div>
+      <div id="deploy-elapsed" class="text-xs text-ink-400">{{t $ "page.proxy_host_deploying.elapsed_a84f6b7f"}} <span id="deploy-elapsed-s">0</span>s</div>
       <a href="/proxy-hosts" class="inline-flex items-center gap-1.5 text-sm text-ink-600 hover:text-ink-900 transition">
-        Skip waiting
+        {{t $ "page.proxy_host_deploying.skip_waiting_9b209087"}}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="9 18 15 12 9 6"/></svg>
       </a>
     </div>
   </div>
 
   <p class="text-xs text-ink-400 mt-4 text-center">
-    Still deploying after you leave? The record is already saved in your DNS provider and Caddy config — you can safely close this tab.
+    {{t $ "page.proxy_host_deploying.still_deploying_after_you_leave_the_record_is_al_65a25425"}}
   </p>
 </div>
 
@@ -166,21 +166,21 @@
           setState(dnsStep, 'ready');
           if (dnsDetail) {
             if (data.dns_skipped) {
-              dnsDetail.textContent = 'Public A-record verification skipped — testing Caddy directly with SNI';
+              dnsDetail.textContent = caddyuiT('js.proxy_host_deploying.public_a_record_verification_skipped_testing_cad_19a87d50');
             } else if (data.proxied) {
-              dnsDetail.textContent = 'Resolved via Cloudflare edge: ' + (ips.join(', ') || '(proxied)');
+              dnsDetail.textContent = caddyuiT('js.proxy_host_deploying.resolved_via_cloudflare_edge_0dadf112') + (ips.join(', ') || caddyuiT('js.proxy_host_deploying.proxied_8b7024ef'));
             } else {
-              dnsDetail.textContent = 'Resolved to ' + (ips.join(', ') || expectedIP);
+              dnsDetail.textContent = caddyuiT('js.proxy_host_deploying.resolved_to_2b37117d') + (ips.join(', ') || expectedIP);
             }
           }
         } else {
           setState(dnsStep, 'loading');
           if (dnsDetail) {
             if (ips.length > 0) {
-              var want = data.proxied ? 'any A record via Cloudflare' : expectedIP;
-              dnsDetail.textContent = 'Got ' + ips.join(', ') + ' — waiting for ' + want;
+              var want = data.proxied ? caddyuiT('js.proxy_host_deploying.any_a_record_via_cloudflare_b854334b') : expectedIP;
+              dnsDetail.textContent = caddyuiT('js.proxy_host_deploying.got_21198d63') + ips.join(', ') + caddyuiT('js.proxy_host_deploying.waiting_for_0b6d3455') + want;
             } else {
-              dnsDetail.textContent = 'No A record yet via 1.1.1.1 — retrying (' + Math.round(elapsed/1000) + 's elapsed)';
+              dnsDetail.textContent = caddyuiT('js.proxy_host_deploying.no_a_record_yet_via_1_1_1_1_retrying_ddd17114') + Math.round(elapsed/1000) + caddyuiT('js.proxy_host_deploying.s_elapsed_a9904a06');
             }
           }
         }
@@ -189,10 +189,10 @@
         if (sslEnabled && certStep) {
           if (data.cert_ready) {
             setState(certStep, 'ready');
-            if (certDetail) certDetail.textContent = 'TLS handshake verified — the site is live on HTTPS';
+            if (certDetail) certDetail.textContent = caddyuiT('js.proxy_host_deploying.tls_handshake_verified_the_site_is_live_on_https_8c34f48f');
           } else if (data.dns_ready) {
             setState(certStep, 'loading');
-            if (certDetail) certDetail.textContent = 'Caddy is obtaining the certificate via ACME — first request triggers issuance';
+            if (certDetail) certDetail.textContent = caddyuiT('js.proxy_host_deploying.caddy_is_obtaining_the_certificate_via_acme_firs_bc1c8f2e');
           } else {
             setState(certStep, 'pending');
           }
@@ -201,7 +201,7 @@
         // Done? ------------------------------------------------------
         var allReady = data.dns_ready && (data.cert_ready || !sslEnabled);
         if (allReady) {
-          showBanner('ok', 'Ready — redirecting to proxy hosts…');
+          showBanner('ok', caddyuiT('js.proxy_host_deploying.ready_redirecting_to_proxy_hosts_d99b04bb'));
           setTimeout(function() { window.location.href = '/proxy-hosts'; }, 1500);
           return;
         }
@@ -225,7 +225,7 @@
     // Note: consumer routers without hairpin NAT can make the cert probe
     // fail from inside the container even after the site is fully live,
     // so we phrase this as "try opening it" rather than "it's not working."
-    showBanner('warn', 'Still verifying after 2 minutes — the site may already be live. Opening the host list; click the domain to test it directly.');
+    showBanner('warn', caddyuiT('js.proxy_host_deploying.still_verifying_after_2_minutes_the_site_may_alr_233b0241'));
     setTimeout(function() { window.location.href = '/proxy-hosts?deploy_slow=' + encodeURIComponent(firstDomain); }, 3000);
   }
 

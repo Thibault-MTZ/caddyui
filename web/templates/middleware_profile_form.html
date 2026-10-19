@@ -1,9 +1,9 @@
-{{define "title"}}{{if .Row.ID}}Edit{{else}}New{{end}} middleware profile · CaddyUI{{end}}
+{{define "title"}}{{if .Row.ID}}{{t $ "page.middleware_profile_form.title_edit"}}{{else}}{{t $ "page.middleware_profile_form.title_new"}}{{end}}{{end}}
 {{define "content"}}
 <div class="mb-8">
-  <a href="/middleware-profiles" class="text-xs text-ink-500 hover:text-ink-900 transition inline-flex items-center gap-1">&larr; Back to middleware profiles</a>
-  <h1 class="text-2xl font-semibold tracking-tight text-ink-900 mt-2">{{if .Row.ID}}Edit middleware profile{{else}}New middleware profile{{end}}</h1>
-  <p class="text-sm text-ink-500 mt-1 max-w-2xl">Everything below is optional. On a host, a value set on the host itself wins over the profile; empty host fields inherit it. Saving re-syncs every server that has a host using this profile.</p>
+  <a href="/middleware-profiles" class="text-xs text-ink-500 hover:text-ink-900 transition inline-flex items-center gap-1">{{t $ "page.middleware_profile_form.back_to_middleware_profiles_852a65f6"}}</a>
+  <h1 class="text-2xl font-semibold tracking-tight text-ink-900 mt-2">{{if .Row.ID}}{{t $ "page.middleware_profile_form.edit_middleware_profile_10993c9d"}}{{else}}{{t $ "page.middleware_profile_form.new_middleware_profile_f18073c1"}}{{end}}</h1>
+  <p class="text-sm text-ink-500 mt-1 max-w-2xl">{{t $ "page.middleware_profile_form.everything_below_is_optional_on_a_host_a_value_s_041cbf02"}}</p>
 </div>
 
 {{if .Error}}
@@ -13,114 +13,114 @@
 <form method="post" action="{{if .Row.ID}}/middleware-profiles/{{.Row.ID}}{{else}}/middleware-profiles{{end}}" class="bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-7 max-w-3xl">
   <div class="space-y-4">
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Name</label>
-      <input name="name" value="{{.Row.Name}}" required maxlength="80" placeholder="e.g. Internal SSO"
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.middleware_profile_form.name_dcd1d522"}}</label>
+      <input name="name" value="{{.Row.Name}}" required maxlength="80" placeholder="{{t $ "page.middleware_profile_form.placeholder.e_g_internal_sso_aebd4e52"}}"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
     </div>
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Description <span class="text-ink-400 font-normal text-xs">(optional)</span></label>
-      <input name="description" value="{{.Row.Description}}" maxlength="200" placeholder="Shown next to the name in the host picker"
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.middleware_profile_form.description_526e0087"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.middleware_profile_form.optional_0059798b"}}</span></label>
+      <input name="description" value="{{.Row.Description}}" maxlength="200" placeholder="{{t $ "page.middleware_profile_form.placeholder.shown_next_to_the_name_in_the_host_picker_027bf3a6"}}"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
     </div>
   </div>
 
   <fieldset class="space-y-3 border-t border-ink-100 pt-5">
-    <legend class="text-sm font-semibold text-ink-900">Security headers</legend>
+    <legend class="text-sm font-semibold text-ink-900">{{t $ "page.middleware_profile_form.security_headers_c9783372"}}</legend>
     <label class="flex items-start gap-2.5 cursor-pointer text-sm text-ink-700">
       <input type="checkbox" name="security_headers" {{if .Row.SecurityHeaders}}checked{{end}} class="mt-0.5 rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-      <span>Add the standard security headers (HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy)</span>
+      <span>{{t $ "page.middleware_profile_form.add_the_standard_security_headers_hsts_x_content_889e5121"}}</span>
     </label>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <div><label class="block text-xs text-ink-600 mb-1">X-Frame-Options <span class="text-ink-400">(default SAMEORIGIN)</span></label>
+      <div><label class="block text-xs text-ink-600 mb-1">X-Frame-Options <span class="text-ink-400">{{t $ "page.middleware_profile_form.default_sameorigin_35086b0b"}}</span></label>
         <input name="x_frame_options" value="{{.Row.XFrameOptions}}" placeholder="DENY" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:outline-none" /></div>
       <div><label class="block text-xs text-ink-600 mb-1">Referrer-Policy</label>
         <input name="referrer_policy" value="{{.Row.ReferrerPolicy}}" placeholder="strict-origin-when-cross-origin" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:outline-none" /></div>
       <div><label class="block text-xs text-ink-600 mb-1">Permissions-Policy</label>
         <input name="permissions_policy" value="{{.Row.PermissionsPolicy}}" placeholder="camera=(), microphone=()" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:outline-none" /></div>
       <div><label class="block text-xs text-ink-600 mb-1">Content-Security-Policy</label>
-        <input name="csp_header" value="{{.Row.CSPHeader}}" placeholder="default-src 'self'" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:outline-none" /></div>
+        <input name="csp_header" value="{{.Row.CSPHeader}}" placeholder="default-src &#39;self&#39;" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:outline-none" /></div>
     </div>
   </fieldset>
 
   <fieldset class="space-y-3 border-t border-ink-100 pt-5">
-    <legend class="text-sm font-semibold text-ink-900">Forward auth</legend>
-    <p class="text-xs text-ink-500">Delegate authentication to an external service (Authentik, Authelia, …) before proxying. A 2xx answer lets the request through and copies the listed headers to the upstream; anything else is shown to the visitor. A host with its own forward auth URL keeps its own settings.</p>
+    <legend class="text-sm font-semibold text-ink-900">{{t $ "page.middleware_profile_form.forward_auth_990b6d39"}}</legend>
+    <p class="text-xs text-ink-500">{{t $ "page.middleware_profile_form.delegate_authentication_to_an_external_service_a_28e22f19"}}</p>
     <div>
-      <label class="block text-xs text-ink-600 mb-1">Auth URL</label>
+      <label class="block text-xs text-ink-600 mb-1">{{t $ "page.middleware_profile_form.auth_url_96c55891"}}</label>
       <input name="forward_auth_url" value="{{.Row.ForwardAuthURL}}" placeholder="http://authentik:9000/outpost.goauthentik.io/auth/caddy" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:outline-none" />
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <div><label class="block text-xs text-ink-600 mb-1">Method</label>
+      <div><label class="block text-xs text-ink-600 mb-1">{{t $ "page.middleware_profile_form.method_52a0f9b6"}}</label>
         <select name="forward_auth_method" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:outline-none">
-          <option value="" {{if eq .Row.ForwardAuthMethod ""}}selected{{end}}>GET (default)</option>
+          <option value="" {{if eq .Row.ForwardAuthMethod ""}}selected{{end}}>{{t $ "page.middleware_profile_form.get_default_67ce9792"}}</option>
           <option value="POST" {{if eq .Row.ForwardAuthMethod "POST"}}selected{{end}}>POST</option>
           <option value="HEAD" {{if eq .Row.ForwardAuthMethod "HEAD"}}selected{{end}}>HEAD</option>
         </select></div>
-      <div><label class="block text-xs text-ink-600 mb-1">Headers prefix <span class="text-ink-400">(optional)</span></label>
+      <div><label class="block text-xs text-ink-600 mb-1">{{t $ "page.middleware_profile_form.headers_prefix_828fb403"}} <span class="text-ink-400">{{t $ "page.middleware_profile_form.optional_0059798b"}}</span></label>
         <input name="forward_auth_headers_prefix" value="{{.Row.ForwardAuthHeadersPrefix}}" placeholder="X-Auth-" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:outline-none" /></div>
     </div>
     <div>
-      <label class="block text-xs text-ink-600 mb-1">Copy headers <span class="text-ink-400">(comma-separated, from the auth response)</span></label>
+      <label class="block text-xs text-ink-600 mb-1">{{t $ "page.middleware_profile_form.copy_headers_47a7789b"}} <span class="text-ink-400">{{t $ "page.middleware_profile_form.comma_separated_from_the_auth_response_56de242a"}}</span></label>
       <input name="forward_auth_copy_headers" value="{{.Row.ForwardAuthCopyHeaders}}" placeholder="X-Authentik-Username, X-Authentik-Groups" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:outline-none" />
     </div>
     <div>
-      <label class="block text-xs text-ink-600 mb-1">Skip paths <span class="text-ink-400">(comma-separated prefixes that bypass auth)</span></label>
+      <label class="block text-xs text-ink-600 mb-1">{{t $ "page.middleware_profile_form.skip_paths_b91ff512"}} <span class="text-ink-400">{{t $ "page.middleware_profile_form.comma_separated_prefixes_that_bypass_auth_7868929f"}}</span></label>
       <input name="forward_auth_skip_paths" value="{{.Row.ForwardAuthSkipPaths}}" placeholder="/health, /metrics" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:outline-none" />
     </div>
   </fieldset>
 
   <fieldset class="space-y-3 border-t border-ink-100 pt-5">
-    <legend class="text-sm font-semibold text-ink-900">IP restrictions</legend>
+    <legend class="text-sm font-semibold text-ink-900">{{t $ "page.middleware_profile_form.ip_restrictions_ec05e832"}}</legend>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <div><label class="block text-xs text-ink-600 mb-1">Allowlist <span class="text-ink-400">(only these may connect; empty = everyone)</span></label>
+      <div><label class="block text-xs text-ink-600 mb-1">{{t $ "page.middleware_profile_form.allowlist_4ec30e9d"}} <span class="text-ink-400">{{t $ "page.middleware_profile_form.only_these_may_connect_empty_everyone_b4a33bdb"}}</span></label>
         <textarea name="access_list" rows="3" placeholder="10.0.0.0/8, 192.168.0.0/16" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:outline-none">{{.Row.AccessList}}</textarea></div>
-      <div><label class="block text-xs text-ink-600 mb-1">Blocklist <span class="text-ink-400">(answered with 403)</span></label>
+      <div><label class="block text-xs text-ink-600 mb-1">{{t $ "page.middleware_profile_form.blocklist_f8019af4"}} <span class="text-ink-400">{{t $ "page.middleware_profile_form.answered_with_403_a32df3af"}}</span></label>
         <textarea name="ip_blocklist" rows="3" placeholder="203.0.113.0/24" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:outline-none">{{.Row.IPBlocklist}}</textarea></div>
     </div>
   </fieldset>
 
   <fieldset class="space-y-3 border-t border-ink-100 pt-5">
-    <legend class="text-sm font-semibold text-ink-900">Extra headers</legend>
-    <p class="text-xs text-ink-500">JSON objects of header name to value. A header set on the host with the same name wins.</p>
+    <legend class="text-sm font-semibold text-ink-900">{{t $ "page.middleware_profile_form.extra_headers_e53f03df"}}</legend>
+    <p class="text-xs text-ink-500">{{t $ "page.middleware_profile_form.json_objects_of_header_name_to_value_a_header_se_fa84f055"}}</p>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <div><label class="block text-xs text-ink-600 mb-1">Request headers <span class="text-ink-400">(sent to the upstream)</span></label>
+      <div><label class="block text-xs text-ink-600 mb-1">{{t $ "page.middleware_profile_form.request_headers_cbffc1ad"}} <span class="text-ink-400">{{t $ "page.middleware_profile_form.sent_to_the_upstream_15260216"}}</span></label>
         <textarea name="custom_req_headers" rows="4" placeholder='{"X-Env": "prod"}' class="w-full rounded-lg border border-ink-200 px-3 py-2 text-xs font-mono bg-white focus:border-brand-500 focus:outline-none">{{.Row.CustomReqHeaders}}</textarea></div>
-      <div><label class="block text-xs text-ink-600 mb-1">Response headers <span class="text-ink-400">(sent to the visitor)</span></label>
+      <div><label class="block text-xs text-ink-600 mb-1">{{t $ "page.middleware_profile_form.response_headers_4857ffa1"}} <span class="text-ink-400">{{t $ "page.middleware_profile_form.sent_to_the_visitor_f6977e07"}}</span></label>
         <textarea name="custom_resp_headers" rows="4" placeholder='{"X-Robots-Tag": "noindex"}' class="w-full rounded-lg border border-ink-200 px-3 py-2 text-xs font-mono bg-white focus:border-brand-500 focus:outline-none">{{.Row.CustomRespHeaders}}</textarea></div>
     </div>
   </fieldset>
 
   <fieldset class="space-y-3 border-t border-ink-100 pt-5">
-    <legend class="text-sm font-semibold text-ink-900">Web application firewall <span class="text-ink-400 font-normal text-xs">(Coraza)</span></legend>
-    <p class="text-xs text-ink-500 max-w-2xl">Inspects requests with <a href="https://coraza.io" class="text-brand-600 hover:text-brand-700" target="_blank" rel="noopener">Coraza</a> and the OWASP Core Rule Set (SQL injection, XSS, path traversal, scanners…) before they reach the upstream. <strong>Start with Detection only</strong>: it logs what it <em>would</em> block (visible under Server Logs) without blocking anything, so you can see false positives before switching to Block. Needs a Caddy built with the Coraza module — <span class="font-mono">applegater/caddyui-caddy</span> v2.61.0 or newer; CaddyUI checks this before saving.</p>
+    <legend class="text-sm font-semibold text-ink-900">{{t $ "page.middleware_profile_form.web_application_firewall_6262c6a2"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.middleware_profile_form.coraza_9f08bd8b"}}</span></legend>
+    <p class="text-xs text-ink-500 max-w-2xl">{{t $ "page.middleware_profile_form.inspects_requests_with_d5b1779c"}} <a href="https://coraza.io" class="text-brand-600 hover:text-brand-700" target="_blank" rel="noopener">{{t $ "page.middleware_profile_form.coraza_09353f84"}}</a> {{t $ "page.middleware_profile_form.and_the_owasp_core_rule_set_sql_injection_xss_pa_d7d0aca5"}} <strong>{{t $ "page.middleware_profile_form.start_with_detection_only_7f872542"}}</strong>{{t $ "page.middleware_profile_form.it_logs_what_it_7088b129"}} <em>{{t $ "page.middleware_profile_form.would_c6323a21"}}</em> {{t $ "page.middleware_profile_form.block_visible_under_server_logs_without_blocking_ba61dc32"}} <span class="font-mono">applegater/caddyui-caddy</span> {{t $ "page.middleware_profile_form.v2_61_0_or_newer_caddyui_checks_this_before_savi_4ab85c5b"}}</p>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <div><label class="block text-xs text-ink-600 mb-1">Mode</label>
+      <div><label class="block text-xs text-ink-600 mb-1">{{t $ "page.middleware_profile_form.mode_5e23ec6a"}}</label>
         <select name="waf_mode" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:outline-none">
-          <option value="" {{if eq .Row.WAFMode ""}}selected{{end}}>Off</option>
-          <option value="detect" {{if eq .Row.WAFMode "detect"}}selected{{end}}>Detection only (log, never block)</option>
-          <option value="block" {{if eq .Row.WAFMode "block"}}selected{{end}}>Block (answer 403)</option>
+          <option value="" {{if eq .Row.WAFMode ""}}selected{{end}}>{{t $ "page.middleware_profile_form.off_ca7981b4"}}</option>
+          <option value="detect" {{if eq .Row.WAFMode "detect"}}selected{{end}}>{{t $ "page.middleware_profile_form.detection_only_log_never_block_7db5d7a8"}}</option>
+          <option value="block" {{if eq .Row.WAFMode "block"}}selected{{end}}>{{t $ "page.middleware_profile_form.block_answer_403_76dc767f"}}</option>
         </select></div>
-      <div><label class="block text-xs text-ink-600 mb-1">Paranoia level <span class="text-ink-400">(higher = stricter, more false positives)</span></label>
+      <div><label class="block text-xs text-ink-600 mb-1">{{t $ "page.middleware_profile_form.paranoia_level_6842dad3"}} <span class="text-ink-400">{{t $ "page.middleware_profile_form.higher_stricter_more_false_positives_b0688b9d"}}</span></label>
         <select name="waf_paranoia" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:outline-none">
-          <option value="1" {{if or (eq .Row.WAFParanoia 1) (eq .Row.WAFParanoia 0)}}selected{{end}}>1 (recommended)</option>
+          <option value="1" {{if or (eq .Row.WAFParanoia 1) (eq .Row.WAFParanoia 0)}}selected{{end}}>{{t $ "page.middleware_profile_form.1_recommended_17020a15"}}</option>
           <option value="2" {{if eq .Row.WAFParanoia 2}}selected{{end}}>2</option>
           <option value="3" {{if eq .Row.WAFParanoia 3}}selected{{end}}>3</option>
-          <option value="4" {{if eq .Row.WAFParanoia 4}}selected{{end}}>4 (strictest)</option>
+          <option value="4" {{if eq .Row.WAFParanoia 4}}selected{{end}}>{{t $ "page.middleware_profile_form.4_strictest_ce69fc2e"}}</option>
         </select></div>
     </div>
     <label class="flex items-start gap-2.5 cursor-pointer text-sm text-ink-700">
       <input type="checkbox" name="waf_crs" {{if .Row.WAFCRS}}checked{{end}} class="mt-0.5 rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-      <span>Load the OWASP Core Rule Set <span class="block text-xs text-ink-500">Recommended. Without it only Coraza's base configuration and your own directives apply.</span></span>
+      <span>{{t $ "page.middleware_profile_form.load_the_owasp_core_rule_set_0be63cd6"}} <span class="block text-xs text-ink-500">{{t $ "page.middleware_profile_form.recommended_without_it_only_coraza_s_base_config_f7961557"}}</span></span>
     </label>
     <div>
-      <label class="block text-xs text-ink-600 mb-1">Custom directives <span class="text-ink-400">(optional SecLang, applied last — for example <span class="font-mono">SecRuleRemoveById 942100</span> to silence one rule)</span></label>
+      <label class="block text-xs text-ink-600 mb-1">{{t $ "page.middleware_profile_form.custom_directives_f77514c3"}} <span class="text-ink-400">{{t $ "page.middleware_profile_form.optional_seclang_applied_last_for_example_17c95cbf"}} <span class="font-mono">{{t $ "page.middleware_profile_form.secruleremovebyid_942100_d238255b"}}</span> {{t $ "page.middleware_profile_form.to_silence_one_rule_80cb9984"}}</span></label>
       <textarea name="waf_directives" rows="4" placeholder="SecRuleRemoveById 942100" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-xs font-mono bg-white focus:border-brand-500 focus:outline-none">{{.Row.WAFDirectives}}</textarea>
     </div>
   </fieldset>
 
   <div class="flex items-center gap-3 pt-2 border-t border-ink-100">
-    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2 rounded-lg shadow-sm transition mt-4">{{if .Row.ID}}Save changes{{else}}Create profile{{end}}</button>
-    <a href="/middleware-profiles" class="text-sm text-ink-600 hover:text-ink-900 mt-4">Cancel</a>
+    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2 rounded-lg shadow-sm transition mt-4">{{if .Row.ID}}{{t $ "page.middleware_profile_form.save_changes_dd0ae7a5"}}{{else}}{{t $ "page.middleware_profile_form.create_profile_61d30d99"}}{{end}}</button>
+    <a href="/middleware-profiles" class="text-sm text-ink-600 hover:text-ink-900 mt-4">{{t $ "page.middleware_profile_form.cancel_19766ed6"}}</a>
   </div>
 </form>
 {{end}}

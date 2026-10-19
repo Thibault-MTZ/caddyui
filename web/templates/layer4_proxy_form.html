@@ -1,9 +1,9 @@
-{{define "title"}}{{if .Row.ID}}Edit{{else}}New{{end}} Layer4 proxy · CaddyUI{{end}}
+{{define "title"}}{{if .Row.ID}}{{t $ "page.layer4_proxy_form.title_edit"}}{{else}}{{t $ "page.layer4_proxy_form.title_new"}}{{end}}{{end}}
 {{define "content"}}
 <div class="mb-8">
-  <a href="/layer4-proxies" class="text-xs text-ink-500 hover:text-ink-900 transition inline-flex items-center gap-1">&larr; Back to Layer4 proxies</a>
-  <h1 class="text-2xl font-semibold tracking-tight text-ink-900 mt-2">{{if .Row.ID}}Edit Layer4 proxy{{else}}New Layer4 proxy{{end}}</h1>
-  <p class="text-sm text-ink-500 mt-1 max-w-2xl">Forward a TCP or UDP port on this server to an upstream. For SNI routing, matchers or other advanced <code class="font-mono text-xs bg-ink-100 px-1 rounded">caddy-l4</code> configuration, use the <a href="/servers/{{.ServerID}}/edit#layer4-raw" class="text-brand-600 hover:text-brand-700">raw Layer4 app</a>.</p>
+  <a href="/layer4-proxies" class="text-xs text-ink-500 hover:text-ink-900 transition inline-flex items-center gap-1">{{t $ "page.layer4_proxy_form.back_to_layer4_proxies_f13779aa"}}</a>
+  <h1 class="text-2xl font-semibold tracking-tight text-ink-900 mt-2">{{if .Row.ID}}{{t $ "page.layer4_proxy_form.edit_layer4_proxy_422d3b4b"}}{{else}}{{t $ "page.layer4_proxy_form.new_layer4_proxy_49c9e624"}}{{end}}</h1>
+  <p class="text-sm text-ink-500 mt-1 max-w-2xl">{{t $ "page.layer4_proxy_form.forward_a_tcp_or_udp_port_on_this_server_to_an_u_d9a63607"}} <code class="font-mono text-xs bg-ink-100 px-1 rounded">caddy-l4</code> {{t $ "page.layer4_proxy_form.configuration_use_the_ac8590c1"}} <a href="/servers/{{.ServerID}}/edit#layer4-raw" class="text-brand-600 hover:text-brand-700">{{t $ "page.layer4_proxy_form.raw_layer4_app_e787f338"}}</a>.</p>
 </div>
 
 {{if .Error}}
@@ -12,69 +12,69 @@
 
 <form method="post" action="{{if .Row.ID}}/layer4-proxies/{{.Row.ID}}{{else}}/layer4-proxies{{end}}" class="bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-5 max-w-3xl">
   <div>
-    <label class="block text-sm font-medium text-ink-800 mb-1.5">Name</label>
-    <input name="name" value="{{.Row.Name}}" required maxlength="100" placeholder="e.g. Postgres, SSH to nas, DNS"
+    <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.layer4_proxy_form.name_dcd1d522"}}</label>
+    <input name="name" value="{{.Row.Name}}" required maxlength="100" placeholder="{{t $ "page.layer4_proxy_form.placeholder.e_g_postgres_ssh_to_nas_dns_05678a1b"}}"
       class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
   </div>
 
   {{/* v2.61.0 (issue #126): dedicated listener, or share an HTTP port through a caddy-l4 listener wrapper */}}
   <div>
-    <label class="block text-sm font-medium text-ink-800 mb-1.5">How should it listen?</label>
+    <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.layer4_proxy_form.how_should_it_listen_1cc3bae9"}}</label>
     <select name="mode" id="l4-mode" class="w-full max-w-md rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:outline-none">
-      <option value="" {{if ne .Row.Mode "shared"}}selected{{end}}>Its own port (dedicated listener)</option>
-      <option value="shared" {{if eq .Row.Mode "shared"}}selected{{end}}>Share the HTTPS / HTTP port with other traffic (listener wrapper)</option>
+      <option value="" {{if ne .Row.Mode "shared"}}selected{{end}}>{{t $ "page.layer4_proxy_form.its_own_port_dedicated_listener_d5da335c"}}</option>
+      <option value="shared" {{if eq .Row.Mode "shared"}}selected{{end}}>{{t $ "page.layer4_proxy_form.share_the_https_http_port_with_other_traffic_lis_ba083d36"}}</option>
     </select>
-    <p class="text-xs text-ink-500 mt-1.5 max-w-2xl">A dedicated listener cannot use a port Caddy already serves, such as 443. A <strong>shared</strong> proxy reads the first bytes of each connection on that port and takes only the ones that match — for example SSH for <span class="font-mono">ssh.example.com</span> — while normal HTTPS and everything else carries on as before. TCP only.</p>
+    <p class="text-xs text-ink-500 mt-1.5 max-w-2xl">{{t $ "page.layer4_proxy_form.a_dedicated_listener_cannot_use_a_port_caddy_alr_4358c635"}} <strong>{{t $ "page.layer4_proxy_form.shared_a4d26868"}}</strong> {{t $ "page.layer4_proxy_form.proxy_reads_the_first_bytes_of_each_connection_o_e76e50a4"}} <span class="font-mono">ssh.example.com</span> {{t $ "page.layer4_proxy_form.while_normal_https_and_everything_else_carries_o_9b07ae43"}}</p>
   </div>
 
   <div id="l4-shared" class="space-y-4 rounded-lg border border-ink-200 bg-ink-50/50 p-4" {{if ne .Row.Mode "shared"}}hidden{{end}}>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Port to share</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.layer4_proxy_form.port_to_share_ce140ad5"}}</label>
         <select name="wrap_server" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:outline-none">
-          <option value="https" {{if ne .Row.WrapServer "http"}}selected{{end}}>HTTPS — 443</option>
-          <option value="http" {{if eq .Row.WrapServer "http"}}selected{{end}}>HTTP — 80</option>
+          <option value="https" {{if ne .Row.WrapServer "http"}}selected{{end}}>{{t $ "page.layer4_proxy_form.https_443_65dc85db"}}</option>
+          <option value="http" {{if eq .Row.WrapServer "http"}}selected{{end}}>{{t $ "page.layer4_proxy_form.http_80_b3a5ab41"}}</option>
         </select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Take connections that are…</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.layer4_proxy_form.take_connections_that_are_61684604"}}</label>
         <select name="match_kind" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:outline-none">
-          <option value="tls_sni" {{if or (eq .Row.MatchKind "tls_sni") (eq .Row.MatchKind "")}}selected{{end}}>TLS with these server names (SNI) — HTTPS port</option>
-          <option value="http_host" {{if eq .Row.MatchKind "http_host"}}selected{{end}}>HTTP requests for these hostnames — HTTP port</option>
-          <option value="ssh" {{if eq .Row.MatchKind "ssh"}}selected{{end}}>SSH</option>
-          <option value="rdp" {{if eq .Row.MatchKind "rdp"}}selected{{end}}>RDP (Remote Desktop)</option>
-          <option value="postgres" {{if eq .Row.MatchKind "postgres"}}selected{{end}}>PostgreSQL</option>
+          <option value="tls_sni" {{if or (eq .Row.MatchKind "tls_sni") (eq .Row.MatchKind "")}}selected{{end}}>{{t $ "page.layer4_proxy_form.tls_with_these_server_names_sni_https_port_c06887d7"}}</option>
+          <option value="http_host" {{if eq .Row.MatchKind "http_host"}}selected{{end}}>{{t $ "page.layer4_proxy_form.http_requests_for_these_hostnames_http_port_34e273c3"}}</option>
+          <option value="ssh" {{if eq .Row.MatchKind "ssh"}}selected{{end}}>{{t $ "page.layer4_proxy_form.ssh_01c4d3c2"}}</option>
+          <option value="rdp" {{if eq .Row.MatchKind "rdp"}}selected{{end}}>{{t $ "page.layer4_proxy_form.rdp_remote_desktop_7968e9ff"}}</option>
+          <option value="postgres" {{if eq .Row.MatchKind "postgres"}}selected{{end}}>{{t $ "page.layer4_proxy_form.postgresql_cc52d032"}}</option>
         </select>
       </div>
     </div>
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Hostnames <span class="text-ink-400 font-normal text-xs">(for the SNI / HTTP host matchers; comma-separated, <span class="font-mono">*.example.com</span> allowed)</span></label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.layer4_proxy_form.hostnames_ddca7884"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.layer4_proxy_form.for_the_sni_http_host_matchers_comma_separated_b0abc3c5"}} <span class="font-mono">*.example.com</span> {{t $ "page.layer4_proxy_form.allowed_f7e421fe"}}</span></label>
       <input name="match_hosts" value="{{.Row.MatchHosts}}" placeholder="ssh.example.com"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
     </div>
     <label class="flex items-start gap-2.5 text-sm text-ink-700 cursor-pointer">
       <input type="checkbox" name="terminate_tls" {{if .Row.TerminateTLS}}checked{{end}} class="mt-0.5 rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-      <span>Terminate TLS in Caddy (SNI only)
-        <span class="block text-xs text-ink-500">Off (default) passes the TLS connection through untouched, so the upstream does its own TLS. On, Caddy answers with its certificate and sends plain TCP to the upstream. Caddy needs a certificate for that hostname — for example from a proxy host or managed certificate for the same name.</span></span>
+      <span>{{t $ "page.layer4_proxy_form.terminate_tls_in_caddy_sni_only_611b7d08"}}
+        <span class="block text-xs text-ink-500">{{t $ "page.layer4_proxy_form.off_default_passes_the_tls_connection_through_un_37abc4ed"}}</span></span>
     </label>
-    <p class="text-xs text-ink-500">Needs a Caddy build with the <span class="font-mono">caddy-l4</span> module (<span class="font-mono">applegater/caddyui-caddy</span>). Connections that match no shared proxy go on to Caddy's normal TLS and HTTP handling, untouched. SSH clients send their banner immediately, so the SSH matcher adds no delay.</p>
+    <p class="text-xs text-ink-500">{{t $ "page.layer4_proxy_form.needs_a_caddy_build_with_the_d0984a19"}} <span class="font-mono">{{t $ "page.layer4_proxy_form.caddy_l4_c98cab45"}}</span> {{t $ "page.layer4_proxy_form.module_4c3ecec4"}}<span class="font-mono">applegater/caddyui-caddy</span>{{t $ "page.layer4_proxy_form.connections_that_match_no_shared_proxy_go_on_to_c_ec0f5108"}}</p>
   </div>
 
   <div id="l4-listener" class="grid grid-cols-1 sm:grid-cols-3 gap-4" {{if eq .Row.Mode "shared"}}hidden{{end}}>
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Protocol</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.layer4_proxy_form.protocol_cf088334"}}</label>
       <select name="protocol" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:outline-none">
         <option value="tcp" {{if ne .Row.Protocol "udp"}}selected{{end}}>TCP</option>
         <option value="udp" {{if eq .Row.Protocol "udp"}}selected{{end}}>UDP</option>
       </select>
     </div>
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Listen address <span class="text-ink-400 font-normal text-xs">(optional)</span></label>
-      <input name="listen_addr" value="{{.Row.ListenAddr}}" placeholder="all interfaces"
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.layer4_proxy_form.listen_address_edc8737a"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.layer4_proxy_form.optional_0059798b"}}</span></label>
+      <input name="listen_addr" value="{{.Row.ListenAddr}}" placeholder="{{t $ "page.layer4_proxy_form.placeholder.all_interfaces_4686e3d8"}}"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
     </div>
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Listen port</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.layer4_proxy_form.listen_port_cb689659"}}</label>
       <input name="listen_port" type="number" min="1" max="65535" value="{{if .Row.ListenPort}}{{.Row.ListenPort}}{{end}}" placeholder="5432"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
     </div>
@@ -82,44 +82,44 @@
 
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
     <div class="sm:col-span-2">
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Upstream host</label>
-      <input name="upstream_host" value="{{.Row.UpstreamHost}}" required placeholder="10.0.0.5 or db.internal"
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.layer4_proxy_form.upstream_host_149a09de"}}</label>
+      <input name="upstream_host" value="{{.Row.UpstreamHost}}" required placeholder="{{t $ "page.layer4_proxy_form.placeholder.10_0_0_5_or_db_internal_25b82ea5"}}"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
     </div>
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Upstream port</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.layer4_proxy_form.upstream_port_fb9b3961"}}</label>
       <input name="upstream_port" type="number" min="1" max="65535" required value="{{if .Row.UpstreamPort}}{{.Row.UpstreamPort}}{{end}}" placeholder="5432"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
     </div>
   </div>
-  <p class="text-xs text-ink-500 -mt-2">Ports 80, 443 and 2019 are reserved for HTTP(S) and the Caddy admin API. Remember to open the listen port in your firewall.</p>
+  <p class="text-xs text-ink-500 -mt-2">{{t $ "page.layer4_proxy_form.ports_80_443_and_2019_are_reserved_for_http_s_an_40481736"}}</p>
 
   <div>
-    <label class="block text-sm font-medium text-ink-800 mb-1.5">Notes <span class="text-ink-400 font-normal text-xs">(optional)</span></label>
+    <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.layer4_proxy_form.notes_8a7525b1"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.layer4_proxy_form.optional_0059798b"}}</span></label>
     <input name="notes" value="{{.Row.Notes}}" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
   </div>
 
   <div class="space-y-2.5">
-    <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer"><input type="checkbox" name="enabled" {{if .Row.Enabled}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> Enabled (send to Caddy on sync)</label>
+    <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer"><input type="checkbox" name="enabled" {{if .Row.Enabled}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> {{t $ "page.layer4_proxy_form.enabled_send_to_caddy_on_sync_b34d14e0"}}</label>
     {{if .OtherServers}}
     <label class="flex items-start gap-2.5 text-sm text-ink-700 cursor-pointer">
       <input type="checkbox" name="node_local" {{if .Row.NodeLocal}}checked{{end}} class="mt-0.5 rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-      <span>Node-local — never deploy this proxy to other servers
-        <span class="block text-xs text-ink-500">Use it when the upstream only means something on this node. Automatic deployment targets and “Also deploy to” skip it.</span></span>
+      <span>{{t $ "page.layer4_proxy_form.node_local_never_deploy_this_proxy_to_other_serv_6b657e1a"}}
+        <span class="block text-xs text-ink-500">{{t $ "page.layer4_proxy_form.use_it_when_the_upstream_only_means_something_on_8fb48b7b"}}</span></span>
     </label>
     {{end}}
   </div>
 
   {{if .OtherServers}}
   <div class="pt-4 border-t border-ink-100">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-2">Also deploy to</div>
-    <p class="text-xs text-ink-400 mb-3">Push a copy of this proxy to other servers. Servers marked <em>default</em> are this server's automatic deployment targets and are always included.</p>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-2">{{t $ "page.layer4_proxy_form.also_deploy_to_cb49f674"}}</div>
+    <p class="text-xs text-ink-400 mb-3">{{t $ "page.layer4_proxy_form.push_a_copy_of_this_proxy_to_other_servers_serve_c3d4e2b9"}} <em>{{t $ "page.layer4_proxy_form.default_37a8eec1"}}</em> {{t $ "page.layer4_proxy_form.are_this_server_s_automatic_deployment_targets_a_63bafdf1"}}</p>
     <div class="space-y-2">
       {{range .OtherServers}}
       <label class="flex items-center gap-2.5 cursor-pointer select-none">
         <input type="checkbox" name="deploy_to" value="{{.ID}}" {{if .IsDefaultDeployTarget}}checked disabled{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
         <span class="text-sm text-ink-700 font-medium">{{.Name}}</span>
-        {{if .IsDefaultDeployTarget}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5 shrink-0" title="A default deployment target of this server — always deployed to.">default</span>{{end}}
+        {{if .IsDefaultDeployTarget}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5 shrink-0" title="{{t $ "page.layer4_proxy_form.title.a_default_deployment_target_of_this_server_alway_2003e2ff"}}">{{t $ "page.layer4_proxy_form.default_37a8eec1"}}</span>{{end}}
         <span class="text-xs text-ink-400 font-mono truncate">{{.AdminURL}}</span>
       </label>
       {{end}}
@@ -128,8 +128,8 @@
   {{end}}
 
   <div class="flex items-center gap-3 pt-4 border-t border-ink-100">
-    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2 rounded-lg shadow-sm transition">{{if .Row.ID}}Save changes{{else}}Create{{end}}</button>
-    <a href="/layer4-proxies" class="text-sm text-ink-600 hover:text-ink-900">Cancel</a>
+    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-5 py-2 rounded-lg shadow-sm transition">{{if .Row.ID}}{{t $ "page.layer4_proxy_form.save_changes_dd0ae7a5"}}{{else}}{{t $ "page.layer4_proxy_form.create_4759498a"}}{{end}}</button>
+    <a href="/layer4-proxies" class="text-sm text-ink-600 hover:text-ink-900">{{t $ "page.layer4_proxy_form.cancel_19766ed6"}}</a>
   </div>
 </form>
 <script>

@@ -1,17 +1,17 @@
-{{define "title"}}Caddy Fleet · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.servers.caddy_fleet_caddyui_febe3437"}}{{end}}
 {{define "content"}}
 <div class="enterprise-page">
   <header class="enterprise-page-header">
     <div>
-      <div class="enterprise-page-header__eyebrow">Administration · control plane</div>
-      <h1>Caddy fleet</h1>
-      <p>Manage the Caddy environments this control plane can observe or configure. Resource changes always apply to the environment selected in the application shell.</p>
+      <div class="enterprise-page-header__eyebrow">{{t $ "page.servers.administration_control_plane_db9e5f9d"}}</div>
+      <h1>{{t $ "page.servers.caddy_fleet_95796c6a"}}</h1>
+      <p>{{t $ "page.servers.manage_the_caddy_environments_this_control_plane_f7e54ca9"}}</p>
     </div>
     <div class="enterprise-page-header__actions">
-      <a href="/onboarding" class="ui-button ui-button--secondary">Readiness guide</a>
+      <a href="/onboarding" class="ui-button ui-button--secondary">{{t $ "page.servers.readiness_guide_df906cac"}}</a>
       <a href="/servers/new" class="ui-button ui-button--primary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-        Add Caddy server
+        {{t $ "page.servers.add_caddy_server_8cc52264"}}
       </a>
     </div>
   </header>
@@ -25,24 +25,24 @@
 
   <section class="fleet-context ui-panel">
     <div class="fleet-context__metric">
-      <span>Registered environments</span>
+      <span>{{t $ "page.servers.registered_environments_84afa3e5"}}</span>
       <strong>{{len .Servers}}</strong>
     </div>
     <div class="fleet-context__message">
-      <span class="ui-status ui-status--automation">Managed</span>
-      <p>CaddyUI validates and pushes configuration.</p>
+      <span class="ui-status ui-status--automation">{{t $ "page.servers.managed_8f2de600"}}</span>
+      <p>{{t $ "page.servers.caddyui_validates_and_pushes_configuration_e196d80a"}}</p>
     </div>
     <div class="fleet-context__message">
-      <span class="ui-status ui-status--neutral">External</span>
-      <p>Monitoring and inventory only; configuration is never pushed.</p>
+      <span class="ui-status ui-status--neutral">{{t $ "page.servers.external_68c114ea"}}</span>
+      <p>{{t $ "page.servers.monitoring_and_inventory_only_configuration_is_n_4ed1e998"}}</p>
     </div>
   </section>
 
   <section class="ui-section" aria-labelledby="fleet-inventory-title">
     <div class="ui-section-header">
       <div>
-        <h2 class="ui-section-header__title" id="fleet-inventory-title">Environment inventory</h2>
-        <p class="ui-section-header__description">Health refreshes every 30 seconds. Use <strong>Sync from current</strong> to merge all proxy hosts, redirects, advanced routes, and managed certificate definitions from the environment selected in the application shell. Matching routes are updated; target-only routes, DNS records, and custom certificate choices are preserved.</p>
+        <h2 class="ui-section-header__title" id="fleet-inventory-title">{{t $ "page.servers.environment_inventory_55d0382e"}}</h2>
+        <p class="ui-section-header__description">{{t $ "page.servers.health_refreshes_every_30_seconds_use_eb5f6203"}} <strong>{{t $ "page.servers.sync_from_current_3feda88d"}}</strong> {{t $ "page.servers.to_merge_all_proxy_hosts_redirects_advanced_rout_59b2b8d3"}}</p>
       </div>
     </div>
 
@@ -50,12 +50,12 @@
       <table class="ui-table fleet-table">
         <thead>
           <tr>
-            <th>Environment</th>
-            <th>Health</th>
-            <th>Admin endpoint</th>
-            <th>Policy</th>
-            <th>Last contact</th>
-            <th class="text-right">Actions</th>
+            <th>{{t $ "page.servers.environment_9e471951"}}</th>
+            <th>{{t $ "page.servers.health_55898449"}}</th>
+            <th>{{t $ "page.servers.admin_endpoint_96fc10b1"}}</th>
+            <th>{{t $ "page.servers.policy_c611981f"}}</th>
+            <th>{{t $ "page.servers.last_contact_4f9a1901"}}</th>
+            <th class="text-right">{{t $ "page.servers.actions_ff8059dc"}}</th>
           </tr>
         </thead>
         <tbody>
@@ -64,7 +64,7 @@
             <td>
               <div class="fleet-name">
                 <strong>{{.Name}}</strong>
-                {{if and $.CurrentServer (eq $.CurrentServer.ID .ID)}}<span class="ui-status ui-status--info">Current</span>{{end}}
+                {{if and $.CurrentServer (eq $.CurrentServer.ID .ID)}}<span class="ui-status ui-status--info">{{t $ "page.servers.current_e0d1b682"}}</span>{{end}}
               </div>
               <div class="fleet-tags">
                 {{if .Version}}<span class="version-pill">{{.Version}}</span>{{end}}
@@ -72,36 +72,36 @@
               </div>
             </td>
             <td>
-              {{if eq .Status "online"}}<span class="ui-status ui-status--success">Online</span>
-              {{else if eq .Status "offline"}}<span class="ui-status ui-status--danger">Offline</span>
-              {{else}}<span class="ui-status ui-status--neutral">Unknown</span>{{end}}
+              {{if eq .Status "online"}}<span class="ui-status ui-status--success">{{t $ "page.servers.online_0d21bd52"}}</span>
+              {{else if eq .Status "offline"}}<span class="ui-status ui-status--danger">{{t $ "page.servers.offline_a1794783"}}</span>
+              {{else}}<span class="ui-status ui-status--neutral">{{t $ "page.servers.unknown_b764cdc0"}}</span>{{end}}
             </td>
             <td><code class="fleet-endpoint" title="{{.AdminURL}}">{{.AdminURL}}</code>
               {{/* v2.37.0: where this node ships its logs, with a warning when it plainly can't get there */}}
-              {{$sid := .ID}}{{with index $.IngestTargets .ID}}<div class="text-xs text-ink-400 mt-1">logs → <code class="font-mono">{{.}}</code></div>{{end}}{{with index $.IngestWarnings $sid}}<div class="text-xs text-amber-700 mt-1" title="{{.}}">⚠ this node can't reach its log target — <a href="/servers/{{$sid}}/edit" class="underline">set one it can</a></div>{{end}}</td>
+              {{$sid := .ID}}{{with index $.IngestTargets .ID}}<div class="text-xs text-ink-400 mt-1">{{t $ "page.servers.logs_4143dc26"}} <code class="font-mono">{{.}}</code></div>{{end}}{{with index $.IngestWarnings $sid}}<div class="text-xs text-amber-700 mt-1" title="{{.}}">{{t $ "page.servers.this_node_can_t_reach_its_log_target_3160ffb7"}} <a href="/servers/{{$sid}}/edit" class="underline">{{t $ "page.servers.set_one_it_can_a3f257b7"}}</a></div>{{end}}</td>
             <td>
-              {{if eq .Type "managed"}}<span class="ui-status ui-status--automation">Managed</span>
-              {{else}}<span class="ui-status ui-status--neutral">External</span>{{end}}
+              {{if eq .Type "managed"}}<span class="ui-status ui-status--automation">{{t $ "page.servers.managed_8f2de600"}}</span>
+              {{else}}<span class="ui-status ui-status--neutral">{{t $ "page.servers.external_68c114ea"}}</span>{{end}}
             </td>
             <td class="fleet-last-contact">
-              {{if .LastContactAt.Valid}}{{fmtRel .LastContactAt.Time}}{{else}}Never{{end}}
+              {{if .LastContactAt.Valid}}{{fmtRelT $ .LastContactAt.Time}}{{else}}{{t $ "page.servers.never_6300ef80"}}{{end}}
             </td>
             <td>
               <div class="fleet-actions">
                 {{if not (and $.CurrentServer (eq $.CurrentServer.ID .ID))}}
-                <form method="post" action="/servers/{{.ID}}/select"><button class="ui-button ui-button--secondary">Select</button></form>
+                <form method="post" action="/servers/{{.ID}}/select"><button class="ui-button ui-button--secondary">{{t $ "page.servers.select_2a78025d"}}</button></form>
                 {{end}}
                 {{if and $.CurrentServer (eq .Type "managed") (eq $.CurrentServer.Type "managed")}}
                 {{if ne $.CurrentServer.ID .ID}}
-                <form method="post" action="/servers/{{.ID}}/sync-from-current" onsubmit="return confirm('Merge every managed route from the current environment into this target? Matching routes will be updated; target-only routes will remain.')">
-                  <button class="ui-button ui-button--secondary">Sync from current</button>
+                <form method="post" action="/servers/{{.ID}}/sync-from-current" onsubmit="return confirm(caddyuiT('js.servers.merge_every_managed_route_from_the_current_envir_98ab9981'))">
+                  <button class="ui-button ui-button--secondary">{{t $ "page.servers.sync_from_current_3feda88d"}}</button>
                 </form>
                 {{end}}
                 {{end}}
-                <a href="/servers/{{.ID}}/config" class="ui-button ui-button--quiet">Config</a>
-                <a href="/servers/{{.ID}}/edit" class="ui-button ui-button--quiet">Edit</a>
-                <form method="post" action="/servers/{{.ID}}/delete" onsubmit="return confirm('Delete server {{.Name}}? Its config rows will be orphaned.')">
-                  <button class="fleet-delete">Delete</button>
+                <a href="/servers/{{.ID}}/config" class="ui-button ui-button--quiet">{{t $ "page.servers.config_87e89abb"}}</a>
+                <a href="/servers/{{.ID}}/edit" class="ui-button ui-button--quiet">{{t $ "page.servers.edit_464c4ffd"}}</a>
+                <form method="post" action="/servers/{{.ID}}/delete" onsubmit="return confirm(caddyuiT('js.servers.delete_server_value1_its_config_rows_will_be_orp_badfba8f', {value1: {{.Name}}}))">
+                  <button class="fleet-delete">{{t $ "page.servers.delete_e2d0a549"}}</button>
                 </form>
               </div>
             </td>
@@ -110,9 +110,9 @@
           <tr>
             <td colspan="6">
               <div class="ui-empty">
-                <div class="ui-empty__title">No Caddy environments registered</div>
-                <div class="ui-empty__body">Add a managed or external Caddy server to begin.</div>
-                <a href="/servers/new" class="ui-button ui-button--primary mt-4">Add Caddy server</a>
+                <div class="ui-empty__title">{{t $ "page.servers.no_caddy_environments_registered_b0973556"}}</div>
+                <div class="ui-empty__body">{{t $ "page.servers.add_a_managed_or_external_caddy_server_to_begin_d831023f"}}</div>
+                <a href="/servers/new" class="ui-button ui-button--primary mt-4">{{t $ "page.servers.add_caddy_server_8cc52264"}}</a>
               </div>
             </td>
           </tr>
@@ -128,41 +128,41 @@
           <div>
             <div class="fleet-name">
               <strong>{{.Name}}</strong>
-              {{if and $.CurrentServer (eq $.CurrentServer.ID .ID)}}<span class="ui-status ui-status--info">Current</span>{{end}}
+              {{if and $.CurrentServer (eq $.CurrentServer.ID .ID)}}<span class="ui-status ui-status--info">{{t $ "page.servers.current_e0d1b682"}}</span>{{end}}
             </div>
             <code class="fleet-endpoint">{{.AdminURL}}</code>
-            {{$sid := .ID}}{{with index $.IngestTargets .ID}}<div class="text-xs text-ink-400 mt-1">logs → <code class="font-mono">{{.}}</code></div>{{end}}{{with index $.IngestWarnings $sid}}<div class="text-xs text-amber-700 mt-1" title="{{.}}">⚠ this node can't reach its log target — <a href="/servers/{{$sid}}/edit" class="underline">set one it can</a></div>{{end}}
+            {{$sid := .ID}}{{with index $.IngestTargets .ID}}<div class="text-xs text-ink-400 mt-1">{{t $ "page.servers.logs_4143dc26"}} <code class="font-mono">{{.}}</code></div>{{end}}{{with index $.IngestWarnings $sid}}<div class="text-xs text-amber-700 mt-1" title="{{.}}">{{t $ "page.servers.this_node_can_t_reach_its_log_target_3160ffb7"}} <a href="/servers/{{$sid}}/edit" class="underline">{{t $ "page.servers.set_one_it_can_a3f257b7"}}</a></div>{{end}}
           </div>
-          {{if eq .Status "online"}}<span class="ui-status ui-status--success">Online</span>
-          {{else if eq .Status "offline"}}<span class="ui-status ui-status--danger">Offline</span>
-          {{else}}<span class="ui-status ui-status--neutral">Unknown</span>{{end}}
+          {{if eq .Status "online"}}<span class="ui-status ui-status--success">{{t $ "page.servers.online_0d21bd52"}}</span>
+          {{else if eq .Status "offline"}}<span class="ui-status ui-status--danger">{{t $ "page.servers.offline_a1794783"}}</span>
+          {{else}}<span class="ui-status ui-status--neutral">{{t $ "page.servers.unknown_b764cdc0"}}</span>{{end}}
         </div>
         <div class="fleet-mobile-card__meta">
-          {{if eq .Type "managed"}}<span class="ui-status ui-status--automation">Managed</span>{{else}}<span class="ui-status ui-status--neutral">External</span>{{end}}
+          {{if eq .Type "managed"}}<span class="ui-status ui-status--automation">{{t $ "page.servers.managed_8f2de600"}}</span>{{else}}<span class="ui-status ui-status--neutral">{{t $ "page.servers.external_68c114ea"}}</span>{{end}}
           {{if .Version}}<span class="version-pill">{{.Version}}</span>{{end}}
-          <span>Last contact: {{if .LastContactAt.Valid}}{{fmtRel .LastContactAt.Time}}{{else}}never{{end}}</span>
+          <span>{{t $ "page.servers.last_contact_3c7f0ecc"}} {{if .LastContactAt.Valid}}{{fmtRelT $ .LastContactAt.Time}}{{else}}{{t $ "page.servers.never_6497e4b3"}}{{end}}</span>
         </div>
         <div class="fleet-actions">
           {{if not (and $.CurrentServer (eq $.CurrentServer.ID .ID))}}
-          <form method="post" action="/servers/{{.ID}}/select"><button class="ui-button ui-button--secondary">Select</button></form>
+          <form method="post" action="/servers/{{.ID}}/select"><button class="ui-button ui-button--secondary">{{t $ "page.servers.select_2a78025d"}}</button></form>
           {{end}}
           {{if and $.CurrentServer (eq .Type "managed") (eq $.CurrentServer.Type "managed")}}
           {{if ne $.CurrentServer.ID .ID}}
-          <form method="post" action="/servers/{{.ID}}/sync-from-current" onsubmit="return confirm('Merge every managed route from the current environment into this target? Matching routes will be updated; target-only routes will remain.')">
-            <button class="ui-button ui-button--secondary">Sync from current</button>
+          <form method="post" action="/servers/{{.ID}}/sync-from-current" onsubmit="return confirm(caddyuiT('js.servers.merge_every_managed_route_from_the_current_envir_98ab9981'))">
+            <button class="ui-button ui-button--secondary">{{t $ "page.servers.sync_from_current_3feda88d"}}</button>
           </form>
           {{end}}
           {{end}}
-          <a href="/servers/{{.ID}}/config" class="ui-button ui-button--quiet">Config</a>
-          <a href="/servers/{{.ID}}/edit" class="ui-button ui-button--quiet">Edit</a>
-          <form method="post" action="/servers/{{.ID}}/delete" class="ml-auto" onsubmit="return confirm('Delete server {{.Name}}?')"><button class="fleet-delete">Delete</button></form>
+          <a href="/servers/{{.ID}}/config" class="ui-button ui-button--quiet">{{t $ "page.servers.config_87e89abb"}}</a>
+          <a href="/servers/{{.ID}}/edit" class="ui-button ui-button--quiet">{{t $ "page.servers.edit_464c4ffd"}}</a>
+          <form method="post" action="/servers/{{.ID}}/delete" class="ml-auto" onsubmit="return confirm(caddyuiT('js.servers.delete_server_value1_e787b40e', {value1: {{.Name}}}))"><button class="fleet-delete">{{t $ "page.servers.delete_e2d0a549"}}</button></form>
         </div>
       </article>
       {{else}}
       <div class="ui-panel ui-empty">
-        <div class="ui-empty__title">No Caddy environments registered</div>
-        <div class="ui-empty__body">Add a managed or external Caddy server to begin.</div>
-        <a href="/servers/new" class="ui-button ui-button--primary mt-4">Add Caddy server</a>
+        <div class="ui-empty__title">{{t $ "page.servers.no_caddy_environments_registered_b0973556"}}</div>
+        <div class="ui-empty__body">{{t $ "page.servers.add_a_managed_or_external_caddy_server_to_begin_d831023f"}}</div>
+        <a href="/servers/new" class="ui-button ui-button--primary mt-4">{{t $ "page.servers.add_caddy_server_8cc52264"}}</a>
       </div>
       {{end}}
     </div>
@@ -170,7 +170,7 @@
 
   <div class="fleet-footnote">
     <span class="semantic-dot semantic-dot--warning"></span>
-    <p>Protect TCP admin endpoints with a private network, WireGuard/Tailscale, or an authenticated reverse proxy. For local Caddy, a Unix socket avoids network exposure entirely.</p>
+    <p>{{t $ "page.servers.protect_tcp_admin_endpoints_with_a_private_netwo_3b8ce880"}}</p>
   </div>
 </div>
 {{end}}

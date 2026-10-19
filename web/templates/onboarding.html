@@ -1,18 +1,18 @@
-{{define "title"}}Getting Started · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.onboarding.getting_started_caddyui_b3808529"}}{{end}}
 {{define "content"}}
 <div class="enterprise-page onboarding-page">
   <header class="enterprise-page-header">
     <div>
-      <div class="enterprise-page-header__eyebrow">Guided setup</div>
-      <h1>Prepare your Caddy environment</h1>
-      <p>Follow the operating sequence once, then use the same workflow whenever you add a server or publish a service.</p>
+      <div class="enterprise-page-header__eyebrow">{{t $ "page.onboarding.guided_setup_8ef7823c"}}</div>
+      <h1>{{t $ "page.onboarding.prepare_your_caddy_environment_2dc3e37d"}}</h1>
+      <p>{{t $ "page.onboarding.follow_the_operating_sequence_once_then_use_the_s_b183976f"}}</p>
     </div>
     <div class="enterprise-page-header__actions">
-      <a href="/" class="ui-button ui-button--secondary">Open operations</a>
+      <a href="/" class="ui-button ui-button--secondary">{{t $ "page.onboarding.open_operations_e40614ff"}}</a>
       {{if ne .User.Role "viewer"}}
       <a href="/proxy-hosts/new" class="ui-button ui-button--primary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-        Publish a service
+        {{t $ "page.onboarding.publish_a_service_2ef3eba1"}}
       </a>
       {{end}}
     </div>
@@ -21,37 +21,37 @@
   <section class="onboarding-hero ui-panel" aria-labelledby="setup-progress-title">
     <div class="onboarding-hero__copy">
       <span class="ui-status {{if eq .CompletedSteps 4}}ui-status--success{{else}}ui-status--info{{end}}">
-        {{.CompletedSteps}} of 4 required foundations ready
+        {{.CompletedSteps}} {{t $ "page.onboarding.of_4_required_foundations_ready_e326b439"}}
       </span>
-      <h2 id="setup-progress-title">{{if eq .CompletedSteps 4}}Environment ready for operations{{else}}Finish the recommended foundation{{end}}</h2>
-      <p>CaddyUI checks real configuration state, so this page remains useful as an environment readiness review—not just a one-time tutorial.</p>
+      <h2 id="setup-progress-title">{{if eq .CompletedSteps 4}}{{t $ "page.onboarding.environment_ready_for_operations_ebbe426a"}}{{else}}{{t $ "page.onboarding.finish_the_recommended_foundation_e42be8fc"}}{{end}}</h2>
+      <p>{{t $ "page.onboarding.caddyui_checks_real_configuration_state_so_this_p_e5241a28"}}</p>
     </div>
-    <div class="onboarding-progress" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="{{.CompletedSteps}}" aria-label="Setup progress">
+    <div class="onboarding-progress" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="{{.CompletedSteps}}" aria-label="{{t $ "page.onboarding.aria-label.setup_progress_e9b4495a"}}">
       <div class="onboarding-progress__track">
         <span style="width: {{mulDivInt .CompletedSteps 100 4}}%"></span>
       </div>
       <div class="onboarding-progress__meta">
-        <span>{{mulDivInt .CompletedSteps 100 4}}% complete</span>
-        <span>DNS automation is optional</span>
+        <span>{{mulDivInt .CompletedSteps 100 4}}{{t $ "page.onboarding.complete_fe9543cf"}}</span>
+        <span>{{t $ "page.onboarding.dns_automation_is_optional_ba678521"}}</span>
       </div>
     </div>
   </section>
 
   <div class="onboarding-layout">
-    <ol class="onboarding-steps" aria-label="Environment setup steps">
+    <ol class="onboarding-steps" aria-label="{{t $ "page.onboarding.aria-label.environment_setup_steps_60fae80c"}}">
       <li class="onboarding-step onboarding-step--complete">
         <div class="onboarding-step__rail"><span>1</span></div>
         <article class="ui-panel onboarding-step__card">
           <div class="onboarding-step__header">
             <div>
-              <div class="onboarding-step__kicker">Identity</div>
-              <h2>Administrator account</h2>
+              <div class="onboarding-step__kicker">{{t $ "page.onboarding.identity_999f23fc"}}</div>
+              <h2>{{t $ "page.onboarding.administrator_account_a02de344"}}</h2>
             </div>
-            <span class="ui-status ui-status--success">Ready</span>
+            <span class="ui-status ui-status--success">{{t $ "page.onboarding.ready_5fa7aac5"}}</span>
           </div>
-          <p>Your first administrator account is active. Account-level security is handled separately in step four.</p>
+          <p>{{t $ "page.onboarding.your_first_administrator_account_is_active_accou_92feda45"}}</p>
           <div class="onboarding-step__context">
-            <span class="onboarding-context-label">Signed in as</span>
+            <span class="onboarding-context-label">{{t $ "page.onboarding.signed_in_as_abc50e33"}}</span>
             <strong>{{.User.Email}}</strong>
           </div>
         </article>
@@ -62,19 +62,19 @@
         <article class="ui-panel onboarding-step__card">
           <div class="onboarding-step__header">
             <div>
-              <div class="onboarding-step__kicker">Control plane</div>
-              <h2>Connect and verify Caddy</h2>
+              <div class="onboarding-step__kicker">{{t $ "page.onboarding.control_plane_f15d0e7f"}}</div>
+              <h2>{{t $ "page.onboarding.connect_and_verify_caddy_04d4536f"}}</h2>
             </div>
-            {{if .ServerConnected}}<span class="ui-status ui-status--success">Online</span>
-            {{else if and .CurrentServer (eq .CurrentServer.Status "offline")}}<span class="ui-status ui-status--danger">Offline</span>
-            {{else if .CurrentServer}}<span class="ui-status ui-status--warning">Waiting for health check</span>
-            {{else}}<span class="ui-status ui-status--danger">Not configured</span>{{end}}
+            {{if .ServerConnected}}<span class="ui-status ui-status--success">{{t $ "page.onboarding.online_0d21bd52"}}</span>
+            {{else if and .CurrentServer (eq .CurrentServer.Status "offline")}}<span class="ui-status ui-status--danger">{{t $ "page.onboarding.offline_a1794783"}}</span>
+            {{else if .CurrentServer}}<span class="ui-status ui-status--warning">{{t $ "page.onboarding.waiting_for_health_check_21f19282"}}</span>
+            {{else}}<span class="ui-status ui-status--danger">{{t $ "page.onboarding.not_configured_dd1841d2"}}</span>{{end}}
           </div>
-          <p>CaddyUI needs a reachable Caddy admin API before it can validate and deploy configuration.</p>
+          <p>{{t $ "page.onboarding.caddyui_needs_a_reachable_caddy_admin_api_before_2ae13bce"}}</p>
           {{if .CurrentServer}}
           <div class="onboarding-server-context">
             <div>
-              <span class="onboarding-context-label">Environment</span>
+              <span class="onboarding-context-label">{{t $ "page.onboarding.environment_9e471951"}}</span>
               <strong>{{.CurrentServer.Name}}</strong>
             </div>
             <code>{{.CurrentServer.AdminURL}}</code>
@@ -82,8 +82,8 @@
           {{end}}
           {{if eq .User.Role "admin"}}
           <div class="onboarding-step__actions">
-            {{if .CurrentServer}}<a href="/servers/{{.CurrentServer.ID}}/edit" class="ui-button ui-button--secondary">Review connection</a>{{end}}
-            <a href="/servers" class="ui-section-header__action">Manage Caddy fleet →</a>
+            {{if .CurrentServer}}<a href="/servers/{{.CurrentServer.ID}}/edit" class="ui-button ui-button--secondary">{{t $ "page.onboarding.review_connection_25cb72b4"}}</a>{{end}}
+            <a href="/servers" class="ui-section-header__action">{{t $ "page.onboarding.manage_caddy_fleet_7dee4736"}}</a>
           </div>
           {{end}}
         </article>
@@ -94,19 +94,19 @@
         <article class="ui-panel onboarding-step__card">
           <div class="onboarding-step__header">
             <div>
-              <div class="onboarding-step__kicker">Optional capability</div>
-              <h2>Configure DNS credentials</h2>
+              <div class="onboarding-step__kicker">{{t $ "page.onboarding.optional_capability_ca054065"}}</div>
+              <h2>{{t $ "page.onboarding.configure_dns_credentials_a7b0c6b7"}}</h2>
             </div>
-            {{if .DNSConfigured}}<span class="ui-status ui-status--success">Configured</span>
-            {{else}}<span class="ui-status ui-status--neutral">Optional</span>{{end}}
+            {{if .DNSConfigured}}<span class="ui-status ui-status--success">{{t $ "page.onboarding.configured_84aebc69"}}</span>
+            {{else}}<span class="ui-status ui-status--neutral">{{t $ "page.onboarding.optional_59be7133"}}</span>{{end}}
           </div>
-          <p>Saved provider profiles let CaddyUI create DNS records and let Caddy complete DNS-01 challenges for wildcard certificates.</p>
+          <p>{{t $ "page.onboarding.saved_provider_profiles_let_caddyui_create_dns_r_8ac200e5"}}</p>
           {{if eq .User.Role "admin"}}
           <div class="onboarding-step__actions">
             <a href="/settings/dns" class="ui-button {{if .DNSConfigured}}ui-button--secondary{{else}}ui-button--primary{{end}}">
-              {{if .DNSConfigured}}Review DNS profiles{{else}}Add DNS provider{{end}}
+              {{if .DNSConfigured}}{{t $ "page.onboarding.review_dns_profiles_07809bc5"}}{{else}}{{t $ "page.onboarding.add_dns_provider_537a8b17"}}{{end}}
             </a>
-            <a href="/docs#proxy-hosts" class="ui-section-header__action">How automation works →</a>
+            <a href="/docs#proxy-hosts" class="ui-section-header__action">{{t $ "page.onboarding.how_automation_works_9a363fbd"}}</a>
           </div>
           {{end}}
         </article>
@@ -117,18 +117,18 @@
         <article class="ui-panel onboarding-step__card">
           <div class="onboarding-step__header">
             <div>
-              <div class="onboarding-step__kicker">Security</div>
-              <h2>Protect the administrator account</h2>
+              <div class="onboarding-step__kicker">{{t $ "page.onboarding.security_8f6fb4eb"}}</div>
+              <h2>{{t $ "page.onboarding.protect_the_administrator_account_c0f2ae6d"}}</h2>
             </div>
-            {{if .TOTPEnabled}}<span class="ui-status ui-status--success">Protected</span>
-            {{else}}<span class="ui-status ui-status--warning">Recommended</span>{{end}}
+            {{if .TOTPEnabled}}<span class="ui-status ui-status--success">{{t $ "page.onboarding.protected_b0ed2633"}}</span>
+            {{else}}<span class="ui-status ui-status--warning">{{t $ "page.onboarding.recommended_d70604e8"}}</span>{{end}}
           </div>
-          <p>Enable TOTP and save the recovery codes before putting CaddyUI on a shared or internet-reachable network.</p>
+          <p>{{t $ "page.onboarding.enable_totp_and_save_the_recovery_codes_before_p_88a76b19"}}</p>
           <div class="onboarding-step__actions">
             <a href="/totp/setup" class="ui-button {{if .TOTPEnabled}}ui-button--secondary{{else}}ui-button--primary{{end}}">
-              {{if .TOTPEnabled}}Review two-factor auth{{else}}Enable two-factor auth{{end}}
+              {{if .TOTPEnabled}}{{t $ "page.onboarding.review_two_factor_auth_99c1839d"}}{{else}}{{t $ "page.onboarding.enable_two_factor_auth_8883561c"}}{{end}}
             </a>
-            {{if eq .User.Role "admin"}}<a href="/settings/security" class="ui-section-header__action">Security policy →</a>{{end}}
+            {{if eq .User.Role "admin"}}<a href="/settings/security" class="ui-section-header__action">{{t $ "page.onboarding.security_policy_7772bd99"}}</a>{{end}}
           </div>
         </article>
       </li>
@@ -138,20 +138,20 @@
         <article class="ui-panel onboarding-step__card">
           <div class="onboarding-step__header">
             <div>
-              <div class="onboarding-step__kicker">Traffic</div>
-              <h2>Publish your first service</h2>
+              <div class="onboarding-step__kicker">{{t $ "page.onboarding.traffic_4876efb7"}}</div>
+              <h2>{{t $ "page.onboarding.publish_your_first_service_3b2ef195"}}</h2>
             </div>
-            {{if .ProxyCount}}<span class="ui-status ui-status--success">{{.ProxyCount}} configured</span>
-            {{else}}<span class="ui-status ui-status--info">Next step</span>{{end}}
+            {{if .ProxyCount}}<span class="ui-status ui-status--success">{{.ProxyCount}} {{t $ "page.onboarding.configured_20158224"}}</span>
+            {{else}}<span class="ui-status ui-status--info">{{t $ "page.onboarding.next_step_298a9207"}}</span>{{end}}
           </div>
-          <p>The guided publishing workflow checks the public hostname, upstream target, TLS/DNS automation, and deployment scope before saving.</p>
+          <p>{{t $ "page.onboarding.the_guided_publishing_workflow_checks_the_public_b43ef449"}}</p>
           {{if ne .User.Role "viewer"}}
           <div class="onboarding-step__actions">
-            <a href="/proxy-hosts/new" class="ui-button ui-button--primary">Publish a service</a>
-            <a href="/proxy-hosts/new?mode=advanced" class="ui-section-header__action">Open advanced editor →</a>
+            <a href="/proxy-hosts/new" class="ui-button ui-button--primary">{{t $ "page.onboarding.publish_a_service_2ef3eba1"}}</a>
+            <a href="/proxy-hosts/new?mode=advanced" class="ui-section-header__action">{{t $ "page.onboarding.open_advanced_editor_23f6cfd5"}}</a>
           </div>
           {{else}}
-          <div class="onboarding-step__actions"><a href="/proxy-hosts" class="ui-button ui-button--secondary">View proxy hosts</a></div>
+          <div class="onboarding-step__actions"><a href="/proxy-hosts" class="ui-button ui-button--secondary">{{t $ "page.onboarding.view_proxy_hosts_602a5729"}}</a></div>
           {{end}}
         </article>
       </li>
@@ -163,23 +163,23 @@
           <span class="onboarding-principles__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
           </span>
-          <div><h2>Enterprise guardrails</h2><p>What the interface means everywhere.</p></div>
+          <div><h2>{{t $ "page.onboarding.enterprise_guardrails_15498d19"}}</h2><p>{{t $ "page.onboarding.what_the_interface_means_everywhere_48aa88f9"}}</p></div>
         </div>
         <dl class="semantic-legend">
-          <div><dt><span class="semantic-dot semantic-dot--action"></span>Blue</dt><dd>Primary action or current context</dd></div>
-          <div><dt><span class="semantic-dot semantic-dot--success"></span>Green</dt><dd>Healthy, enabled, or completed</dd></div>
-          <div><dt><span class="semantic-dot semantic-dot--warning"></span>Amber</dt><dd>Pending, degraded, or maintenance</dd></div>
-          <div><dt><span class="semantic-dot semantic-dot--danger"></span>Red</dt><dd>Failure, offline, or destructive</dd></div>
-          <div><dt><span class="semantic-dot semantic-dot--automation"></span>Violet</dt><dd>TLS, automation, or managed policy</dd></div>
-          <div><dt><span class="semantic-dot semantic-dot--neutral"></span>Gray</dt><dd>Disabled, unknown, or informational</dd></div>
+          <div><dt><span class="semantic-dot semantic-dot--action"></span>{{t $ "page.onboarding.blue_ec7d56a0"}}</dt><dd>{{t $ "page.onboarding.primary_action_or_current_context_92d5ef9a"}}</dd></div>
+          <div><dt><span class="semantic-dot semantic-dot--success"></span>{{t $ "page.onboarding.green_d486dfbd"}}</dt><dd>{{t $ "page.onboarding.healthy_enabled_or_completed_3f3e7d8c"}}</dd></div>
+          <div><dt><span class="semantic-dot semantic-dot--warning"></span>{{t $ "page.onboarding.amber_a5cccbce"}}</dt><dd>{{t $ "page.onboarding.pending_degraded_or_maintenance_9f5ad6cd"}}</dd></div>
+          <div><dt><span class="semantic-dot semantic-dot--danger"></span>{{t $ "page.onboarding.red_ba19e9c3"}}</dt><dd>{{t $ "page.onboarding.failure_offline_or_destructive_777bd57a"}}</dd></div>
+          <div><dt><span class="semantic-dot semantic-dot--automation"></span>{{t $ "page.onboarding.violet_2a364288"}}</dt><dd>{{t $ "page.onboarding.tls_automation_or_managed_policy_6d6e2903"}}</dd></div>
+          <div><dt><span class="semantic-dot semantic-dot--neutral"></span>{{t $ "page.onboarding.gray_0d5adda3"}}</dt><dd>{{t $ "page.onboarding.disabled_unknown_or_informational_51138b27"}}</dd></div>
         </dl>
       </section>
 
       <section class="ui-panel onboarding-operating-model">
-        <div class="onboarding-step__kicker">Operating model</div>
-        <h2>Plan → Validate → Deploy → Observe</h2>
-        <p>Creation workflows gather intent first, validate connectivity and policy second, then show a deployment review before changing Caddy.</p>
-        <a href="/docs" class="ui-section-header__action">Read the operations guide →</a>
+        <div class="onboarding-step__kicker">{{t $ "page.onboarding.operating_model_46106393"}}</div>
+        <h2>{{t $ "page.onboarding.plan_validate_deploy_observe_db91eea7"}}</h2>
+        <p>{{t $ "page.onboarding.creation_workflows_gather_intent_first_validate_c_c72eceaa"}}</p>
+        <a href="/docs" class="ui-section-header__action">{{t $ "page.onboarding.read_the_operations_guide_ab67d6a2"}}</a>
       </section>
     </aside>
   </div>

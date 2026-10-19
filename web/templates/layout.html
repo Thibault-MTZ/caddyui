@@ -43,12 +43,14 @@
   {{if .CSRFToken}}<meta name="csrf-token" content="{{.CSRFToken}}" />{{end}}
   {{/* v2.62.0 (issue #128): translated strings for browser-side scripts. caddyuiT(key, {name: value})
        falls back to the key itself if a string is missing. */}}
-  <script>window.CADDYUI_I18N = {{.I18NJS}} || {}; window.caddyuiT = function (key, vars) { var s = window.CADDYUI_I18N[key] || key; if (vars) { Object.keys(vars).forEach(function (k) { s = s.split('{' + k + '}').join(String(vars[k])); }); } return s; };</script>
+  <script>window.CADDYUI_I18N = {{.I18NJS}} || {}; window.caddyuiT = function (key, vars) { var s = window.CADDYUI_I18N[key] || key; if (vars) { Object.keys(vars).forEach(function (k) { s = s.split('{' + k + '}').join(String(vars[k])); }); } return s; };
+  // Catalog text stays plain; escape it before inserting into HTML or attributes.
+  window.caddyuiEscapeHTML = function (value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };</script>
   <title>{{block "title" .}}{{if .SiteTitle}}{{.SiteTitle}}{{else}}CaddyUI{{end}}{{end}}</title>
   {{/* v2.12.48: meta description for SEO. Defaults to a generic
        CaddyUI summary; individual pages override via the "description"
        template block when they want something more specific. */}}
-  <meta name="description" content="{{block "description" .}}CaddyUI — fast, accessible web UI for managing Caddy reverse proxy hosts, redirects, certificates, and DNS. Multi-server, RBAC, AI assistant, real-time analytics.{{end}}" />
+  <meta name="description" content="{{block "description" .}}{{t $ "page.layout.description"}}{{end}}" />
   <meta name="theme-color" content="#2563eb" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -406,7 +408,7 @@
      pressing Tab as the very first action surfaces it as a brand-coloured
      pill so screen-reader / keyboard-only users can jump past the
      sidebar nav directly to page content. Lighthouse a11y picks this up. */}}
-<a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-brand-600 focus:text-white focus:px-3 focus:py-1.5 focus:rounded-lg focus:shadow-lg focus:text-sm focus:font-medium">Skip to main content</a>
+<a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-brand-600 focus:text-white focus:px-3 focus:py-1.5 focus:rounded-lg focus:shadow-lg focus:text-sm focus:font-medium">{{t $ "page.layout.skip_to_main_content_c887f134"}}</a>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
@@ -427,18 +429,18 @@ if ('serviceWorker' in navigator) {
           </span>
           <span class="app-brand__name text-sm font-semibold tracking-tight text-white">{{if .SiteTitle}}{{.SiteTitle}}{{else}}CaddyUI{{end}}</span>
         </a>
-        <button type="button" aria-label="Close navigation" onclick="document.getElementById('sidebar').classList.add('-translate-x-full');document.getElementById('sidebar-scrim').classList.add('hidden');" class="lg:hidden inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-800 transition">
+        <button type="button" aria-label="{{t $ "page.layout.aria-label.close_navigation_99904db3"}}" onclick="document.getElementById('sidebar').classList.add('-translate-x-full');document.getElementById('sidebar-scrim').classList.add('hidden');" class="lg:hidden inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-800 transition">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
 
       {{if .CurrentServer}}
       <div class="app-environment">
-        <p class="app-environment__eyebrow">Current environment</p>
+        <p class="app-environment__eyebrow">{{t $ "page.layout.current_environment_f2fb2048"}}</p>
         {{if and .Servers (gt (len .Servers) 1)}}
         <form id="server-picker-form" method="post" action="">
           <select onchange="var _id=parseInt(this.value,10);if(_id>0){document.getElementById('server-picker-form').action='/servers/'+_id+'/select';document.getElementById('server-picker-form').submit();}"
-            aria-label="Current Caddy server"
+            aria-label="{{t $ "page.layout.aria-label.current_caddy_server_77da9d10"}}"
             class="app-environment__select">
             {{range .Servers}}
             <option value="{{.ID}}" {{if and $.CurrentServer (eq $.CurrentServer.ID .ID)}}selected{{end}}>
@@ -458,7 +460,7 @@ if ('serviceWorker' in navigator) {
         <div class="app-environment__url" title="{{.CurrentServer.AdminURL}}">{{.CurrentServer.AdminURL}}</div>
       </div>
       {{end}}
-      <nav class="app-nav flex-1 overflow-y-auto text-sm" aria-label="Primary navigation">
+      <nav class="app-nav flex-1 overflow-y-auto text-sm" aria-label="{{t $ "page.layout.aria-label.primary_navigation_e1bfe7ec"}}">
         {{$sec := .Section}}
 	        <div class="app-nav__group">
 	          <span class="app-nav__label">{{t $ "nav.section.overview"}}</span>
@@ -528,12 +530,12 @@ if ('serviceWorker' in navigator) {
         <div class="text-[10px] text-slate-500 flex items-center gap-1.5 flex-wrap">
           <span>&copy; 2026</span>
           <span class="text-slate-700">·</span>
-          <a href="https://github.com/X4Applegate/caddyui" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 hover:text-slate-300 transition" title="GitHub repository">
+          <a href="https://github.com/X4Applegate/caddyui" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 hover:text-slate-300 transition" title="{{t $ "page.layout.title.github_repository_50555492"}}">
             <svg viewBox="0 0 24 24" fill="currentColor" class="w-3 h-3"><path d="M12 .5C5.37.5 0 5.78 0 12.29c0 5.21 3.44 9.62 8.21 11.18.6.11.82-.26.82-.57v-2c-3.34.72-4.04-1.41-4.04-1.41-.55-1.37-1.34-1.74-1.34-1.74-1.09-.74.08-.72.08-.72 1.21.08 1.84 1.22 1.84 1.22 1.07 1.8 2.81 1.28 3.5.98.11-.76.42-1.28.76-1.57-2.67-.3-5.47-1.31-5.47-5.83 0-1.29.47-2.34 1.23-3.17-.12-.3-.54-1.51.12-3.14 0 0 1.01-.32 3.3 1.21.96-.26 1.98-.39 3-.4 1.02.01 2.05.14 3 .4 2.29-1.53 3.3-1.21 3.3-1.21.66 1.63.24 2.84.12 3.14.77.83 1.23 1.88 1.23 3.17 0 4.53-2.81 5.53-5.49 5.82.43.37.82 1.1.82 2.21v3.28c0 .32.22.69.82.57C20.57 21.91 24 17.5 24 12.29 24 5.78 18.63.5 12 .5z"/></svg>
-            GitHub
+            {{t $ "page.layout.github_f911e414"}}
           </a>
           <span class="text-slate-700">·</span>
-          <a href="https://github.com/X4Applegate/caddyui/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300 transition" title="Apache License 2.0">License</a>
+          <a href="https://github.com/X4Applegate/caddyui/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300 transition" title="{{t $ "page.layout.title.apache_license_2_0_e99dd4b3"}}">{{t $ "page.layout.license_c011d609"}}</a>
         </div>
       </div>
     </aside>
@@ -549,7 +551,7 @@ if ('serviceWorker' in navigator) {
            branded orange bottom border / warmer dark surface here without
            bleeding the rule into every other .border-b on the page. */}}
       <div data-topbar class="app-topbar sticky top-0 z-10 border-b border-ink-100 bg-white/95 backdrop-blur-sm flex items-center gap-3 min-w-0">
-        <button type="button" aria-label="Open navigation" onclick="document.getElementById('sidebar').classList.remove('-translate-x-full');document.getElementById('sidebar-scrim').classList.remove('hidden');" class="lg:hidden inline-flex items-center justify-center w-8 h-8 rounded-lg text-ink-600 hover:bg-ink-100 dark:text-slate-400 dark:hover:bg-slate-800 transition shrink-0">
+        <button type="button" aria-label="{{t $ "page.layout.aria-label.open_navigation_0ed77fd2"}}" onclick="document.getElementById('sidebar').classList.remove('-translate-x-full');document.getElementById('sidebar-scrim').classList.remove('hidden');" class="lg:hidden inline-flex items-center justify-center w-8 h-8 rounded-lg text-ink-600 hover:bg-ink-100 dark:text-slate-400 dark:hover:bg-slate-800 transition shrink-0">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
         {{if .CurrentServer}}
@@ -564,7 +566,7 @@ if ('serviceWorker' in navigator) {
              anywhere to switch to. */}}
         {{if and .Servers (gt (len .Servers) 1)}}
         <div class="app-topbar__environment relative min-w-0" data-server-menu>
-          <button type="button" data-server-menu-toggle aria-label="Switch Caddy server" aria-haspopup="menu" aria-expanded="false"
+          <button type="button" data-server-menu-toggle aria-label="{{t $ "page.layout.aria-label.switch_caddy_server_90bf159e"}}" aria-haspopup="menu" aria-expanded="false"
                   class="flex items-center gap-2 -mx-1 px-2 py-1 rounded-lg hover:bg-ink-100 dark:hover:bg-slate-800 transition min-w-0 max-w-full">
             {{if eq .CurrentServer.Status "online"}}
             <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0 status-online-pulse"></span>
@@ -604,7 +606,7 @@ if ('serviceWorker' in navigator) {
               </form>
               {{end}}
             </div>
-            <a href="/servers" class="block px-3.5 py-2 text-[11px] text-ink-500 hover:bg-ink-50 dark:hover:bg-slate-700/50 border-t border-ink-100 dark:border-slate-700 transition">Manage servers →</a>
+            <a href="/servers" class="block px-3.5 py-2 text-[11px] text-ink-500 hover:bg-ink-50 dark:hover:bg-slate-700/50 border-t border-ink-100 dark:border-slate-700 transition">{{t $ "page.layout.manage_servers_d8ccf087"}}</a>
           </div>
         </div>
         {{else}}
@@ -641,7 +643,7 @@ if ('serviceWorker' in navigator) {
 	        <button type="button"
 	                class="app-command-trigger"
 	                data-command-palette-trigger
-                aria-label="Open command palette"
+                aria-label="{{t $ "page.layout.aria-label.open_command_palette_c022b19a"}}"
                 aria-haspopup="dialog">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 shrink-0" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 	          <span class="truncate">{{t $ "topbar.search"}}</span>
@@ -649,7 +651,7 @@ if ('serviceWorker' in navigator) {
 	        </button>
 	        {{if ne .User.Role "viewer"}}
 	        <details class="app-create-menu">
-	          <summary class="ui-button ui-button--primary" aria-label="Create a resource">
+	          <summary class="ui-button ui-button--primary" aria-label="{{t $ "page.layout.aria-label.create_a_resource_2422c9df"}}">
 	            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
 	            <span class="hidden sm:inline">{{t $ "topbar.create"}}</span>
 	            <svg class="app-create-menu__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
@@ -676,16 +678,16 @@ if ('serviceWorker' in navigator) {
 	        </details>
 	        {{end}}
 	        <div class="flex items-center gap-1 shrink-0">
-          <a href="/search" aria-label="Search" title="Search" class="lg:hidden inline-flex items-center justify-center w-8 h-8 rounded-full text-ink-500 hover:text-ink-800 hover:bg-ink-100 dark:hover:bg-slate-800 dark:hover:text-slate-100 transition shrink-0">
+          <a href="/search" aria-label="{{t $ "page.layout.aria-label.search_49c266ba"}}" title="{{t $ "page.layout.title.search_49c266ba"}}" class="lg:hidden inline-flex items-center justify-center w-8 h-8 rounded-full text-ink-500 hover:text-ink-800 hover:bg-ink-100 dark:hover:bg-slate-800 dark:hover:text-slate-100 transition shrink-0">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </a>
-          <button data-theme-toggle type="button" aria-label="Toggle theme" title="Theme: auto" class="inline-flex items-center justify-center w-8 h-8 rounded-full text-ink-500 hover:text-ink-800 hover:bg-ink-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition shrink-0">
+          <button data-theme-toggle type="button" aria-label="{{t $ "page.layout.aria-label.toggle_theme_6026719f"}}" title="{{t $ "page.layout.title.theme_auto_b1a53d79"}}" class="inline-flex items-center justify-center w-8 h-8 rounded-full text-ink-500 hover:text-ink-800 hover:bg-ink-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition shrink-0">
             <svg data-theme-icon="auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 hidden"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/><path d="M3 12a9 9 0 0 0 18 0"/></svg>
             <svg data-theme-icon="light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 hidden"><circle cx="12" cy="12" r="4"/><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"/></svg>
             <svg data-theme-icon="dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
           </button>
           <div class="relative ml-1" data-user-menu>
-            <button type="button" data-user-menu-toggle aria-label="Account menu" aria-haspopup="menu" aria-expanded="false"
+            <button type="button" data-user-menu-toggle aria-label="{{t $ "page.layout.aria-label.account_menu_7fb5995b"}}" aria-haspopup="menu" aria-expanded="false"
                     class="inline-flex items-center gap-2 p-1 pr-2 rounded-lg hover:bg-ink-100 dark:hover:bg-slate-800 transition shrink-0">
               <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-500 text-white font-semibold text-[11px] shrink-0" title="{{.User.Email}}">
                 {{if .User.Email}}{{slice .User.Email 0 1}}{{else}}?{{end}}
@@ -729,24 +731,24 @@ if ('serviceWorker' in navigator) {
           {{/* v2.38.0: a config change failed its post-apply checks — shown on every page until resolved */}}
           {{range .SyncHolds}}
           <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-900" role="alert" data-sync-hold="{{.ServerID}}">
-            <div class="font-semibold">Config change on {{.ServerName}} was {{if .RolledBack}}rolled back{{else}}not applied cleanly{{end}} — your saved changes are <u>not</u> live.</div>
+            <div class="font-semibold">{{t $ "page.layout.config_change_on_9a3778d9"}} {{.ServerName}} {{t $ "page.layout.was_b63b99f6"}} {{if .RolledBack}}{{t $ "page.layout.rolled_back_d17977b7"}}{{else}}{{t $ "page.layout.not_applied_cleanly_2695713c"}}{{end}} {{t $ "page.layout.your_saved_changes_are_b5b1d4ac"}} <u>{{t $ "page.layout.not_254bb97b"}}</u> {{t $ "page.layout.live_0d978518"}}</div>
             <div class="text-xs mt-1 break-words">{{.Detail}}</div>
             <div class="mt-2 flex flex-wrap items-center gap-2">
-              <form method="post" action="/servers/{{.ServerID}}/sync-reapply"><button type="submit" class="text-xs px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">Re-apply now</button></form>
-              <form method="post" action="/servers/{{.ServerID}}/sync-hold/clear"><button type="submit" class="text-xs px-3 py-1.5 rounded-lg border border-red-300 text-red-800 hover:bg-red-100 transition">Keep the rolled-back config</button></form>
-              <span class="text-xs text-red-700">{{fmtIn .At "2006-01-02 15:04:05"}} · automatic syncs for this server are paused until you choose</span>
+              <form method="post" action="/servers/{{.ServerID}}/sync-reapply"><button type="submit" class="text-xs px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">{{t $ "page.layout.re_apply_now_249c858d"}}</button></form>
+              <form method="post" action="/servers/{{.ServerID}}/sync-hold/clear"><button type="submit" class="text-xs px-3 py-1.5 rounded-lg border border-red-300 text-red-800 hover:bg-red-100 transition">{{t $ "page.layout.keep_the_rolled_back_config_9e8ff115"}}</button></form>
+              <span class="text-xs text-red-700">{{fmtIn .At "2006-01-02 15:04:05"}} {{t $ "page.layout.automatic_syncs_for_this_server_are_paused_until_20735777"}}</span>
             </div>
           </div>
           {{end}}
           {{/* v2.42.1 (issue #74): the last sync to a server failed — shown on every page until a sync succeeds */}}
           {{range .SyncErrors}}
           <div class="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-900" role="alert" data-sync-error="{{.ServerID}}">
-            <div class="font-semibold">Caddy on {{.ServerName}} rejected the last sync — your latest changes there are <u>not</u> live.</div>
+            <div class="font-semibold">{{t $ "page.layout.caddy_on_19628625"}} {{.ServerName}} {{t $ "page.layout.rejected_the_last_sync_your_latest_changes_there_d6fad4e6"}} <u>{{t $ "page.layout.not_254bb97b"}}</u> {{t $ "page.layout.live_0d978518"}}</div>
             <div class="text-xs mt-1 break-words font-mono">{{.Error}}</div>
             <div class="mt-2 flex flex-wrap items-center gap-2">
-              <form method="post" action="/servers/{{.ServerID}}/sync-reapply"><button type="submit" class="text-xs px-3 py-1.5 rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition">Retry sync now</button></form>
-              <form method="post" action="/servers/{{.ServerID}}/sync-error/clear"><button type="submit" class="text-xs px-3 py-1.5 rounded-lg border border-amber-300 text-amber-900 hover:bg-amber-100 transition">Dismiss</button></form>
-              <span class="text-xs text-amber-800">{{fmtIn .At "2006-01-02 15:04:05"}} · fix the cause (a certificate file Caddy cannot open, for example), then retry</span>
+              <form method="post" action="/servers/{{.ServerID}}/sync-reapply"><button type="submit" class="text-xs px-3 py-1.5 rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition">{{t $ "page.layout.retry_sync_now_b141d703"}}</button></form>
+              <form method="post" action="/servers/{{.ServerID}}/sync-error/clear"><button type="submit" class="text-xs px-3 py-1.5 rounded-lg border border-amber-300 text-amber-900 hover:bg-amber-100 transition">{{t $ "page.layout.dismiss_48845bff"}}</button></form>
+              <span class="text-xs text-amber-800">{{fmtIn .At "2006-01-02 15:04:05"}} {{t $ "page.layout.fix_the_cause_a_certificate_file_caddy_cannot_op_c782300e"}}</span>
             </div>
           </div>
           {{end}}
@@ -761,26 +763,26 @@ if ('serviceWorker' in navigator) {
   <div id="kbd-overlay" class="hidden fixed inset-0 z-50 bg-ink-900/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this)this.classList.add('hidden')">
     <div class="bg-white dark:bg-slate-800 border border-ink-200 dark:border-slate-700 rounded-xl shadow-card max-w-lg w-full p-6">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-ink-900 dark:text-slate-100">Keyboard shortcuts</h2>
-        <button type="button" onclick="document.getElementById('kbd-overlay').classList.add('hidden')" class="text-ink-400 hover:text-ink-700 dark:hover:text-slate-200 transition" aria-label="Close">
+        <h2 class="text-lg font-semibold text-ink-900 dark:text-slate-100">{{t $ "page.layout.keyboard_shortcuts_e9bef0b0"}}</h2>
+        <button type="button" onclick="document.getElementById('kbd-overlay').classList.add('hidden')" class="text-ink-400 hover:text-ink-700 dark:hover:text-slate-200 transition" aria-label="{{t $ "page.layout.aria-label.close_7d9eb7ac"}}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
       <dl class="space-y-2 text-sm">
-        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">Show this help</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">?</kbd></dd></div>
-        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">Open command palette</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">⌘ / Ctrl + K</kbd></dd></div>
-        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">Focus filter / search</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">/</kbd></dd></div>
-        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">Close dialog / dropdown</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">Esc</kbd></dd></div>
-        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">Submit form (from textarea)</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">Ctrl/⌘+Enter</kbd></dd></div>
+        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">{{t $ "page.layout.show_this_help_83cee267"}}</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">?</kbd></dd></div>
+        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">{{t $ "page.layout.open_command_palette_c022b19a"}}</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">⌘ / Ctrl + K</kbd></dd></div>
+        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">{{t $ "page.layout.focus_filter_search_187a9c4e"}}</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">/</kbd></dd></div>
+        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">{{t $ "page.layout.close_dialog_dropdown_1b0b9aa8"}}</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">Esc</kbd></dd></div>
+        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">{{t $ "page.layout.submit_form_from_textarea_47b8565c"}}</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">Ctrl/⌘+Enter</kbd></dd></div>
         <div class="border-t border-ink-100 dark:border-slate-700 pt-2 mt-3">
-          <p class="text-xs text-ink-500 dark:text-slate-400 mb-2">Quick navigation (press <kbd class="font-mono text-[10px] bg-ink-100 dark:bg-slate-700 px-1 rounded">g</kbd> then a letter):</p>
+          <p class="text-xs text-ink-500 dark:text-slate-400 mb-2">{{t $ "page.layout.quick_navigation_press_064cbc93"}} <kbd class="font-mono text-[10px] bg-ink-100 dark:bg-slate-700 px-1 rounded">g</kbd> {{t $ "page.layout.then_a_letter_3bc3ee3d"}}</p>
         </div>
-        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">Dashboard</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">g d</kbd></dd></div>
-        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">Proxy Hosts</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">g p</kbd></dd></div>
-        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">Redirections</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">g r</kbd></dd></div>
-        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">Advanced routes</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">g a</kbd></dd></div>
-        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">Certificates</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">g c</kbd></dd></div>
-        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">Analytics</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">g n</kbd></dd></div>
+        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">{{t $ "page.layout.dashboard_67b69646"}}</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">g d</kbd></dd></div>
+        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">{{t $ "page.layout.proxy_hosts_d98d2003"}}</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">g p</kbd></dd></div>
+        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">{{t $ "page.layout.redirections_10f77acc"}}</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">g r</kbd></dd></div>
+        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">{{t $ "page.layout.advanced_routes_f232b3e6"}}</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">g a</kbd></dd></div>
+        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">{{t $ "page.layout.certificates_16f63792"}}</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">g c</kbd></dd></div>
+        <div class="flex items-center justify-between"><dt class="text-ink-700 dark:text-slate-300">{{t $ "page.layout.analytics_94c116ee"}}</dt><dd><kbd class="font-mono text-xs bg-ink-100 dark:bg-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded border border-ink-200 dark:border-slate-600">g n</kbd></dd></div>
       </dl>
     </div>
   </div>
@@ -788,7 +790,7 @@ if ('serviceWorker' in navigator) {
   {{/* v2.11.15: AI assistant — floating chat bubble (bottom-right). Hidden
        at page load; /api/ai/status reveals it when AI is enabled in
        Settings. Modal renders the chat history; Esc closes. */}}
-  <button id="ai-fab" class="hidden fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-brand-600 hover:bg-brand-700 text-white shadow-xl flex items-center justify-center transition" title="Ask AI" aria-label="Open AI assistant">
+  <button id="ai-fab" class="hidden fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-brand-600 hover:bg-brand-700 text-white shadow-xl flex items-center justify-center transition" title="{{t $ "page.layout.title.ask_ai_ea9e45ac"}}" aria-label="{{t $ "page.layout.aria-label.open_ai_assistant_5eac6d75"}}">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
   </button>
   <div id="ai-modal" class="hidden fixed inset-0 z-50 bg-ink-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4" onclick="if(event.target===this)this.classList.add('hidden')">
@@ -796,21 +798,21 @@ if ('serviceWorker' in navigator) {
       <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-ink-100 dark:border-slate-700">
         <div class="flex items-center gap-2">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-brand-600"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          <h2 class="text-sm font-semibold text-ink-900 dark:text-slate-100">AI assistant</h2>
+          <h2 class="text-sm font-semibold text-ink-900 dark:text-slate-100">{{t $ "page.layout.ai_assistant_ab6eb4ac"}}</h2>
           <span id="ai-model-pill" class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300 font-medium"></span>
         </div>
         <div class="flex items-center gap-2">
           {{/* v2.12.10: New chat button — clears conversation memory so the
                assistant starts a fresh topic without prior turns leaking
                in. */}}
-          <button id="ai-new-chat" type="button" class="text-xs text-ink-500 hover:text-ink-900 dark:text-slate-400 dark:hover:text-slate-100 transition border border-ink-200 dark:border-slate-700 rounded-md px-2 py-1" title="Start a new conversation">New chat</button>
-          <button type="button" onclick="document.getElementById('ai-modal').classList.add('hidden')" class="text-ink-400 hover:text-ink-700 dark:hover:text-slate-200 transition" aria-label="Close">
+          <button id="ai-new-chat" type="button" class="text-xs text-ink-500 hover:text-ink-900 dark:text-slate-400 dark:hover:text-slate-100 transition border border-ink-200 dark:border-slate-700 rounded-md px-2 py-1" title="{{t $ "page.layout.title.start_a_new_conversation_beae8c13"}}">{{t $ "page.layout.new_chat_db18382a"}}</button>
+          <button type="button" onclick="document.getElementById('ai-modal').classList.add('hidden')" class="text-ink-400 hover:text-ink-700 dark:hover:text-slate-200 transition" aria-label="{{t $ "page.layout.aria-label.close_7d9eb7ac"}}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
       </div>
       <div id="ai-history" class="flex-1 overflow-y-auto p-4 space-y-3 text-sm">
-        <div class="text-xs text-ink-400 dark:text-slate-500 text-center">Ask anything about your CaddyUI config — proxy hosts, redirects, certs, Caddyfile snippets…</div>
+        <div class="text-xs text-ink-400 dark:text-slate-500 text-center">{{t $ "page.layout.ask_anything_about_your_caddyui_config_proxy_hos_386aa35f"}}</div>
       </div>
       {{/* v2.12.32: chat input is now a textarea instead of a single-line
            <input>. Pasting a multi-line Caddyfile previously rendered as
@@ -823,16 +825,16 @@ if ('serviceWorker' in navigator) {
            - max-height via CSS so the chat panel doesn't grow infinitely
              on a giant paste. */}}
       <form id="ai-form" class="flex items-end gap-2 p-3 border-t border-ink-100 dark:border-slate-700">
-        <textarea id="ai-input" rows="1" placeholder="Type your question — Shift+Enter for newline" autocomplete="off"
+        <textarea id="ai-input" rows="1" placeholder="{{t $ "page.layout.placeholder.type_your_question_shift_enter_for_newline_1a98d8d1"}}" autocomplete="off"
                   class="flex-1 rounded-lg border border-ink-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-ink-900 dark:text-slate-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition font-sans resize-none leading-relaxed"
                   style="max-height: 8rem; min-height: 2.4rem; overflow-y:auto;"></textarea>
-        <button type="submit" id="ai-submit" class="shrink-0 px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium transition disabled:opacity-50">Send</button>
+        <button type="submit" id="ai-submit" class="shrink-0 px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium transition disabled:opacity-50">{{t $ "page.layout.send_f6f4688f"}}</button>
       </form>
     </div>
   </div>
 
   {{/* v2.11.5: ⌘K / Ctrl+K command palette — global resource search. */}}
-  <div id="cmd-palette" role="dialog" aria-modal="true" aria-label="Search resources and actions" class="hidden fixed inset-0 z-50 bg-ink-900/60 backdrop-blur-sm flex items-start justify-center p-4 pt-[15vh]" onclick="if(event.target===this)this.classList.add('hidden')">
+  <div id="cmd-palette" role="dialog" aria-modal="true" aria-label="{{t $ "page.layout.aria-label.search_resources_and_actions_d543b573"}}" class="hidden fixed inset-0 z-50 bg-ink-900/60 backdrop-blur-sm flex items-start justify-center p-4 pt-[15vh]" onclick="if(event.target===this)this.classList.add('hidden')">
     <div class="bg-white dark:bg-slate-800 border border-ink-200 dark:border-slate-700 rounded-xl shadow-card max-w-xl w-full overflow-hidden">
       <div class="flex items-center gap-3 px-4 py-3 border-b border-ink-100 dark:border-slate-700">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-ink-400 dark:text-slate-500 shrink-0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -841,7 +843,7 @@ if ('serviceWorker' in navigator) {
       </div>
       <div id="cmd-results" class="max-h-[50vh] overflow-y-auto p-2"></div>
       <div class="px-4 py-2 border-t border-ink-100 dark:border-slate-700 text-[11px] text-ink-500 dark:text-slate-400 flex items-center justify-between">
-        <span><kbd class="font-mono">↑ ↓</kbd> navigate · <kbd class="font-mono">↵</kbd> open · <kbd class="font-mono">Esc</kbd> close</span>
+        <span><kbd class="font-mono">↑ ↓</kbd> {{t $ "page.layout.navigate_ea04d897"}} <kbd class="font-mono">↵</kbd> {{t $ "page.layout.open_0f9f0d27"}} <kbd class="font-mono">Esc</kbd> {{t $ "page.layout.close_310ff200"}}</span>
       </div>
     </div>
   </div>
@@ -963,7 +965,7 @@ if ('serviceWorker' in navigator) {
       }
 
       function describeErr(err) {
-        if (err == null) return 'unknown';
+        if (err == null) return caddyuiT('js.layout.unknown_error');
         if (typeof err === 'string') return err;
         if (err.message) return err.message;
         try { return JSON.stringify(err); } catch (e) { return String(err); }
@@ -982,7 +984,7 @@ if ('serviceWorker' in navigator) {
             // Surface the very first refresh failure so the user sees why
             // login is broken without having to click submit first.
             if (!hidden.value) {
-              showStatus("reCAPTCHA setup problem: " + lastError + ". Check the site key + domain list in the reCAPTCHA admin console, or open the browser console for Google's detailed error.", true);
+              showStatus(caddyuiT('js.layout.recaptcha_setup_problem', {error: lastError}), true);
             }
           });
         } catch (err) {
@@ -1010,7 +1012,7 @@ if ('serviceWorker' in navigator) {
       // so the user knows WHY submit isn't working instead of guessing.
       setTimeout(function() {
         if (!apiLoaded) {
-          showStatus("Security check couldn't load. Disable ad blockers for this site and reload.", true);
+          showStatus(caddyuiT('js.layout.security_check_couldn_t_load_disable_ad_blockers_3762e92d'), true);
         }
       }, 6000);
 
@@ -1027,28 +1029,28 @@ if ('serviceWorker' in navigator) {
         if (hidden.value) { hideStatus(); return; }
         if (typeof grecaptcha === 'undefined' || typeof grecaptcha.execute !== 'function') {
           e.preventDefault();
-          showStatus("Security check hasn't loaded yet. Check your ad blocker / network, then try again. " + (lastError ? "(" + lastError + ")" : ""), true);
+          showStatus(caddyuiT('js.layout.security_check_hasn_t_loaded_yet_check_your_ad_b_7065febd') + (lastError ? "(" + lastError + ")" : ""), true);
           return;
         }
         e.preventDefault();
-        showStatus("Verifying…", false);
+        showStatus(caddyuiT('js.layout.verifying_63bbd08c'), false);
         grecaptcha.ready(function() {
           grecaptcha.execute(siteKey, {action: action}).then(function(token) {
             if (!token) {
-              showStatus("Security check returned no token. Reload the page.", true);
+              showStatus(caddyuiT('js.layout.security_check_returned_no_token_reload_the_page_4da5da19'), true);
               return;
             }
             hidden.value = token;
             submitting = true;
             form.submit();
           }).catch(function(err) {
-            showStatus("reCAPTCHA rejected request: " + describeErr(err) + ". Verify site key + allowed domains in reCAPTCHA admin, or see browser console for details.", true);
+            showStatus(caddyuiT('js.layout.recaptcha_rejected_request_1bdf7742') + describeErr(err) + caddyuiT('js.layout.verify_site_key_allowed_domains_in_recaptcha_adm_b4f760de'), true);
           });
         });
       });
     })();
     </script>
-    <p class="text-[11px] text-ink-400 text-center mt-2">Protected by reCAPTCHA. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="hover:text-ink-600 underline">Privacy</a> · <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" class="hover:text-ink-600 underline">Terms</a></p>
+    <p class="text-[11px] text-ink-400 text-center mt-2">{{t $ "page.layout.protected_by_recaptcha_47151915"}} <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="hover:text-ink-600 underline">{{t $ "page.layout.privacy_54a57c31"}}</a> · <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" class="hover:text-ink-600 underline">{{t $ "page.layout.terms_ede54899"}}</a></p>
   {{end}}
 {{end}}
 {{end}}

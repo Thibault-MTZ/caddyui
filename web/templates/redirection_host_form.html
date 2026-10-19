@@ -1,11 +1,11 @@
-{{define "title"}}{{if .Host.ID}}Edit{{else}}New{{end}} Redirection · CaddyUI{{end}}
+{{define "title"}}{{if .Host.ID}}{{t $ "page.redirection_host_form.title_edit"}}{{else}}{{t $ "page.redirection_host_form.title_new"}}{{end}}{{end}}
 {{define "content"}}
 <div class="mb-8">
   <a href="/redirection-hosts" class="text-xs text-ink-500 hover:text-ink-900 transition inline-flex items-center gap-1">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="15 18 9 12 15 6"/></svg>
-    Back to redirections
+    {{t $ "page.redirection_host_form.back_to_redirections_e1ed9fab"}}
   </a>
-  <h1 class="text-2xl font-semibold tracking-tight text-ink-900 mt-2">{{if .Host.ID}}Edit Redirection{{else}}New Redirection{{end}}</h1>
+  <h1 class="text-2xl font-semibold tracking-tight text-ink-900 mt-2">{{if .Host.ID}}{{t $ "page.redirection_host_form.edit_redirection_2489eaba"}}{{else}}{{t $ "page.redirection_host_form.new_redirection_c45feb5e"}}{{end}}</h1>
 </div>
 
 {{if .Error}}
@@ -14,31 +14,31 @@
 
 <form method="post" action="{{if .Host.ID}}/redirection-hosts/{{.Host.ID}}{{else}}/redirection-hosts{{end}}" class="bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-5 max-w-3xl">
   <div>
-    <label class="block text-sm font-medium text-ink-800 mb-1.5">Domain names <span class="text-ink-400 font-normal">(comma separated)</span></label>
+    <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.domain_names_0bdba6e3"}} <span class="text-ink-400 font-normal">{{t $ "page.redirection_host_form.comma_separated_6953571c"}}</span></label>
     <input name="domains" value="{{.Host.Domains}}" required placeholder="old.example.com" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
   </div>
 
   <div class="grid grid-cols-12 gap-3">
     <div class="col-span-3">
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Scheme</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.scheme_dca65687"}}</label>
       <select name="forward_scheme" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <option value="auto" {{if eq .Host.ForwardScheme "auto"}}selected{{end}}>auto</option>
-        <option value="http" {{if eq .Host.ForwardScheme "http"}}selected{{end}}>http</option>
-        <option value="https" {{if eq .Host.ForwardScheme "https"}}selected{{end}}>https</option>
+        <option value="auto" {{if eq .Host.ForwardScheme "auto"}}selected{{end}}>{{t $ "page.redirection_host_form.auto_929260ad"}}</option>
+        <option value="http" {{if eq .Host.ForwardScheme "http"}}selected{{end}}>{{t $ "page.redirection_host_form.http_e0603c49"}}</option>
+        <option value="https" {{if eq .Host.ForwardScheme "https"}}selected{{end}}>{{t $ "page.redirection_host_form.https_3e194352"}}</option>
       </select>
     </div>
     <div class="col-span-6">
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Forward Domain</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.forward_domain_b4e31695"}}</label>
       <input name="forward_domain" value="{{.Host.ForwardDomain}}" required placeholder="new.example.com" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
     </div>
     <div class="col-span-3">
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">HTTP Code</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.http_code_31761865"}}</label>
       <select name="forward_http_code" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
         {{$code := .Host.ForwardHTTPCode}}
-        <option value="301" {{if eq $code 301}}selected{{end}}>301 — Moved Permanently</option>
-        <option value="302" {{if eq $code 302}}selected{{end}}>302 — Found (Temporary)</option>
-        <option value="307" {{if eq $code 307}}selected{{end}}>307 — Temporary Redirect</option>
-        <option value="308" {{if eq $code 308}}selected{{end}}>308 — Permanent Redirect</option>
+        <option value="301" {{if eq $code 301}}selected{{end}}>{{t $ "page.redirection_host_form.301_moved_permanently_1f7cc220"}}</option>
+        <option value="302" {{if eq $code 302}}selected{{end}}>{{t $ "page.redirection_host_form.302_found_temporary_a1cf00fa"}}</option>
+        <option value="307" {{if eq $code 307}}selected{{end}}>{{t $ "page.redirection_host_form.307_temporary_redirect_4f0f46fb"}}</option>
+        <option value="308" {{if eq $code 308}}selected{{end}}>{{t $ "page.redirection_host_form.308_permanent_redirect_bbb62b54"}}</option>
       </select>
     </div>
   </div>
@@ -46,24 +46,24 @@
   <div class="bg-brand-50 border border-brand-100 rounded-lg px-4 py-3 text-xs text-ink-700 leading-relaxed">
     <div class="font-semibold text-brand-700 mb-1.5 flex items-center gap-1.5">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-      Which HTTP redirect code should I pick?
+      {{t $ "page.redirection_host_form.which_http_redirect_code_should_i_pick_4affe9b9"}}
     </div>
     <ul class="space-y-1 ml-0.5">
-      <li><span class="inline-block font-mono font-semibold text-brand-700 w-8">301</span><strong>Moved Permanently</strong> — browsers and search engines cache this forever. Best for SEO when a URL has permanently changed. <span class="text-ink-500">(GET/POST may become GET)</span></li>
-      <li><span class="inline-block font-mono font-semibold text-brand-700 w-8">302</span><strong>Found / Temporary</strong> — not cached. Use when the redirect is temporary or might change. <span class="text-ink-500">(GET/POST may become GET)</span></li>
-      <li><span class="inline-block font-mono font-semibold text-brand-700 w-8">307</span><strong>Temporary Redirect</strong> — like 302 but <em>preserves</em> the original method (POST stays POST). Safer for APIs.</li>
-      <li><span class="inline-block font-mono font-semibold text-brand-700 w-8">308</span><strong>Permanent Redirect</strong> — like 301 but <em>preserves</em> the original method. Modern replacement for 301.</li>
+      <li><span class="inline-block font-mono font-semibold text-brand-700 w-8">301</span><strong>{{t $ "page.redirection_host_form.moved_permanently_d18ed366"}}</strong> {{t $ "page.redirection_host_form.browsers_and_search_engines_cache_this_forever_b_f7222136"}} <span class="text-ink-500">{{t $ "page.redirection_host_form.get_post_may_become_get_e8d7d1a4"}}</span></li>
+      <li><span class="inline-block font-mono font-semibold text-brand-700 w-8">302</span><strong>{{t $ "page.redirection_host_form.found_temporary_f44db16f"}}</strong> {{t $ "page.redirection_host_form.not_cached_use_when_the_redirect_is_temporary_or_6986e517"}} <span class="text-ink-500">{{t $ "page.redirection_host_form.get_post_may_become_get_e8d7d1a4"}}</span></li>
+      <li><span class="inline-block font-mono font-semibold text-brand-700 w-8">307</span><strong>{{t $ "page.redirection_host_form.temporary_redirect_21b17e0c"}}</strong> {{t $ "page.redirection_host_form.like_302_but_0c0c542a"}} <em>{{t $ "page.redirection_host_form.preserves_e965a68b"}}</em> {{t $ "page.redirection_host_form.the_original_method_post_stays_post_safer_for_ap_02066939"}}</li>
+      <li><span class="inline-block font-mono font-semibold text-brand-700 w-8">308</span><strong>{{t $ "page.redirection_host_form.permanent_redirect_03def6d7"}}</strong> {{t $ "page.redirection_host_form.like_301_but_c1b4e911"}} <em>{{t $ "page.redirection_host_form.preserves_e965a68b"}}</em> {{t $ "page.redirection_host_form.the_original_method_modern_replacement_for_301_db79b4a9"}}</li>
     </ul>
-    <div class="mt-2 text-ink-500"><strong class="text-ink-700">Not sure?</strong> Pick <span class="font-mono font-semibold">301</span> for permanent domain moves, or <span class="font-mono font-semibold">302</span> for short-term redirects.</div>
+    <div class="mt-2 text-ink-500"><strong class="text-ink-700">{{t $ "page.redirection_host_form.not_sure_cfb58739"}}</strong> {{t $ "page.redirection_host_form.pick_831a9d52"}} <span class="font-mono font-semibold">301</span> {{t $ "page.redirection_host_form.for_permanent_domain_moves_or_1c9cd9f0"}} <span class="font-mono font-semibold">302</span> {{t $ "page.redirection_host_form.for_short_term_redirects_42a7a8a5"}}</div>
   </div>
 
   <div class="pt-2">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-3">Options</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-3">{{t $ "page.redirection_host_form.options_d0db8b5e"}}</div>
     <div class="grid grid-cols-2 gap-3">
-      <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer"><input type="checkbox" name="enabled" {{if .Host.Enabled}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> Enabled</label>
-      <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer"><input type="checkbox" name="preserve_path" {{if .Host.PreservePath}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> Preserve path</label>
-      <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer"><input type="checkbox" name="ssl_enabled" {{if .Host.SSLEnabled}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> Auto SSL</label>
-      <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer"><input type="checkbox" name="ssl_forced" {{if .Host.SSLForced}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> Force SSL</label>
+      <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer"><input type="checkbox" name="enabled" {{if .Host.Enabled}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> {{t $ "page.redirection_host_form.enabled_92c1cdfd"}}</label>
+      <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer"><input type="checkbox" name="preserve_path" {{if .Host.PreservePath}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> {{t $ "page.redirection_host_form.preserve_path_2883ed45"}}</label>
+      <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer"><input type="checkbox" name="ssl_enabled" {{if .Host.SSLEnabled}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> {{t $ "page.redirection_host_form.auto_ssl_3a71ee4d"}}</label>
+      <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer"><input type="checkbox" name="ssl_forced" {{if .Host.SSLForced}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" /> {{t $ "page.redirection_host_form.force_ssl_4ea2755c"}}</label>
     </div>
   </div>
 
@@ -72,25 +72,25 @@
        keep the form short; auto-opens when any of the three has content. */}}
   <details class="pt-4 border-t border-ink-100"{{if or .Host.RedirectStripPathPrefix .Host.RedirectWildcardSubdomain .Host.SunsetAt}} open{{end}}>
     <summary class="cursor-pointer select-none text-xs uppercase tracking-wider text-ink-500 hover:text-ink-700 font-medium transition">
-      Redirect refinements <span class="font-normal normal-case">(optional)</span>
+      {{t $ "page.redirection_host_form.redirect_refinements_4c39df58"}} <span class="font-normal normal-case">{{t $ "page.redirection_host_form.optional_0059798b"}}</span>
     </summary>
     <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div class="sm:col-span-2">
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Strip path prefix</label>
-        <input name="redirect_strip_path_prefix" value="{{.Host.RedirectStripPathPrefix}}" placeholder="e.g. /old-blog" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-        <p class="text-xs text-ink-500 mt-1.5">If set and Preserve Path is on, drops this prefix from the path before redirecting. <code class="font-mono bg-ink-100 px-1 rounded">/old-blog/post/123</code> → <code class="font-mono bg-ink-100 px-1 rounded">{{`{{`}}destination{{`}}`}}/post/123</code> instead of <code class="font-mono bg-ink-100 px-1 rounded">{{`{{`}}destination{{`}}`}}/old-blog/post/123</code>.</p>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.strip_path_prefix_487b7dbb"}}</label>
+        <input name="redirect_strip_path_prefix" value="{{.Host.RedirectStripPathPrefix}}" placeholder="{{t $ "page.redirection_host_form.placeholder.e_g_old_blog_d0556a64"}}" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
+        <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.redirection_host_form.if_set_and_preserve_path_is_on_drops_this_prefix_40364a50"}} <code class="font-mono bg-ink-100 px-1 rounded">/old-blog/post/123</code> → <code class="font-mono bg-ink-100 px-1 rounded">{{`{{`}}destination{{`}}`}}/post/123</code> {{t $ "page.redirection_host_form.instead_of_a2c8bc5a"}} <code class="font-mono bg-ink-100 px-1 rounded">{{`{{`}}destination{{`}}`}}/old-blog/post/123</code>.</p>
       </div>
       <div>
         <label class="flex items-center gap-2.5 text-sm text-ink-700 cursor-pointer">
           <input type="checkbox" name="redirect_wildcard_subdomain" {{if .Host.RedirectWildcardSubdomain}}checked{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-          Wildcard subdomain capture
+          {{t $ "page.redirection_host_form.wildcard_subdomain_capture_fd3ed5f2"}}
         </label>
-        <p class="text-xs text-ink-500 mt-1.5">When enabled, a literal <code class="font-mono bg-ink-100 px-1 rounded">*</code> in the destination is replaced with the matched subdomain label. Use for <code class="font-mono bg-ink-100 px-1 rounded">*.old.com → *.new.com</code> migrations. The Domains field must include the <code class="font-mono bg-ink-100 px-1 rounded">*.old.com</code> wildcard.</p>
+        <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.redirection_host_form.when_enabled_a_literal_767633fb"}} <code class="font-mono bg-ink-100 px-1 rounded">*</code> {{t $ "page.redirection_host_form.in_the_destination_is_replaced_with_the_matched_s_1b584d8b"}} <code class="font-mono bg-ink-100 px-1 rounded">*.old.com → *.new.com</code> {{t $ "page.redirection_host_form.migrations_the_domains_field_must_include_the_83fe4fe0"}} <code class="font-mono bg-ink-100 px-1 rounded">*.old.com</code> {{t $ "page.redirection_host_form.wildcard_eb7c1474"}}</p>
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Sunset date</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.sunset_date_3dfe0944"}}</label>
         <input type="date" name="sunset_at" value="{{.Host.SunsetAt}}" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-        <p class="text-xs text-ink-500 mt-1.5">After this date the redirect returns <strong>410 Gone</strong> instead. Empty = no sunset.</p>
+        <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.redirection_host_form.after_this_date_the_redirect_returns_208f63f0"}} <strong>{{t $ "page.redirection_host_form.410_gone_8f234bf4"}}</strong> {{t $ "page.redirection_host_form.instead_empty_no_sunset_b71a66ee"}}</p>
       </div>
     </div>
   </details>
@@ -104,14 +104,14 @@
        the row already has rules. */}}
   <details class="pt-4 border-t border-ink-100"{{if .Host.RedirectRules}} open{{end}}>
     <summary class="cursor-pointer select-none text-xs uppercase tracking-wider text-ink-500 hover:text-ink-700 font-medium transition">
-      Path-based redirect rules <span class="font-normal normal-case">(optional, overrides the host-wide redirect for matching paths)</span>
+      {{t $ "page.redirection_host_form.path_based_redirect_rules_4944d7cc"}} <span class="font-normal normal-case">{{t $ "page.redirection_host_form.optional_overrides_the_host_wide_redirect_for_ma_82b0d09a"}}</span>
     </summary>
     <div class="mt-3 space-y-3">
-      <p class="text-xs text-ink-500">Each rule overrides the host-wide redirect above for paths that match. Use Caddy path patterns: <code class="font-mono bg-ink-100 px-1 rounded">/old-blog/*</code> matches a prefix, <code class="font-mono bg-ink-100 px-1 rounded">/legal/terms</code> matches exactly. In the destination, <code class="font-mono bg-ink-100 px-1 rounded">{uri}</code> is the original path+query, <code class="font-mono bg-ink-100 px-1 rounded">{http.request.uri.path}</code> is just the path. Leave Destination empty to return the status code without redirecting (e.g. <strong>410 Gone</strong> for retired URLs).</p>
+      <p class="text-xs text-ink-500">{{t $ "page.redirection_host_form.each_rule_overrides_the_host_wide_redirect_above_91b6d1ee"}} <code class="font-mono bg-ink-100 px-1 rounded">/old-blog/*</code> {{t $ "page.redirection_host_form.matches_a_prefix_da59c34d"}} <code class="font-mono bg-ink-100 px-1 rounded">/legal/terms</code> {{t $ "page.redirection_host_form.matches_exactly_in_the_destination_07f0de6c"}} <code class="font-mono bg-ink-100 px-1 rounded">{uri}</code> {{t $ "page.redirection_host_form.is_the_original_path_query_36bc7fc0"}} <code class="font-mono bg-ink-100 px-1 rounded">{http.request.uri.path}</code> {{t $ "page.redirection_host_form.is_just_the_path_leave_destination_empty_to_retu_d92d7d67"}} <strong>{{t $ "page.redirection_host_form.410_gone_8f234bf4"}}</strong> {{t $ "page.redirection_host_form.for_retired_urls_55407a9f"}}</p>
       <div id="rr-rules-table" class="space-y-2"></div>
       <button type="button" id="rr-add-rule" class="text-xs px-3 py-1.5 border border-ink-200 rounded-lg hover:bg-ink-50 transition inline-flex items-center gap-1.5">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add rule
+        {{t $ "page.redirection_host_form.add_rule_a27cff51"}}
       </button>
       <input type="hidden" name="redirect_rules" id="rr-rules-json" value="{{.Host.RedirectRules}}" />
     </div>
@@ -131,16 +131,16 @@
       return '<div class="grid grid-cols-12 gap-2 items-start" data-idx="'+idx+'">' +
         '<input type="text" data-field="path" value="'+escapeAttr(path)+'" placeholder="/old/*" class="col-span-4 rounded-lg border border-ink-200 px-2 py-1.5 text-xs font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none" />' +
         '<select data-field="code" class="col-span-2 rounded-lg border border-ink-200 px-2 py-1.5 text-xs bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none">' +
-          opt(code, 301, '301') + opt(code, 302, '302') + opt(code, 307, '307') + opt(code, 308, '308') + opt(code, 410, '410 Gone') + opt(code, 451, '451') +
+          opt(code, 301, '301') + opt(code, 302, '302') + opt(code, 307, '307') + opt(code, 308, '308') + opt(code, 410, caddyuiT('js.rules.gone')) + opt(code, 451, '451') +
         '</select>' +
         '<input type="text" data-field="destination" value="'+escapeAttr(dest)+'" placeholder="https://new.example.com{uri}" class="col-span-5 rounded-lg border border-ink-200 px-2 py-1.5 text-xs font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none" />' +
-        '<button type="button" data-action="remove" class="col-span-1 text-xs text-red-600 hover:text-red-800 px-2 py-1.5 inline-flex items-center justify-center" title="Remove rule">×</button>' +
+        ("<button type=\"button\" data-action=\"remove\" class=\"col-span-1 text-xs text-red-600 hover:text-red-800 px-2 py-1.5 inline-flex items-center justify-center\" title=\"" + caddyuiEscapeHTML(caddyuiT('js.redirection_host_form.remove_rule_3fab7379')) + "\">×</button>") +
       '</div>';
     }
-    function opt(cur, val, label) { return '<option value="'+val+'"'+(cur==val?' selected':'')+'>'+label+'</option>'; }
+    function opt(cur, val, label) { return '<option value="'+val+'"'+(cur==val?' selected':'')+'>'+caddyuiEscapeHTML(label)+'</option>'; }
     function escapeAttr(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     function render() {
-      table.innerHTML = data.map(rowHTML).join('') || '<p class="text-xs text-ink-400 italic">No rules — the host-wide redirect above will handle every request.</p>';
+      table.innerHTML = data.map(rowHTML).join('') || ("<p class=\"text-xs text-ink-400 italic\">" + caddyuiEscapeHTML(caddyuiT('js.redirection_host_form.no_rules_the_host_wide_redirect_above_will_handl_76b75b8f')) + "</p>");
     }
     function syncHidden() {
       // Drop empty rules before serialising; an empty path means the rule
@@ -185,16 +185,16 @@
        edit when a custom cert is already bound. */}}
   <details class="pt-4 border-t border-ink-100"{{if gt .Host.CertificateID 0}} open{{end}}>
     <summary class="cursor-pointer select-none text-xs uppercase tracking-wider text-ink-500 hover:text-ink-700 font-medium transition">
-      TLS Certificate <span class="font-normal normal-case">(optional, defaults to auto Let's Encrypt)</span>
+      {{t $ "page.redirection_host_form.tls_certificate_86e54f52"}} <span class="font-normal normal-case">{{t $ "page.redirection_host_form.optional_defaults_to_auto_let_s_encrypt_7fd230f2"}}</span>
     </summary>
     <div class="mt-3">
       <select name="certificate_id" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <option value="0" {{if eq .Host.CertificateID 0}}selected{{end}}>Auto (Let's Encrypt / ZeroSSL)</option>
+        <option value="0" {{if eq .Host.CertificateID 0}}selected{{end}}>{{t $ "page.redirection_host_form.auto_let_s_encrypt_zerossl_1cb00fb7"}}</option>
         {{range .Certificates}}
         <option value="{{.ID}}" {{if eq $.Host.CertificateID .ID}}selected{{end}}>{{.Name}} — {{.Domains}}</option>
         {{end}}
       </select>
-      <p class="text-xs text-ink-500 mt-1.5"><a href="/certificates" class="text-brand-600 hover:text-brand-700">Manage certificates &rarr;</a></p>
+      <p class="text-xs text-ink-500 mt-1.5"><a href="/certificates" class="text-brand-600 hover:text-brand-700">{{t $ "page.redirection_host_form.manage_certificates_87840827"}}</a></p>
     </div>
   </details>
 
@@ -205,33 +205,33 @@
   {{$rhProvider := .Host.DNSProvider}}
   <details class="pt-4 border-t border-ink-100"{{if $rhProvider}} open{{end}}>
     <summary class="cursor-pointer select-none text-xs uppercase tracking-wider text-ink-500 hover:text-ink-700 font-medium transition">
-      Managed DNS <span class="font-normal normal-case">(optional)</span>
+      {{t $ "page.redirection_host_form.managed_dns_32c57de2"}} <span class="font-normal normal-case">{{t $ "page.redirection_host_form.optional_0059798b"}}</span>
     </summary>
-    <p class="text-xs text-ink-400 mt-3 mb-3">Choose credentials and the authoritative zone for Let's Encrypt's <strong>DNS-01</strong> challenge. Public A-record creation is optional for internal or split-DNS redirects.</p>
+    <p class="text-xs text-ink-400 mt-3 mb-3">{{t $ "page.redirection_host_form.choose_credentials_and_the_authoritative_zone_fo_b32fa1f0"}} <strong>{{t $ "page.redirection_host_form.dns_01_85510d81"}}</strong> {{t $ "page.redirection_host_form.challenge_public_a_record_creation_is_optional_f_0f262d48"}}</p>
     {{if .CurrentServerIP}}
-    <p class="text-xs text-ink-500 mb-3">A records will point at <span class="font-mono text-ink-700">{{.CurrentServerIP}}</span> (this server's public IP). Change per-server IPs under <a href="/settings" class="text-brand-600 hover:underline">Settings → DNS</a>.</p>
+    <p class="text-xs text-ink-500 mb-3">{{t $ "page.redirection_host_form.a_records_will_point_at_1419f5bc"}} <span class="font-mono text-ink-700">{{.CurrentServerIP}}</span> {{t $ "page.redirection_host_form.this_server_s_public_ip_change_per_server_ips_un_2e078582"}} <a href="/settings" class="text-brand-600 hover:underline">{{t $ "page.redirection_host_form.settings_dns_96b76a37"}}</a>.</p>
     {{else}}
-    <p class="text-xs text-amber-700 mb-3">No public IP is configured. Set one under <a href="/settings" class="text-brand-600 hover:underline">Settings → DNS</a> to create A records, or turn that option off below for DNS-01 only.</p>
+    <p class="text-xs text-amber-700 mb-3">{{t $ "page.redirection_host_form.no_public_ip_is_configured_set_one_under_06050053"}} <a href="/settings" class="text-brand-600 hover:underline">{{t $ "page.redirection_host_form.settings_dns_96b76a37"}}</a> {{t $ "page.redirection_host_form.to_create_a_records_or_turn_that_option_off_belo_9d7b8e92"}}</p>
     {{end}}
 
     <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
       {{$rhProfile := .Host.DNSProfileID}}
       <div class="sm:col-span-4">
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">DNS credentials</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.dns_credentials_92850c4e"}}</label>
         <input type="hidden" id="dns-provider-hidden" name="dns_provider" value="{{$rhProvider}}" />
         <select id="dns-provider-select" name="dns_profile_id"
           class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-          <option value="" data-provider="" {{if eq $rhProvider ""}}selected{{end}}>None</option>
+          <option value="" data-provider="" {{if eq $rhProvider ""}}selected{{end}}>{{t $ "page.redirection_host_form.none_dc937b59"}}</option>
           {{range .DNSProfiles}}
           <option value="{{.ID}}" data-provider="{{.ProviderID}}" {{if and (eq $rhProfile "") (eq $rhProvider .ProviderID) .Legacy}}selected{{else if eq $rhProfile .ID}}selected{{end}}>{{.DisplayName}}</option>
           {{end}}
         </select>
       </div>
       <div id="dns-zone-wrap" class="sm:col-span-8 {{if eq $rhProvider ""}}hidden{{end}}">
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Zone / Domain</label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.zone_domain_25ae098a"}}</label>
         <select id="dns-zone-select" name="dns_zone_id"
           class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-          <option value="">{{if eq $rhProvider ""}}Select a provider first{{else}}Loading zones…{{end}}</option>
+          <option value="">{{if eq $rhProvider ""}}{{t $ "page.redirection_host_form.select_a_provider_first_fbd4230d"}}{{else}}{{t $ "page.redirection_host_form.loading_zones_dcdd33a8"}}{{end}}</option>
         </select>
         <input type="hidden" id="dns-zone-name" name="dns_zone_name" value="{{.Host.DNSZoneName}}" />
         <p id="dns-zone-hint" class="text-xs text-ink-400 mt-1 hidden"></p>
@@ -240,14 +240,14 @@
 
     <label class="mt-3 flex items-start gap-2.5 text-sm text-ink-700 cursor-pointer">
       <input type="checkbox" name="dns_create_record" {{if not .Host.DNSSkipRecord}}checked{{end}} class="mt-0.5 rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-      <span>Create public A records<span class="block text-xs text-ink-500 mt-0.5 font-normal">Turn off for internal or split-DNS services. DNS-01 TXT records remain enabled.</span></span>
+      <span>{{t $ "page.redirection_host_form.create_public_a_records_e9e3bb1d"}}<span class="block text-xs text-ink-500 mt-0.5 font-normal">{{t $ "page.redirection_host_form.turn_off_for_internal_or_split_dns_services_dns_0_5d8d492d"}}</span></span>
     </label>
 
     {{if .Host.DNSRecordID}}
-    <p class="text-xs text-green-600 mt-3">✓ DNS record(s) active &mdash; record IDs: <span class="font-mono break-all">{{.Host.DNSRecordID}}</span></p>
+    <p class="text-xs text-green-600 mt-3">{{t $ "page.redirection_host_form.dns_record_s_active_record_ids_f9dcac14"}} <span class="font-mono break-all">{{.Host.DNSRecordID}}</span></p>
     {{end}}
     {{if and .Host.DNSProvider .Host.DNSSkipRecord}}
-    <p class="text-xs text-blue-600 mt-3">DNS-01 only &mdash; public A-record creation is disabled.</p>
+    <p class="text-xs text-blue-600 mt-3">{{t $ "page.redirection_host_form.dns_01_only_public_a_record_creation_is_disabled_79f0036a"}}</p>
     {{end}}
   </details>
 
@@ -263,10 +263,10 @@
     var zoneNameIn  = document.getElementById('dns-zone-name');
     var zoneHint    = document.getElementById('dns-zone-hint');
     var hints = {
-      'porkbun':   'Domain must have API Access toggled ON in the Porkbun control panel.',
-      'namecheap': 'Namecheap must have your server IP whitelisted against this API key.',
-      'godaddy':   'GoDaddy API access requires 10+ domains on your account or a Discount Domain Club membership.',
-      'route53':   'Amazon Route 53 requires IAM permissions to list hosted zones and manage record sets in the selected public zone.'
+      'porkbun':   caddyuiT('js.redirection_host_form.domain_must_have_api_access_toggled_on_in_the_po_daab9c69'),
+      'namecheap': caddyuiT('js.redirection_host_form.namecheap_must_have_your_server_ip_whitelisted_a_d4211d51'),
+      'godaddy':   caddyuiT('js.redirection_host_form.godaddy_api_access_requires_10_domains_on_your_a_725ad465'),
+      'route53':   caddyuiT('js.redirection_host_form.amazon_route_53_requires_iam_permissions_to_list_95d653b1')
     };
     if (!providerSel || !zoneSel) return;
     function selectedProviderID() {
@@ -294,13 +294,13 @@
         zoneHint.classList.toggle('hidden', !hint);
       }
       if (!providerID) {
-        zoneSel.replaceChildren(new Option('Select a provider first', ''));
+        zoneSel.replaceChildren(new Option(caddyuiT('js.redirection_host_form.select_a_provider_first_fbd4230d'), ''));
         if (zoneWrap) zoneWrap.classList.add('hidden');
         setZoneNameFromOption();
         return;
       }
       if (zoneWrap) zoneWrap.classList.remove('hidden');
-      zoneSel.replaceChildren(new Option('Loading zones…', ''));
+      zoneSel.replaceChildren(new Option(caddyuiT('js.redirection_host_form.loading_zones_dcdd33a8'), ''));
       fetch('/api/dns-zones?provider=' + encodeURIComponent(providerID) +
             '&profile=' + encodeURIComponent(selectedProfileID()))
         .then(function(r) { return r.json(); })
@@ -310,12 +310,12 @@
           // to load zones" on the redirection form's picker.
           var zones = Array.isArray(data) ? data : (data && data.zones);
           if (!Array.isArray(zones)) {
-            zoneSel.replaceChildren(new Option('— failed to load zones —', ''));
+            zoneSel.replaceChildren(new Option(caddyuiT('js.redirection_host_form.failed_to_load_zones_6ca4d3a1'), ''));
             return;
           }
           var savedID = '{{.Host.DNSZoneID}}';
           var frag = document.createDocumentFragment();
-          var placeholder = new Option('Select a zone', '');
+          var placeholder = new Option(caddyuiT('js.redirection_host_form.select_a_zone_c2eb4a91'), '');
           frag.appendChild(placeholder);
           zones.forEach(function(z) {
             var label = z.name || z.id;
@@ -328,7 +328,7 @@
           setZoneNameFromOption();
         })
         .catch(function() {
-          zoneSel.replaceChildren(new Option('— network error —', ''));
+          zoneSel.replaceChildren(new Option(caddyuiT('js.redirection_host_form.network_error_93384700'), ''));
         });
     }
 
@@ -345,13 +345,13 @@
 
   {{if .OtherServers}}
   <div class="pt-4 border-t border-ink-100">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-2">Also deploy to</div>
-    <p class="text-xs text-ink-400 mb-3">Push a copy of this redirect to additional servers at the same time. Certificates are not mirrored — each server will use its own auto-SSL.</p>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-2">{{t $ "page.redirection_host_form.also_deploy_to_cb49f674"}}</div>
+    <p class="text-xs text-ink-400 mb-3">{{t $ "page.redirection_host_form.push_a_copy_of_this_redirect_to_additional_serve_c66615fa"}}</p>
     <div class="space-y-2">
       {{range .OtherServers}}
       <label class="flex items-center gap-2.5 cursor-pointer select-none">
         <input type="checkbox" name="deploy_to" value="{{.ID}}" {{if .IsDefaultDeployTarget}}checked disabled{{end}} class="rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-        <span class="text-sm text-ink-700 font-medium">{{.Name}}</span>{{if .IsDefaultDeployTarget}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5 shrink-0" title="A default deployment target of this server — always deployed to. Change it under Caddy Fleet → edit this server.">default</span>{{end}}
+        <span class="text-sm text-ink-700 font-medium">{{.Name}}</span>{{if .IsDefaultDeployTarget}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5 shrink-0" title="{{t $ "page.redirection_host_form.title.a_default_deployment_target_of_this_server_alway_bcede610"}}">{{t $ "page.redirection_host_form.default_37a8eec1"}}</span>{{end}}
         {{if eq .Status "online"}}<span class="w-2 h-2 rounded-full bg-green-500 shrink-0"></span>{{else if eq .Status "offline"}}<span class="w-2 h-2 rounded-full bg-red-400 shrink-0"></span>{{else}}<span class="w-2 h-2 rounded-full bg-ink-300 shrink-0"></span>{{end}}
         <span class="text-xs text-ink-400 font-mono truncate">{{.AdminURL}}</span>
       </label>
@@ -362,71 +362,71 @@
 
   {{if .Users}}
   <div class="pt-4 border-t border-ink-100">
-    <label class="block text-sm font-medium text-ink-800 mb-1.5">Owner <span class="text-ink-400 font-normal">(admin only)</span></label>
+    <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.owner_4b1b8aa3"}} <span class="text-ink-400 font-normal">{{t $ "page.redirection_host_form.admin_only_14b52145"}}</span></label>
     <select name="owner_id" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-      <option value="0" {{if not .Host.OwnerID.Valid}}selected{{end}}>Global (admin — managed by you)</option>
+      <option value="0" {{if not .Host.OwnerID.Valid}}selected{{end}}>{{t $ "page.redirection_host_form.global_admin_managed_by_you_ab3d0458"}}</option>
       {{range .Users}}
       <option value="{{.ID}}" {{if and $.Host.OwnerID.Valid (eq $.Host.OwnerID.Int64 .ID)}}selected{{end}}>{{.Email}}{{if .Name}} — {{.Name}}{{end}}</option>
       {{end}}
     </select>
-    <p class="text-xs text-ink-500 mt-1.5">Hand this redirect off to a specific customer — they'll see and manage it in their own dashboard.</p>
+    <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.redirection_host_form.hand_this_redirect_off_to_a_specific_customer_th_28f8764c"}}</p>
   </div>
   {{end}}
 
   <details class="pt-4 border-t border-ink-100">
     <summary class="cursor-pointer select-none text-xs uppercase tracking-wider text-ink-500 hover:text-ink-700 font-medium transition">
-      Tags &amp; Notes <span class="font-normal normal-case">(optional)</span>
+      {{t $ "page.redirection_host_form.tags_notes_26c6a52f"}} <span class="font-normal normal-case">{{t $ "page.redirection_host_form.optional_0059798b"}}</span>
     </summary>
     <div class="mt-3 space-y-4">
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Tags <span class="text-ink-400 font-normal">(comma separated)</span></label>
-        <input name="rh_tags" value="{{.Host.Tags}}" placeholder="e.g. legacy, marketing, temp" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-        <p class="text-xs text-ink-400 mt-1.5">Tags help you filter and organise redirections from the list view.</p>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.tags_1331275b"}} <span class="text-ink-400 font-normal">{{t $ "page.redirection_host_form.comma_separated_6953571c"}}</span></label>
+        <input name="rh_tags" value="{{.Host.Tags}}" placeholder="{{t $ "page.redirection_host_form.placeholder.e_g_legacy_marketing_temp_125b047f"}}" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
+        <p class="text-xs text-ink-400 mt-1.5">{{t $ "page.redirection_host_form.tags_help_you_filter_and_organise_redirections_f_8b31957e"}}</p>
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Notes</label>
-        <textarea name="rh_notes" rows="3" placeholder="Internal notes about this redirection…" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition resize-y">{{.Host.Notes}}</textarea>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.notes_8a7525b1"}}</label>
+        <textarea name="rh_notes" rows="3" placeholder="{{t $ "page.redirection_host_form.placeholder.internal_notes_about_this_redirection_345afccc"}}" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition resize-y">{{.Host.Notes}}</textarea>
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-2">Color label <span class="text-ink-400 font-normal">(optional, for visual grouping)</span></label>
+        <label class="block text-sm font-medium text-ink-800 mb-2">{{t $ "page.redirection_host_form.color_label_61e8007b"}} <span class="text-ink-400 font-normal">{{t $ "page.redirection_host_form.optional_for_visual_grouping_fd393298"}}</span></label>
         <div class="flex items-center gap-2 flex-wrap">
-          <label class="cursor-pointer" title="No color">
+          <label class="cursor-pointer" title="{{t $ "page.redirection_host_form.title.no_color_e3a821f2"}}">
             <input type="radio" name="color" value="" {{if eq .Host.Color ""}}checked{{end}} class="sr-only peer" />
             <span class="inline-flex items-center justify-center w-7 h-7 rounded-full border-2 border-ink-300 peer-checked:border-brand-600 peer-checked:ring-2 peer-checked:ring-brand-400 bg-white text-ink-400 text-xs transition">✕</span>
           </label>
-          <label class="cursor-pointer" title="Red">
+          <label class="cursor-pointer" title="{{t $ "page.redirection_host_form.title.red_ba19e9c3"}}">
             <input type="radio" name="color" value="red" {{if eq .Host.Color "red"}}checked{{end}} class="sr-only peer" />
             <span class="inline-block w-7 h-7 rounded-full border-2 border-transparent peer-checked:border-brand-600 peer-checked:ring-2 peer-checked:ring-brand-400 transition bg-red-400"></span>
           </label>
-          <label class="cursor-pointer" title="Orange">
+          <label class="cursor-pointer" title="{{t $ "page.redirection_host_form.title.orange_78e7771b"}}">
             <input type="radio" name="color" value="orange" {{if eq .Host.Color "orange"}}checked{{end}} class="sr-only peer" />
             <span class="inline-block w-7 h-7 rounded-full border-2 border-transparent peer-checked:border-brand-600 peer-checked:ring-2 peer-checked:ring-brand-400 transition bg-orange-400"></span>
           </label>
-          <label class="cursor-pointer" title="Yellow">
+          <label class="cursor-pointer" title="{{t $ "page.redirection_host_form.title.yellow_19dd83f1"}}">
             <input type="radio" name="color" value="yellow" {{if eq .Host.Color "yellow"}}checked{{end}} class="sr-only peer" />
             <span class="inline-block w-7 h-7 rounded-full border-2 border-transparent peer-checked:border-brand-600 peer-checked:ring-2 peer-checked:ring-brand-400 transition bg-yellow-400"></span>
           </label>
-          <label class="cursor-pointer" title="Green">
+          <label class="cursor-pointer" title="{{t $ "page.redirection_host_form.title.green_d486dfbd"}}">
             <input type="radio" name="color" value="green" {{if eq .Host.Color "green"}}checked{{end}} class="sr-only peer" />
             <span class="inline-block w-7 h-7 rounded-full border-2 border-transparent peer-checked:border-brand-600 peer-checked:ring-2 peer-checked:ring-brand-400 transition bg-green-400"></span>
           </label>
-          <label class="cursor-pointer" title="Teal">
+          <label class="cursor-pointer" title="{{t $ "page.redirection_host_form.title.teal_fa15a5c1"}}">
             <input type="radio" name="color" value="teal" {{if eq .Host.Color "teal"}}checked{{end}} class="sr-only peer" />
             <span class="inline-block w-7 h-7 rounded-full border-2 border-transparent peer-checked:border-brand-600 peer-checked:ring-2 peer-checked:ring-brand-400 transition bg-teal-400"></span>
           </label>
-          <label class="cursor-pointer" title="Blue">
+          <label class="cursor-pointer" title="{{t $ "page.redirection_host_form.title.blue_ec7d56a0"}}">
             <input type="radio" name="color" value="blue" {{if eq .Host.Color "blue"}}checked{{end}} class="sr-only peer" />
             <span class="inline-block w-7 h-7 rounded-full border-2 border-transparent peer-checked:border-brand-600 peer-checked:ring-2 peer-checked:ring-brand-400 transition bg-blue-400"></span>
           </label>
-          <label class="cursor-pointer" title="Purple">
+          <label class="cursor-pointer" title="{{t $ "page.redirection_host_form.title.purple_7d465fb9"}}">
             <input type="radio" name="color" value="purple" {{if eq .Host.Color "purple"}}checked{{end}} class="sr-only peer" />
             <span class="inline-block w-7 h-7 rounded-full border-2 border-transparent peer-checked:border-brand-600 peer-checked:ring-2 peer-checked:ring-brand-400 transition bg-purple-400"></span>
           </label>
-          <label class="cursor-pointer" title="Pink">
+          <label class="cursor-pointer" title="{{t $ "page.redirection_host_form.title.pink_bd38ed77"}}">
             <input type="radio" name="color" value="pink" {{if eq .Host.Color "pink"}}checked{{end}} class="sr-only peer" />
             <span class="inline-block w-7 h-7 rounded-full border-2 border-transparent peer-checked:border-brand-600 peer-checked:ring-2 peer-checked:ring-brand-400 transition bg-pink-400"></span>
           </label>
-          <label class="cursor-pointer" title="Gray">
+          <label class="cursor-pointer" title="{{t $ "page.redirection_host_form.title.gray_0d5adda3"}}">
             <input type="radio" name="color" value="gray" {{if eq .Host.Color "gray"}}checked{{end}} class="sr-only peer" />
             <span class="inline-block w-7 h-7 rounded-full border-2 border-transparent peer-checked:border-brand-600 peer-checked:ring-2 peer-checked:ring-brand-400 transition bg-gray-400"></span>
           </label>
@@ -434,96 +434,96 @@
       </div>
       <!-- v2.9.39: sort order -->
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sort Order</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{t $ "page.redirection_host_form.sort_order_e604fe94"}}</label>
         <input type="number" name="sort_order" value="{{.Host.SortOrder}}"
           class="w-32 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-1.5 text-sm"
           min="0" max="9999" placeholder="0">
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Lower values appear first in the list (0 = default).</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{t $ "page.redirection_host_form.lower_values_appear_first_in_the_list_0_default_8d35230e"}}</p>
       </div>
     </div>
   </details>
 
   <details class="pt-4 border-t border-ink-100">
     <summary class="cursor-pointer select-none text-xs uppercase tracking-wider text-ink-500 hover:text-ink-700 font-medium transition">
-      Access Control &amp; Maintenance <span class="font-normal normal-case">(optional)</span>
+      {{t $ "page.redirection_host_form.access_control_maintenance_79eed1d9"}} <span class="font-normal normal-case">{{t $ "page.redirection_host_form.optional_0059798b"}}</span>
     </summary>
     <div class="mt-3 space-y-4">
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">IP Blocklist</label>
-        <textarea name="ip_blocklist" rows="3" placeholder="One CIDR per line, e.g. 10.0.0.0/8&#10;192.168.1.0/24" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition resize-y">{{.Host.IPBlocklist}}</textarea>
-        <p class="text-xs text-ink-400 mt-1.5">CIDRs listed here receive 403 Forbidden before the redirect fires. Takes priority over the allowlist. Leave blank to block nothing.</p>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.ip_blocklist_c8bd8fc2"}}</label>
+        <textarea name="ip_blocklist" rows="3" placeholder="{{t $ "page.redirection_host_form.placeholder.one_cidr_per_line_e_g_10_0_0_0_8_192_168_1_0_24_6c0b2cdb"}}" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition resize-y">{{.Host.IPBlocklist}}</textarea>
+        <p class="text-xs text-ink-400 mt-1.5">{{t $ "page.redirection_host_form.cidrs_listed_here_receive_403_forbidden_before_t_86877ec1"}}</p>
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">IP Allowlist</label>
-        <textarea name="access_list" rows="3" placeholder="One CIDR per line, e.g. 10.0.0.0/8&#10;192.168.1.0/24" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition resize-y">{{.Host.AccessList}}</textarea>
-        <p class="text-xs text-ink-400 mt-1.5">Leave blank to allow all IPs. When set, requests from unlisted IPs receive 403 Forbidden before the redirect fires.</p>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.ip_allowlist_a13165c8"}}</label>
+        <textarea name="access_list" rows="3" placeholder="{{t $ "page.redirection_host_form.placeholder.one_cidr_per_line_e_g_10_0_0_0_8_192_168_1_0_24_6c0b2cdb"}}" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition resize-y">{{.Host.AccessList}}</textarea>
+        <p class="text-xs text-ink-400 mt-1.5">{{t $ "page.redirection_host_form.leave_blank_to_allow_all_ips_when_set_requests_f_62377a62"}}</p>
       </div>
       <div>
         <label class="flex items-center gap-2.5 cursor-pointer select-none">
           <input type="checkbox" name="maintenance_mode" {{if .Host.MaintenanceMode}}checked{{end}} class="h-4 w-4 rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-          <span class="text-sm font-medium text-ink-800">Maintenance mode</span>
+          <span class="text-sm font-medium text-ink-800">{{t $ "page.redirection_host_form.maintenance_mode_1e322b6f"}}</span>
         </label>
-        <p class="text-xs text-ink-400 mt-1.5 ml-6.5">When enabled, returns 503 instead of redirecting. The redirect URL is preserved for when you disable maintenance mode.</p>
+        <p class="text-xs text-ink-400 mt-1.5 ml-6.5">{{t $ "page.redirection_host_form.when_enabled_returns_503_instead_of_redirecting_t_5db2d352"}}</p>
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Maintenance message <span class="text-ink-400 font-normal">(optional)</span></label>
-        <textarea name="maintenance_msg" rows="2" placeholder="Service temporarily unavailable for maintenance." class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition resize-y">{{.Host.MaintenanceMsg}}</textarea>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.maintenance_message_670b093f"}} <span class="text-ink-400 font-normal">{{t $ "page.redirection_host_form.optional_0059798b"}}</span></label>
+        <textarea name="maintenance_msg" rows="2" placeholder="{{t $ "page.redirection_host_form.placeholder.service_temporarily_unavailable_for_maintenance_dcc31f96"}}" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition resize-y">{{.Host.MaintenanceMsg}}</textarea>
       </div>
       <!-- v2.9.38: maintenance status code -->
       <div class="mb-4" id="rh-maint-status-wrap">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Maintenance Status Code</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{t $ "page.redirection_host_form.maintenance_status_code_43865e24"}}</label>
         <select name="maintenance_status_code"
           class="rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-1.5 text-sm">
-          <option value="503" {{if eq .Host.MaintenanceStatusCode 503}}selected{{end}}>503 Service Unavailable (default)</option>
-          <option value="429" {{if eq .Host.MaintenanceStatusCode 429}}selected{{end}}>429 Too Many Requests</option>
-          <option value="502" {{if eq .Host.MaintenanceStatusCode 502}}selected{{end}}>502 Bad Gateway</option>
-          <option value="520" {{if eq .Host.MaintenanceStatusCode 520}}selected{{end}}>520 Unknown Error</option>
+          <option value="503" {{if eq .Host.MaintenanceStatusCode 503}}selected{{end}}>{{t $ "page.redirection_host_form.503_service_unavailable_default_9d051910"}}</option>
+          <option value="429" {{if eq .Host.MaintenanceStatusCode 429}}selected{{end}}>{{t $ "page.redirection_host_form.429_too_many_requests_9bfee574"}}</option>
+          <option value="502" {{if eq .Host.MaintenanceStatusCode 502}}selected{{end}}>{{t $ "page.redirection_host_form.502_bad_gateway_930cb379"}}</option>
+          <option value="520" {{if eq .Host.MaintenanceStatusCode 520}}selected{{end}}>{{t $ "page.redirection_host_form.520_unknown_error_7e6f1b7c"}}</option>
         </select>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">HTTP status code returned when maintenance mode is active.</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{t $ "page.redirection_host_form.http_status_code_returned_when_maintenance_mode_i_95d657a8"}}</p>
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Custom response headers <span class="text-ink-400 font-normal">(optional)</span></label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.custom_response_headers_a53fb88a"}} <span class="text-ink-400 font-normal">{{t $ "page.redirection_host_form.optional_0059798b"}}</span></label>
         <textarea name="custom_resp_headers" rows="3" placeholder='{"X-Robots-Tag": "noindex", "Cache-Control": "no-store"}' class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition resize-y">{{if and .Host.CustomRespHeaders (ne .Host.CustomRespHeaders "{}")}}{{.Host.CustomRespHeaders}}{{end}}</textarea>
-        <p class="text-xs text-ink-400 mt-1.5">JSON object of header name → value pairs to add to every redirect response. Set value to <span class="font-mono">""</span> to remove a header.</p>
+        <p class="text-xs text-ink-400 mt-1.5">{{t $ "page.redirection_host_form.json_object_of_header_name_value_pairs_to_add_to_92c4e4e8"}} <span class="font-mono">""</span> {{t $ "page.redirection_host_form.to_remove_a_header_8f09419d"}}</p>
       </div>
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">HSTS <span class="text-ink-400 font-normal">(Strict-Transport-Security)</span></label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.hsts_73eb9030"}} <span class="text-ink-400 font-normal">{{t $ "page.redirection_host_form.strict_transport_security_d868e24d"}}</span></label>
         <div class="flex items-center gap-4 mb-2">
-          <input type="number" name="hsts_max_age_sec" value="{{.Host.HSTSMaxAgeSec}}" min="0" placeholder="0 = disabled" class="w-40 rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-          <span class="text-xs text-ink-500">seconds (0 = disabled)</span>
+          <input type="number" name="hsts_max_age_sec" value="{{.Host.HSTSMaxAgeSec}}" min="0" placeholder="{{t $ "page.redirection_host_form.placeholder.0_disabled_8bc1f3d1"}}" class="w-40 rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
+          <span class="text-xs text-ink-500">{{t $ "page.redirection_host_form.seconds_0_disabled_a228c9e4"}}</span>
         </div>
         <div class="flex flex-col gap-1.5">
           <label class="flex items-center gap-2.5 cursor-pointer select-none">
             <input type="checkbox" name="hsts_include_subdomains" {{if .Host.HSTSIncludeSubdomains}}checked{{end}} class="h-4 w-4 rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-            <span class="text-sm text-ink-700">includeSubDomains</span>
+            <span class="text-sm text-ink-700">{{t $ "page.redirection_host_form.includesubdomains_ba8f2d6b"}}</span>
           </label>
           <label class="flex items-center gap-2.5 cursor-pointer select-none">
             <input type="checkbox" name="hsts_preload" {{if .Host.HSTSPreload}}checked{{end}} class="h-4 w-4 rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-            <span class="text-sm text-ink-700">preload</span>
+            <span class="text-sm text-ink-700">{{t $ "page.redirection_host_form.preload_4261433e"}}</span>
           </label>
         </div>
-        <p class="text-xs text-ink-400 mt-1.5">Injects <span class="font-mono">Strict-Transport-Security</span> into redirect responses. Set max-age &gt; 0 to enable. Only effective when redirecting to HTTPS.</p>
+        <p class="text-xs text-ink-400 mt-1.5">{{t $ "page.redirection_host_form.injects_541fb434"}} <span class="font-mono">Strict-Transport-Security</span> {{t $ "page.redirection_host_form.hsts_explanation" "condition" "max-age > 0"}}</p>
       </div>
     </div>
   </details>
 
   <details class="group rounded-xl border border-ink-200 bg-white overflow-hidden">
     <summary class="flex items-center justify-between px-4 py-3 cursor-pointer select-none hover:bg-ink-50 transition">
-      <span class="text-sm font-semibold text-ink-800">Advanced config</span>
+      <span class="text-sm font-semibold text-ink-800">{{t $ "page.redirection_host_form.advanced_config_60527f84"}}</span>
       <svg class="h-4 w-4 text-ink-400 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
     </summary>
     <div class="px-4 pb-4 mt-3">
       <div>
-        <label class="block text-sm font-medium text-ink-800 mb-1.5">Raw Caddy handlers <span class="text-ink-400 font-normal">(JSON array, optional)</span></label>
+        <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.redirection_host_form.raw_caddy_handlers_8ea10cb7"}} <span class="text-ink-400 font-normal">{{t $ "page.redirection_host_form.json_array_optional_a11b6a76"}}</span></label>
         <textarea name="rh_advanced_config" rows="6" placeholder='[{"handler":"headers","response":{"set":{"X-Custom-Header":["value"]}}}]' class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition resize-y">{{.Host.AdvancedConfig}}</textarea>
-        <p class="text-xs text-ink-400 mt-1.5">JSON array of <a href="https://caddyserver.com/docs/json/apps/http/servers/routes/handle/" class="underline hover:text-ink-700" target="_blank">Caddy handler objects</a> injected before the redirect. Applied after IP filtering but before the redirect response. Invalid JSON is silently ignored at sync time.</p>
+        <p class="text-xs text-ink-400 mt-1.5">{{t $ "page.redirection_host_form.json_array_of_9e836322"}} <a href="https://caddyserver.com/docs/json/apps/http/servers/routes/handle/" class="underline hover:text-ink-700" target="_blank">{{t $ "page.redirection_host_form.caddy_handler_objects_0510f6d4"}}</a> {{t $ "page.redirection_host_form.injected_before_the_redirect_applied_after_ip_fi_da4c61f6"}}</p>
       </div>
     </div>
   </details>
 
   <div class="flex items-center gap-3 pt-4 border-t border-ink-100">
-    <button class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-5 py-2 rounded-lg shadow-sm transition">{{if .Host.ID}}Save changes{{else}}Create{{end}}</button>
-    <a href="/redirection-hosts" class="text-sm text-ink-500 hover:text-ink-900 transition">Cancel</a>
+    <button class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-5 py-2 rounded-lg shadow-sm transition">{{if .Host.ID}}{{t $ "page.redirection_host_form.save_changes_dd0ae7a5"}}{{else}}{{t $ "page.redirection_host_form.create_4759498a"}}{{end}}</button>
+    <a href="/redirection-hosts" class="text-sm text-ink-500 hover:text-ink-900 transition">{{t $ "page.redirection_host_form.cancel_19766ed6"}}</a>
   </div>
 </form>
 {{end}}

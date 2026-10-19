@@ -1,4 +1,4 @@
-{{define "title"}}Set your password · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.accept_invite.set_your_password_caddyui_3f9b7281"}}{{end}}
 {{define "content"}}
 <div class="max-w-md mx-auto mt-20">
   <div class="flex items-center gap-2.5 justify-center mb-6">
@@ -9,14 +9,14 @@
   </div>
 
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-8">
-    <h1 class="text-lg font-semibold text-ink-900 mb-1">Set your password</h1>
+    <h1 class="text-lg font-semibold text-ink-900 mb-1">{{t $ "page.accept_invite.set_your_password_36d5e63f"}}</h1>
 
     {{if .Invalid}}
     <div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg mt-4 text-sm">
-      This invite link is invalid or has expired. Please ask an admin to send a new invite.
+      {{t $ "page.accept_invite.this_invite_link_is_invalid_or_has_expired_pleas_b141633d"}}
     </div>
     {{else}}
-    <p class="text-sm text-ink-500 mb-6">Choose a password to activate your CaddyUI account.</p>
+    <p class="text-sm text-ink-500 mb-6">{{t $ "page.accept_invite.choose_a_password_to_activate_your_caddyui_accou_26164b59"}}</p>
 
     {{if .Error}}
     <div class="bg-red-50 border border-red-200 text-red-800 px-3 py-2 rounded-lg mb-4 text-sm">{{.Error}}</div>
@@ -25,19 +25,19 @@
     <form method="post" action="/accept-invite" class="space-y-4">
       <input type="hidden" name="token" value="{{.Token}}" />
       <div>
-        <label for="invite-password" class="block text-sm font-medium text-ink-800 mb-1.5">New password</label>
+        <label for="invite-password" class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.accept_invite.new_password_3dd9df44"}}</label>
         <input id="invite-password" name="password" type="password" autocomplete="new-password" required autofocus minlength="8" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
       </div>
       <div>
-        <label for="invite-password-confirm" class="block text-sm font-medium text-ink-800 mb-1.5">Confirm password</label>
+        <label for="invite-password-confirm" class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.accept_invite.confirm_password_5ac265f3"}}</label>
         <input id="invite-password-confirm" name="confirm_password" type="password" autocomplete="new-password" required minlength="8" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
       </div>
-      <button class="w-full inline-flex items-center justify-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm py-2.5 rounded-lg shadow-sm transition">Activate account</button>
+      <button class="w-full inline-flex items-center justify-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm py-2.5 rounded-lg shadow-sm transition">{{t $ "page.accept_invite.activate_account_f871c2b5"}}</button>
     </form>
     {{end}}
 
     <div class="mt-4 text-center">
-      <a href="/login" class="text-sm text-brand-600 hover:text-brand-700">Back to sign in</a>
+      <a href="/login" class="text-sm text-brand-600 hover:text-brand-700">{{t $ "page.accept_invite.back_to_sign_in_71fe31cc"}}</a>
     </div>
   </div>
 </div>

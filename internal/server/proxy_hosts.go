@@ -711,7 +711,7 @@ func (s *Server) importPorkbunCertificatePage(w http.ResponseWriter, r *http.Req
 		s.render(w, r, "certificate_import_porkbun.html", map[string]any{
 			"User":    s.currentUser(r),
 			"Section": "certs",
-			"Error":   "Porkbun API credentials are not configured. Go to Settings → DNS Providers to add them.",
+			"Error":   s.tr(r, "message.proxy_hosts.importporkbuncertificatepage.porkbun_api_credentials_are_not_configured_848f87cb"),
 		})
 		return
 	}
@@ -721,7 +721,7 @@ func (s *Server) importPorkbunCertificatePage(w http.ResponseWriter, r *http.Req
 		s.render(w, r, "certificate_import_porkbun.html", map[string]any{
 			"User":    s.currentUser(r),
 			"Section": "certs",
-			"Error":   "Failed to list Porkbun domains: " + err.Error(),
+			"Error":   s.tr(r, "message.proxy_hosts.importporkbuncertificatepage.failed_to_list_porkbun_domains_0136116f") + err.Error(),
 		})
 		return
 	}
@@ -752,7 +752,7 @@ func (s *Server) importPorkbunCertificate(w http.ResponseWriter, r *http.Request
 		s.render(w, r, "certificate_import_porkbun.html", map[string]any{
 			"User":     s.currentUser(r),
 			"Section":  "certs",
-			"Error":    "Failed to retrieve certificate from Porkbun: " + err.Error(),
+			"Error":    s.tr(r, "message.proxy_hosts.importporkbuncertificate.failed_to_retrieve_certificate_from_porkbun_6aa2bbb1") + err.Error(),
 			"Selected": domain,
 		})
 		return

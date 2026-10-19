@@ -207,9 +207,10 @@ const healthFailThreshold = 3
 
 func parseTemplates(tplFS fs.FS) (map[string]*template.Template, error) {
 	funcs := template.FuncMap{
-		"t":     tFunc, // v2.62.0 (issue #128): {{t $ "key"}}
-		"join":  func(sep string, parts []string) string { return strings.Join(parts, sep) },
-		"upper": strings.ToUpper,
+		"t":       tFunc, // v2.62.0 (issue #128): {{t $ "key"}}
+		"fmtRelT": relativeTimeFunc,
+		"join":    func(sep string, parts []string) string { return strings.Join(parts, sep) },
+		"upper":   strings.ToUpper,
 		// dict builds a map from alternating key/value args so templates can pass
 		// structured context to sub-templates (e.g. layout's navItem definition).
 		"dict": func(kv ...any) (map[string]any, error) {
@@ -1319,16 +1320,16 @@ func (s *Server) postSetup(w http.ResponseWriter, r *http.Request) {
 	pw := r.FormValue("password")
 	pw2 := r.FormValue("password_confirm")
 	if email == "" || pw == "" {
-		s.render(w, r, "setup.html", map[string]any{"Error": "Email and password required"})
+		s.render(w, r, "setup.html", map[string]any{"Error": s.tr(r, "message.server.postsetup.email_and_password_required_05fc6bc2")})
 		return
 	}
 	if pw != pw2 {
-		s.render(w, r, "setup.html", map[string]any{"Error": "Passwords do not match"})
+		s.render(w, r, "setup.html", map[string]any{"Error": s.tr(r, "message.server.postsetup.passwords_do_not_match_b6eb82cd")})
 		return
 	}
 	// The 8-character minimum was only an HTML attribute; enforce it here too.
 	if len(pw) < 8 {
-		s.render(w, r, "setup.html", map[string]any{"Error": "Password must be at least 8 characters"})
+		s.render(w, r, "setup.html", map[string]any{"Error": s.tr(r, "message.server.postsetup.password_must_be_at_least_characters_e3b8d09d")})
 		return
 	}
 	hash, err := auth.HashPassword(pw)
@@ -2198,7 +2199,7 @@ func (s *Server) postLogin(w http.ResponseWriter, r *http.Request) {
 		s.render(w, r, "login.html", data)
 	}
 	if ok, err := verifyCaptcha(captchaCfg, r); err != nil || !ok {
-		renderLoginErr("Security check failed. Please try again.")
+		renderLoginErr(s.tr(r, "message.server.postlogin.security_check_failed_please_try_again_2239888f"))
 		return
 	}
 
@@ -2223,7 +2224,7 @@ func (s *Server) postLogin(w http.ResponseWriter, r *http.Request) {
 				time.Now().UTC().Add(-loginFailureWindow),
 			).Scan(&failCount)
 			if failCount >= maxAttempts {
-				renderLoginErr("Too many failed login attempts. Please wait 15 minutes and try again.")
+				renderLoginErr(s.tr(r, "message.server.postlogin.too_many_failed_login_attempts_please_08f23c1a"))
 				return
 			}
 		}
@@ -2234,12 +2235,12 @@ func (s *Server) postLogin(w http.ResponseWriter, r *http.Request) {
 	u, err := models.GetUserByEmail(s.DB, email)
 	if err != nil || !auth.CheckPassword(u.PasswordHash, pw) {
 		_ = models.LogActivity(s.DB, 0, email, "login_fail", "ip:"+clientIP, "invalid credentials", false)
-		renderLoginErr("Invalid email or password")
+		renderLoginErr(s.tr(r, "message.server.postlogin.invalid_email_or_password_4d4ff2e3"))
 		return
 	}
 	if u.TOTPEnabled && u.TOTPSecret != "" {
 		if s.totpLockedOut(u.Email) {
-			renderLoginErr("Too many failed verification attempts for this account. Please wait 15 minutes and try again.")
+			renderLoginErr(s.tr(r, "message.server.postlogin.too_many_failed_verification_attempts_for_43017dfb"))
 			return
 		}
 		// Generate a pre-auth token and redirect to TOTP verification.
@@ -2323,7 +2324,7 @@ func (s *Server) postTOTPVerify(w http.ResponseWriter, r *http.Request) {
 
 	val, ok := s.pendingTOTP.Load(tok)
 	if !ok {
-		renderTOTPErr("Session expired. Please log in again.")
+		renderTOTPErr(s.tr(r, "message.server.posttotpverify.session_expired_please_log_in_again_f6f51186"))
 		return
 	}
 
@@ -2332,7 +2333,7 @@ func (s *Server) postTOTPVerify(w http.ResponseWriter, r *http.Request) {
 		// user retry with a fresh challenge. Captcha being wrong is an
 		// "I am a bot probably" signal, not an "I burned my TOTP slot"
 		// one. The 5-min auto-expire still caps abuse.
-		renderTOTPErr("Security check failed. Please try again.")
+		renderTOTPErr(s.tr(r, "message.server.posttotpverify.security_check_failed_please_try_again_2239888f"))
 		return
 	}
 
@@ -2346,7 +2347,7 @@ func (s *Server) postTOTPVerify(w http.ResponseWriter, r *http.Request) {
 	}
 	if s.totpLockedOut(u.Email) {
 		s.pendingTOTPAttempts.Delete(tok)
-		renderTOTPErr("Too many failed verification attempts for this account. Please wait 15 minutes and sign in again.")
+		renderTOTPErr(s.tr(r, "message.server.posttotpverify.too_many_failed_verification_attempts_for_4f55ed49"))
 		return
 	}
 
@@ -2370,12 +2371,12 @@ func (s *Server) postTOTPVerify(w http.ResponseWriter, r *http.Request) {
 		_ = models.LogActivity(s.DB, 0, u.Email, "login_totp_fail", "ip:"+clientIPFromRequest(r), "invalid TOTP code", false)
 		if attempts >= maxTOTPAttemptsPerToken {
 			s.pendingTOTPAttempts.Delete(tok) // the token stays deleted
-			renderTOTPErr("Too many incorrect codes. Please sign in again.")
+			renderTOTPErr(s.tr(r, "message.server.posttotpverify.too_many_incorrect_codes_please_sign_c8487ab7"))
 			return
 		}
 		// Put token back so user can retry.
 		s.pendingTOTP.Store(tok, userID)
-		renderTOTPErr("Invalid code. Try again.")
+		renderTOTPErr(s.tr(r, "message.server.posttotpverify.invalid_code_try_again_497de255"))
 		return
 	}
 
@@ -2514,7 +2515,7 @@ func (s *Server) postTOTPSetup(w http.ResponseWriter, r *http.Request) {
 			"Secret":      secret,
 			"OTPAuth":     otpAuth,
 			"OTPQRCode":   totpQRDataURI(otpAuth),
-			"Error":       "Invalid code — try again.",
+			"Error":       s.tr(r, "message.server.posttotpsetup.invalid_code_try_again_0cf36418"),
 			"TOTPEnabled": u.TOTPEnabled,
 		})
 		return
@@ -2574,6 +2575,7 @@ type dashboardRecommendation struct {
 }
 
 type dashboardRecommendationInput struct {
+	Locale            string
 	IsAdmin           bool
 	ProxyHosts        []models.ProxyHost
 	RedirectionHosts  []models.RedirectionHost
@@ -2601,6 +2603,7 @@ type dashboardRecommendationInput struct {
 }
 
 func buildDashboardRecommendations(in dashboardRecommendationInput) []dashboardRecommendation {
+	translate := func(key string) string { return translations().T(in.Locale, key) }
 	now := in.Now
 	if now.IsZero() {
 		now = time.Now()
@@ -2623,12 +2626,12 @@ func buildDashboardRecommendations(in dashboardRecommendationInput) []dashboardR
 	}
 
 	if in.GlobalMaintenance {
-		add("critical", "Global maintenance mode is active", "Every proxy host is serving the maintenance response until this is turned off and Caddy is synced.", "/settings/general", "Open settings")
+		add("critical", translate("message.server.builddashboardrecommendations.global_maintenance_mode_is_active_b92ffc96"), translate("message.server.builddashboardrecommendations.every_proxy_host_is_serving_the_e3a7daf9"), "/settings/general", translate("message.server.builddashboardrecommendations.open_settings_ca381c1e"))
 	} else if in.MaintenanceCount > 0 {
-		add("warning", "Proxy hosts are in maintenance", fmt.Sprintf("%d enabled proxy host(s) are currently serving maintenance responses.", in.MaintenanceCount), "/proxy-hosts?status=maintenance", "Review hosts")
+		add("warning", translate("message.server.builddashboardrecommendations.proxy_hosts_are_in_maintenance_e908ef8e"), fmt.Sprintf(translate("message.server.builddashboardrecommendations.d_enabled_proxy_host_s_are_3d84c3ea"), in.MaintenanceCount), "/proxy-hosts?status=maintenance", translate("message.server.builddashboardrecommendations.review_hosts_d5a464fc"))
 	}
 	if in.DownCount > 0 {
-		add("critical", "Upstreams are down", fmt.Sprintf("%d enabled proxy host(s) have failing health checks.", in.DownCount), "/proxy-hosts", "View health")
+		add("critical", translate("message.server.builddashboardrecommendations.upstreams_are_down_223fe95f"), fmt.Sprintf(translate("message.server.builddashboardrecommendations.d_enabled_proxy_host_s_have_b428cda4"), in.DownCount), "/proxy-hosts", translate("message.server.builddashboardrecommendations.view_health_9266a170"))
 	}
 
 	sslOff := 0
@@ -2663,13 +2666,13 @@ func buildDashboardRecommendations(in dashboardRecommendationInput) []dashboardR
 		}
 	}
 	if sslOff > 0 {
-		add("warning", "Enabled hosts have SSL off", fmt.Sprintf("%d enabled proxy host(s) are reachable without Caddy-managed TLS.", sslOff), "/proxy-hosts", "Review TLS")
+		add("warning", translate("message.server.builddashboardrecommendations.enabled_hosts_have_ssl_off_25a027fd"), fmt.Sprintf(translate("message.server.builddashboardrecommendations.d_enabled_proxy_host_s_are_e71e205c"), sslOff), "/proxy-hosts", translate("message.server.builddashboardrecommendations.review_tls_3beb02fd"))
 	}
 	if incompleteDNS > 0 {
-		add("warning", "Managed DNS is incomplete", fmt.Sprintf("%d resource(s) have a DNS provider selected but no zone saved yet.", incompleteDNS), "/proxy-hosts", "Review DNS")
+		add("warning", translate("message.server.builddashboardrecommendations.managed_dns_is_incomplete_23ebea96"), fmt.Sprintf(translate("message.server.builddashboardrecommendations.d_resource_s_have_a_dns_2be2713d"), incompleteDNS), "/proxy-hosts", translate("message.server.builddashboardrecommendations.review_dns_636397a0"))
 	}
 	if missingProfiles > 0 {
-		add("critical", "DNS profile references are missing", fmt.Sprintf("%d resource(s) reference a deleted or unavailable DNS credential profile.", missingProfiles), "/settings/dns", "Fix profiles")
+		add("critical", translate("message.server.builddashboardrecommendations.dns_profile_references_are_missing_f36ac503"), fmt.Sprintf(translate("message.server.builddashboardrecommendations.d_resource_s_reference_a_deleted_7ef4cf2a"), missingProfiles), "/settings/dns", translate("message.server.builddashboardrecommendations.fix_profiles_05f08d34"))
 	}
 
 	expiringSoon := 0
@@ -2698,27 +2701,27 @@ func buildDashboardRecommendations(in dashboardRecommendationInput) []dashboardR
 		}
 	}
 	if expired > 0 {
-		add("critical", "Custom certificates are expired", fmt.Sprintf("%d custom certificate(s) are already expired.", expired), "/certificates", "Review certs")
+		add("critical", translate("message.server.builddashboardrecommendations.custom_certificates_are_expired_018df28c"), fmt.Sprintf(translate("message.server.builddashboardrecommendations.d_custom_certificate_s_are_already_a68b300a"), expired), "/certificates", translate("message.server.builddashboardrecommendations.review_certs_726a32af"))
 	} else if expiringSoon > 0 {
-		add("warning", "Custom certificates expire soon", fmt.Sprintf("%d custom certificate(s) expire within 30 days.", expiringSoon), "/certificates", "Review certs")
+		add("warning", translate("message.server.builddashboardrecommendations.custom_certificates_expire_soon_017b2eba"), fmt.Sprintf(translate("message.server.builddashboardrecommendations.d_custom_certificate_s_expire_within_8fafae99"), expiringSoon), "/certificates", translate("message.server.builddashboardrecommendations.review_certs_726a32af"))
 	}
 	unusedFingerprint := unusedCertificateFingerprint(in.Certificates, referencedCerts)
 	if in.IsAdmin && len(unusedCustomCerts) > 0 && unusedFingerprint != in.DismissedUnused {
 		add(
 			"info",
-			"Unused custom certificates",
-			fmt.Sprintf("%d certificate(s) are not assigned to any resource: %s.", len(unusedCustomCerts), summarizeCertificateNames(unusedCustomCerts, 3)),
+			translate("message.server.builddashboardrecommendations.unused_custom_certificates_9cfd2a0e"),
+			fmt.Sprintf(translate("message.server.builddashboardrecommendations.d_certificate_s_are_not_assigned_bc0a3cc0"), len(unusedCustomCerts), summarizeCertificateNames(unusedCustomCerts, 3)),
 			"/certificates?usage=unused",
-			"Show unused",
+			translate("message.server.builddashboardrecommendations.show_unused_7bf99fc3"),
 		)
 	}
 
 	resourceCount := len(in.ProxyHosts) + len(in.RedirectionHosts) + len(in.RawRoutes)
 	if resourceCount > 0 {
 		if in.LastSync == nil {
-			add("warning", "No successful sync recorded", "Resources exist, but the activity log has no successful Caddy sync for this server.", "/", "Sync Caddy")
+			add("warning", translate("message.server.builddashboardrecommendations.no_successful_sync_recorded_1fb679e7"), translate("message.server.builddashboardrecommendations.resources_exist_but_the_activity_log_8fbc0257"), "/", translate("message.server.builddashboardrecommendations.sync_caddy_dd67269f"))
 		} else if now.Sub(*in.LastSync) > 7*24*time.Hour {
-			add("info", "Last sync is over a week old", fmt.Sprintf("Last successful sync was %s ago.", humanDuration(now.Sub(*in.LastSync))), "/", "Sync Caddy")
+			add("info", translate("message.server.builddashboardrecommendations.last_sync_is_over_a_week_f323dbfc"), fmt.Sprintf(translate("message.server.builddashboardrecommendations.last_successful_sync_was_s_ago_48461ee9"), humanDurationLocalized(now.Sub(*in.LastSync), in.Locale)), "/", translate("message.server.builddashboardrecommendations.sync_caddy_dd67269f"))
 		}
 	}
 
@@ -2730,20 +2733,20 @@ func buildDashboardRecommendations(in dashboardRecommendationInput) []dashboardR
 		if !in.RequireTOTP && !in.DismissedTOTPPolicy {
 			addDismissible(
 				"warning",
-				"Two-factor authentication is not required",
-				"Requiring TOTP enrolment for everyone reduces account-takeover risk. Dismiss this if you have decided against it.",
+				translate("message.server.builddashboardrecommendations.two_factor_authentication_is_not_required_fd8f59ea"),
+				translate("message.server.builddashboardrecommendations.requiring_totp_enrolment_for_everyone_reduces_5c5e4119"),
 				"/settings/security",
-				"Open security",
+				translate("message.server.builddashboardrecommendations.open_security_948122ae"),
 				"/dashboard/recommendations/two-factor-policy/dismiss",
 			)
 		}
 		if !in.AdminAllowlistSet {
-			add("info", "Admin IP allowlist is empty", "Restricting CaddyUI to trusted IPs or CIDRs can reduce exposure for homelab installs.", "/settings/security", "Open security")
+			add("info", translate("message.server.builddashboardrecommendations.admin_ip_allowlist_is_empty_393ca6c0"), translate("message.server.builddashboardrecommendations.restricting_caddyui_to_trusted_ips_or_2fb35c8b"), "/settings/security", translate("message.server.builddashboardrecommendations.open_security_948122ae"))
 		}
 		if len(in.Snapshots) == 0 {
-			add("warning", "No config snapshots yet", "Take a manual snapshot so there is a known-good Caddy config to restore.", "/snapshots", "Take snapshot")
+			add("warning", translate("message.server.builddashboardrecommendations.no_config_snapshots_yet_a383cac0"), translate("message.server.builddashboardrecommendations.take_a_manual_snapshot_so_there_f1941c8e"), "/snapshots", translate("message.server.builddashboardrecommendations.take_snapshot_2c86d507"))
 		} else if !in.AutoSnapshots {
-			add("info", "Auto-snapshots are disabled", "Manual snapshots still work, but pre-sync restore points will not be captured automatically.", "/snapshots", "Review snapshots")
+			add("info", translate("message.server.builddashboardrecommendations.auto_snapshots_are_disabled_2f7a71f8"), translate("message.server.builddashboardrecommendations.manual_snapshots_still_work_but_pre_0f246f06"), "/snapshots", translate("message.server.builddashboardrecommendations.review_snapshots_f07825ed"))
 		}
 	}
 
@@ -2966,6 +2969,7 @@ func (s *Server) dashboard(w http.ResponseWriter, r *http.Request) {
 	adminAllowlistSet := strings.TrimSpace(mustGetSetting(s.DB, settingAdminAllowlist)) != ""
 	dismissedUnused := mustGetSetting(s.DB, unusedCertificateDismissalKey(sid))
 	recommendations := buildDashboardRecommendations(dashboardRecommendationInput{
+		Locale:              s.requestLocale(r, cu),
 		IsAdmin:             isAdmin,
 		ProxyHosts:          hosts,
 		RedirectionHosts:    redirs,
@@ -3621,7 +3625,7 @@ func (s *Server) postCaddyfileImport(w http.ResponseWriter, r *http.Request) {
 		s.render(w, r, "caddyfile_import.html", map[string]any{
 			"User":    s.currentUser(r),
 			"Section": "paste",
-			"Error":   "Paste some Caddyfile text first.",
+			"Error":   s.tr(r, "message.server.postcaddyfileimport.paste_some_caddyfile_text_first_1587dc51"),
 			"Input":   src,
 		})
 		return
@@ -3670,7 +3674,7 @@ func (s *Server) postCaddyfileImport(w http.ResponseWriter, r *http.Request) {
 		s.render(w, r, "caddyfile_import.html", map[string]any{
 			"User":    s.currentUser(r),
 			"Section": "paste",
-			"Error":   "Caddy adapted the text but it produced no HTTP routes. Make sure at least one site block is included.",
+			"Error":   s.tr(r, "message.server.postcaddyfileimport.caddy_adapted_the_text_but_it_4c464537"),
 			"Input":   src,
 		})
 		return
@@ -3890,7 +3894,7 @@ func (s *Server) postCaddyfileImport(w http.ResponseWriter, r *http.Request) {
 			s.render(w, r, "caddyfile_import.html", map[string]any{
 				"User":    s.currentUser(r),
 				"Section": "paste",
-				"Error":   "Imported to DB but sync to Caddy failed: " + err.Error(),
+				"Error":   s.tr(r, "message.server.postcaddyfileimport.imported_to_db_but_sync_to_d2dde8e0") + err.Error(),
 				"Results": results,
 				"Input":   src,
 			})
@@ -6279,19 +6283,19 @@ func (s *Server) createUser(w http.ResponseWriter, r *http.Request) {
 		s.render(w, r, "user_form.html", data)
 	}
 	if ok, err := verifyCaptcha(captchaCfg, r); err != nil || !ok {
-		renderErr("Security check failed. Please try again.")
+		renderErr(s.tr(r, "message.server.createuser.security_check_failed_please_try_again_2239888f"))
 		return
 	}
 	if email == "" || pw == "" {
-		renderErr("Email and password are required")
+		renderErr(s.tr(r, "message.server.createuser.email_and_password_are_required_75187bf5"))
 		return
 	}
 	if pw != pw2 {
-		renderErr("Passwords do not match")
+		renderErr(s.tr(r, "message.server.createuser.passwords_do_not_match_b6eb82cd"))
 		return
 	}
 	if len(pw) < 8 {
-		renderErr("Password must be at least 8 characters")
+		renderErr(s.tr(r, "message.server.createuser.password_must_be_at_least_characters_e3b8d09d"))
 		return
 	}
 	hash, err := auth.HashPassword(pw)
@@ -6347,7 +6351,7 @@ func (s *Server) updateUser(w http.ResponseWriter, r *http.Request) {
 	if u.Role == models.RoleAdmin && role != models.RoleAdmin {
 		n, _ := models.CountAdmins(s.DB)
 		if n <= 1 {
-			renderErr("Can't demote the last admin — promote another user first")
+			renderErr(s.tr(r, "message.server.updateuser.can_t_demote_the_last_admin_f2eaea34"))
 			return
 		}
 	}
@@ -6357,11 +6361,11 @@ func (s *Server) updateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	if pw != "" {
 		if pw != pw2 {
-			renderErr("Passwords do not match")
+			renderErr(s.tr(r, "message.server.updateuser.passwords_do_not_match_b6eb82cd"))
 			return
 		}
 		if len(pw) < 8 {
-			renderErr("Password must be at least 8 characters")
+			renderErr(s.tr(r, "message.server.updateuser.password_must_be_at_least_characters_e3b8d09d"))
 			return
 		}
 		hash, err := auth.HashPassword(pw)
@@ -6456,7 +6460,7 @@ func (s *Server) createGroup(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 	if name == "" {
-		renderErr("Name is required")
+		renderErr(s.tr(r, "message.server.creategroup.name_is_required_604fd1b2"))
 		return
 	}
 	id, err := models.CreateGroup(s.DB, name, desc)
@@ -6529,7 +6533,7 @@ func (s *Server) updateGroup(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 	if name == "" {
-		renderErr("Name is required")
+		renderErr(s.tr(r, "message.server.updategroup.name_is_required_604fd1b2"))
 		return
 	}
 	if err := models.UpdateGroup(s.DB, id, name, desc); err != nil {
@@ -7721,7 +7725,7 @@ func (s *Server) getCaddyConfig(w http.ResponseWriter, r *http.Request) {
 		s.render(w, r, "caddy_config.html", map[string]any{
 			"User":    s.currentUser(r),
 			"Section": "caddy_config",
-			"Error":   "Could not fetch Caddy config: " + err.Error(),
+			"Error":   s.tr(r, "message.server.getcaddyconfig.could_not_fetch_caddy_config_d86ecc5c") + err.Error(),
 		})
 		return
 	}

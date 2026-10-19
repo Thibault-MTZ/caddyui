@@ -141,7 +141,7 @@ func (s *Server) postBackupRun(w http.ResponseWriter, r *http.Request) {
 	}
 	cfg := s.backupScheduleConfig()
 	if cfg.Dir == "" {
-		http.Redirect(w, r, "/settings/backup?backuperr="+url.QueryEscape("set a backup directory and Save first"), http.StatusSeeOther)
+		http.Redirect(w, r, "/settings/backup?backuperr="+url.QueryEscape(s.tr(r, "message.backup_schedule.postbackuprun.set_a_backup_directory_and_save_2e9299d3")), http.StatusSeeOther)
 		return
 	}
 	path, err := s.runScheduledBackupOnce(cfg.Dir, cfg.Keep)

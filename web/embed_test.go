@@ -34,7 +34,7 @@ func TestSettingsGuidanceStaysInline(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read settings.html: %v", err)
 	}
-	html := string(settingsHTML)
+	html := englishTemplateSource(t, settingsHTML)
 	for _, guidance := range []string{
 		"Pick a big enough model.",
 		"Before each domain works:",
@@ -158,7 +158,7 @@ func TestProxyHostFormHasLiveCaddyfilePreviewAndConfiguredFilter(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read proxy host form: %v", err)
 	}
-	form := string(formHTML)
+	form := englishTemplateSource(t, formHTML)
 	for _, marker := range []string{
 		`id="mode-configured"`,
 		`id="ph-preview-caddyfile"`,
@@ -319,7 +319,7 @@ func TestMonitoringControlsAndOffStateAreWired(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read proxy_host_form.html: %v", err)
 	}
-	formHTML := string(form)
+	formHTML := englishTemplateSource(t, form)
 	for _, marker := range []string{
 		`name="monitor_mode"`,
 		`name="monitor_path"`,
@@ -340,7 +340,7 @@ func TestMonitoringControlsAndOffStateAreWired(t *testing.T) {
 		if err != nil {
 			t.Fatalf("read %s: %v", name, err)
 		}
-		html := string(body)
+		html := englishTemplateSource(t, body)
 		// Both painters live in each file: the Port dot keys off h.status and
 		// the App dot off a local `s`, so require both spellings.
 		for _, branch := range []string{`h.status === 'off'`, `s === 'off'`} {
@@ -397,7 +397,7 @@ func TestAdvancedRouteListenIsSurfaced(t *testing.T) {
 		t.Fatalf("read raw_route_form.html: %v", err)
 	}
 	for _, marker := range []string{`name="listen"`, "{{.Row.ListenDisplay}}"} {
-		if !strings.Contains(string(form), marker) {
+		if !strings.Contains(englishTemplateSource(t, form), marker) {
 			t.Errorf("raw route form missing listen control %q", marker)
 		}
 	}
@@ -405,7 +405,7 @@ func TestAdvancedRouteListenIsSurfaced(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read raw_routes.html: %v", err)
 	}
-	if n := strings.Count(string(list), "listens on {{.ListenDisplay}}"); n != 2 {
+	if n := strings.Count(englishTemplateSource(t, list), "listens on {{.ListenDisplay}}"); n != 2 {
 		t.Errorf("raw_routes.html shows the listener badge %d time(s), want 2 (table row and mobile card)", n)
 	}
 }
@@ -546,7 +546,7 @@ func TestCertificateExportIsSurfaced(t *testing.T) {
 			t.Fatalf("read %s: %v", file, err)
 		}
 		for _, m := range markers {
-			if !strings.Contains(string(body), m) {
+			if !strings.Contains(englishTemplateSource(t, body), m) {
 				t.Errorf("%s missing %q", file, m)
 			}
 		}
@@ -561,7 +561,7 @@ func TestCertificateDeployPickerCoversEverySource(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	html := string(body)
+	html := englishTemplateSource(t, body)
 	picker := strings.Index(html, "data-certificate-deploy-picker")
 	managed := strings.Index(html, `id="src-managed"`)
 	if picker < 0 || managed < 0 || picker < managed && strings.Index(html[picker:], `id="src-managed"`) >= 0 {
@@ -583,11 +583,11 @@ func TestAdvancedConfigReverseProxyHintIsSurfaced(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, m := range []string{"data-advanced-reverse-proxy-hint", "flush_interval -1", "without</em> an upstream address"} {
-		if !strings.Contains(string(body), m) {
+		if !strings.Contains(englishTemplateSource(t, body), m) {
 			t.Errorf("proxy_host_form.html missing %q", m)
 		}
 	}
-	if strings.Contains(string(body), `Terminal handlers are rejected: <code class="font-mono bg-ink-100 px-1 rounded">reverse_proxy</code>`) {
+	if strings.Contains(englishTemplateSource(t, body), `Terminal handlers are rejected: <code class="font-mono bg-ink-100 px-1 rounded">reverse_proxy</code>`) {
 		t.Error("reverse_proxy must no longer be listed as a rejected directive")
 	}
 }
@@ -607,7 +607,7 @@ func TestLiveCertificateProbeIsSurfaced(t *testing.T) {
 			t.Fatalf("read %s: %v", file, err)
 		}
 		for _, m := range markers {
-			if !strings.Contains(string(body), m) {
+			if !strings.Contains(englishTemplateSource(t, body), m) {
 				t.Errorf("%s missing %q", file, m)
 			}
 		}
@@ -789,7 +789,7 @@ func TestPublicHealthDotHonorsMonitoringOff(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read proxy_hosts.html: %v", err)
 	}
-	list := string(listHTML)
+	list := englishTemplateSource(t, listHTML)
 	if n := strings.Count(list, `{{if eq .MonitorMode "off"}}`); n != 2 {
 		t.Errorf("proxy_hosts.html has %d MonitorMode-off guards on the Public dot, want 2 (card view + table view)", n)
 	}
@@ -805,7 +805,7 @@ func TestPublicHealthDotHonorsMonitoringOff(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read proxy_host_health.html: %v", err)
 	}
-	detail := string(detailHTML)
+	detail := englishTemplateSource(t, detailHTML)
 	for _, marker := range []string{
 		`{{if eq .Host.MonitorMode "off"}}`,
 		"Monitoring off",
@@ -823,7 +823,7 @@ func TestPublicHealthDotHonorsMonitoringOff(t *testing.T) {
 	// The monitoring section's copy must name all three probes it drives, not
 	// just the App and Port dots — that omission is what left the reporter
 	// unable to find where the Public check was managed.
-	if !strings.Contains(string(formHTML), "Public") {
+	if !strings.Contains(englishTemplateSource(t, formHTML), "Public") {
 		t.Error("proxy_host_form.html's monitoring section no longer mentions the Public dot/check")
 	}
 }

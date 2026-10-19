@@ -1,4 +1,4 @@
-{{define "title"}}{{.ClassLabel}} · {{.Host}} · Analytics · CaddyUI{{end}}
+{{define "title"}}{{if eq .Class "2xx"}}{{t $ "analytics.class.2xx"}}{{else if eq .Class "3xx"}}{{t $ "analytics.class.3xx"}}{{else if eq .Class "4xx"}}{{t $ "analytics.class.4xx"}}{{else if eq .Class "5xx"}}{{t $ "analytics.class.5xx"}}{{else if eq .Class "other"}}{{t $ "analytics.class.other"}}{{end}} · {{.Host}} · {{t $ "analytics.heading"}} {{t $ "page.analytics_status.caddyui_a80cd555"}}{{end}}
 {{define "content"}}
 {{$srv := "all"}}{{if ne .SelectedServerID 0}}{{$srv = .SelectedServerID}}{{end}}
 {{$err := or (eq .Class "4xx") (eq .Class "5xx")}}
@@ -11,31 +11,31 @@
 
 <div class="flex items-start justify-between mb-6 gap-6 flex-wrap">
   <div class="min-w-0">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Status class</div>
-    <h1 class="text-2xl font-semibold tracking-tight text-ink-900 truncate">{{.ClassLabel}}</h1>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.status_class"}}</div>
+    <h1 class="text-2xl font-semibold tracking-tight text-ink-900 truncate">{{if eq .Class "2xx"}}{{t $ "analytics.class.2xx"}}{{else if eq .Class "3xx"}}{{t $ "analytics.class.3xx"}}{{else if eq .Class "4xx"}}{{t $ "analytics.class.4xx"}}{{else if eq .Class "5xx"}}{{t $ "analytics.class.5xx"}}{{else if eq .Class "other"}}{{t $ "analytics.class.other"}}{{end}}</h1>
     <p class="text-sm text-ink-500 mt-1">
-      {{.WindowLabel}} · {{.Totals.Views}} responses from {{.Totals.Visitors}} visitors on <span class="font-medium text-ink-700">{{.Host}}</span> · handled by {{.ServerScopeName}}
+      {{if eq .WindowQuery "1d"}}{{t $ "analytics.window.1d"}}{{else if eq .WindowQuery "30d"}}{{t $ "analytics.window.30d"}}{{else}}{{t $ "analytics.window.7d"}}{{end}} · {{.Totals.Views}} {{t $ "analytics.responses_from"}} {{.Totals.Visitors}} {{t $ "analytics.visitors_on"}} <span class="font-medium text-ink-700">{{.Host}}</span> {{t $ "analytics.handled_by"}} {{if eq .SelectedServerID 0}}{{t $ "analytics.all_servers"}}{{else}}{{.ServerScopeName}}{{end}}
     </p>
   </div>
   <div class="inline-flex rounded-lg border border-ink-200 bg-white p-0.5 text-xs shadow-card">
-    {{$cur := .WindowLabel}}
-    <a href="/analytics/{{urlquery .Host}}/status?class={{.Class}}&amp;window=1d&amp;server={{$srv}}" class="px-3 py-1.5 rounded-md transition {{if eq $cur "last 24 hours"}}bg-brand-50 text-brand-700 font-medium{{else}}text-ink-600 hover:bg-ink-50{{end}}">24 hours</a>
-    <a href="/analytics/{{urlquery .Host}}/status?class={{.Class}}&amp;window=7d&amp;server={{$srv}}" class="px-3 py-1.5 rounded-md transition {{if eq $cur "last 7 days"}}bg-brand-50 text-brand-700 font-medium{{else}}text-ink-600 hover:bg-ink-50{{end}}">7 days</a>
-    <a href="/analytics/{{urlquery .Host}}/status?class={{.Class}}&amp;window=30d&amp;server={{$srv}}" class="px-3 py-1.5 rounded-md transition {{if eq $cur "last 30 days"}}bg-brand-50 text-brand-700 font-medium{{else}}text-ink-600 hover:bg-ink-50{{end}}">30 days</a>
+    {{$cur := .WindowQuery}}
+    <a href="/analytics/{{urlquery .Host}}/status?class={{.Class}}&amp;window=1d&amp;server={{$srv}}" class="px-3 py-1.5 rounded-md transition {{if eq $cur "1d"}}bg-brand-50 text-brand-700 font-medium{{else}}text-ink-600 hover:bg-ink-50{{end}}">{{t $ "analytics.24_hours"}}</a>
+    <a href="/analytics/{{urlquery .Host}}/status?class={{.Class}}&amp;window=7d&amp;server={{$srv}}" class="px-3 py-1.5 rounded-md transition {{if eq $cur "7d"}}bg-brand-50 text-brand-700 font-medium{{else}}text-ink-600 hover:bg-ink-50{{end}}">{{t $ "analytics.7_days"}}</a>
+    <a href="/analytics/{{urlquery .Host}}/status?class={{.Class}}&amp;window=30d&amp;server={{$srv}}" class="px-3 py-1.5 rounded-md transition {{if eq $cur "30d"}}bg-brand-50 text-brand-700 font-medium{{else}}text-ink-600 hover:bg-ink-50{{end}}">{{t $ "analytics.30_days"}}</a>
   </div>
 </div>
 
 {{/* ── Exact status codes in this class ── */}}
 <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden mb-6">
   <div class="flex items-baseline justify-between px-5 pt-4 pb-2">
-    <div class="text-sm font-medium text-ink-800">Status codes</div>
-    <div class="text-xs text-ink-400">{{.ClassLabel}} · {{.WindowLabel}}</div>
+    <div class="text-sm font-medium text-ink-800">{{t $ "analytics.status_codes"}}</div>
+    <div class="text-xs text-ink-400">{{if eq .Class "2xx"}}{{t $ "analytics.class.2xx"}}{{else if eq .Class "3xx"}}{{t $ "analytics.class.3xx"}}{{else if eq .Class "4xx"}}{{t $ "analytics.class.4xx"}}{{else if eq .Class "5xx"}}{{t $ "analytics.class.5xx"}}{{else if eq .Class "other"}}{{t $ "analytics.class.other"}}{{end}} · {{if eq .WindowQuery "1d"}}{{t $ "analytics.window.1d"}}{{else if eq .WindowQuery "30d"}}{{t $ "analytics.window.30d"}}{{else}}{{t $ "analytics.window.7d"}}{{end}}</div>
   </div>
   <table class="w-full text-sm">
     <thead class="bg-ink-50/50 text-left">
       <tr class="text-xs uppercase tracking-wider text-ink-500">
-        <th class="px-5 py-2.5 font-medium w-20">Code</th>
-        <th class="px-5 py-2.5 font-medium text-right">Count</th>
+        <th class="px-5 py-2.5 font-medium w-20">{{t $ "analytics.code"}}</th>
+        <th class="px-5 py-2.5 font-medium text-right">{{t $ "analytics.count"}}</th>
       </tr>
     </thead>
     <tbody>
@@ -55,7 +55,7 @@
         </td>
       </tr>
       {{else}}
-      <tr><td colspan="2" class="px-5 py-10 text-center text-sm text-ink-400">No responses in this class for the window.</td></tr>
+      <tr><td colspan="2" class="px-5 py-10 text-center text-sm text-ink-400">{{t $ "analytics.no_responses_in_this_class_for_the_window"}}</td></tr>
       {{end}}
     </tbody>
   </table>
@@ -65,15 +65,15 @@
   {{/* ── Top paths in this class ── */}}
   <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden">
     <div class="flex items-baseline justify-between px-5 pt-4 pb-2">
-      <div class="text-sm font-medium text-ink-800">Top paths</div>
-      <div class="text-xs text-ink-400">{{len .Paths}} shown</div>
+      <div class="text-sm font-medium text-ink-800">{{t $ "analytics.top_paths"}}</div>
+      <div class="text-xs text-ink-400">{{t $ "analytics.shown" "count" (len .Paths)}}</div>
     </div>
     <table class="w-full text-sm">
       <thead class="bg-ink-50/50 text-left">
         <tr class="text-xs uppercase tracking-wider text-ink-500">
-          <th class="px-5 py-2.5 font-medium w-14">Method</th>
-          <th class="px-5 py-2.5 font-medium">Path</th>
-          <th class="px-5 py-2.5 font-medium text-right">Count</th>
+          <th class="px-5 py-2.5 font-medium w-14">{{t $ "analytics.method"}}</th>
+          <th class="px-5 py-2.5 font-medium">{{t $ "analytics.path"}}</th>
+          <th class="px-5 py-2.5 font-medium text-right">{{t $ "analytics.count"}}</th>
         </tr>
       </thead>
       <tbody>
@@ -94,7 +94,7 @@
           </td>
         </tr>
         {{else}}
-        <tr><td colspan="3" class="px-5 py-10 text-center text-sm text-ink-400">No path data in this window.</td></tr>
+        <tr><td colspan="3" class="px-5 py-10 text-center text-sm text-ink-400">{{t $ "analytics.no_path_data_in_this_window"}}</td></tr>
         {{end}}
       </tbody>
     </table>
@@ -103,14 +103,14 @@
   {{/* ── Top visitors in this class ── */}}
   <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden">
     <div class="flex items-baseline justify-between px-5 pt-4 pb-2">
-      <div class="text-sm font-medium text-ink-800">Top visitors</div>
-      <div class="text-xs text-ink-400">by response count</div>
+      <div class="text-sm font-medium text-ink-800">{{t $ "analytics.top_visitors"}}</div>
+      <div class="text-xs text-ink-400">{{t $ "analytics.by_response_count"}}</div>
     </div>
     <table class="w-full text-sm">
       <thead class="bg-ink-50/50 text-left">
         <tr class="text-xs uppercase tracking-wider text-ink-500">
-          <th class="px-5 py-2.5 font-medium">Client IP</th>
-          <th class="px-5 py-2.5 font-medium text-right">Count</th>
+          <th class="px-5 py-2.5 font-medium">{{t $ "analytics.client_ip"}}</th>
+          <th class="px-5 py-2.5 font-medium text-right">{{t $ "analytics.count"}}</th>
         </tr>
       </thead>
       <tbody>
@@ -130,7 +130,7 @@
           </td>
         </tr>
         {{else}}
-        <tr><td colspan="2" class="px-5 py-10 text-center text-sm text-ink-400">No visitors in this window.</td></tr>
+        <tr><td colspan="2" class="px-5 py-10 text-center text-sm text-ink-400">{{t $ "analytics.no_visitors_in_this_window"}}</td></tr>
         {{end}}
       </tbody>
     </table>

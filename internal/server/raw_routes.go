@@ -759,7 +759,7 @@ func (s *Server) postReclassifyRawRoutes(w http.ResponseWriter, r *http.Request)
 	}
 	_ = models.LogActivity(s.DB, s.currentServerID(r), s.currentUserEmail(r), "raw_reclassify", "",
 		fmt.Sprintf("proxies=%d redirects=%d kept=%d", nProxy, nRedir, nKept), true)
-	flash := url.QueryEscape(fmt.Sprintf("Re-classified %d → Proxy Hosts · %d → Redirections · %d kept as Advanced",
+	flash := url.QueryEscape(fmt.Sprintf(s.tr(r, "message.raw_routes.postreclassifyrawroutes.re_classified_d_proxy_hosts_d_fe424b8d"),
 		nProxy, nRedir, nKept))
 	http.Redirect(w, r, "/raw-routes?flash="+flash, http.StatusSeeOther)
 }

@@ -1,36 +1,36 @@
-{{define "title"}}Docs & Tutorial · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.docs.docs_tutorial_caddyui_778e413e"}}{{end}}
 {{define "content"}}
 <div class="mb-8">
-  <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Docs & Tutorial</h1>
-  <p class="text-sm text-ink-500 mt-1">A quick-start guide to every part of CaddyUI. Skim it end-to-end the first time — later you can jump straight to the section you need.</p>
+  <h1 class="text-2xl font-semibold tracking-tight text-ink-900">{{t $ "page.docs.docs_tutorial_0ce3b47c"}}</h1>
+  <p class="text-sm text-ink-500 mt-1">{{t $ "page.docs.a_quick_start_guide_to_every_part_of_caddyui_ski_4f1fbb70"}}</p>
 </div>
 
 {{/* ── Table of contents ── */}}
 <nav class="bg-white border border-ink-200 rounded-xl shadow-card p-5 mb-8 max-w-3xl">
-  <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-3">On this page</div>
+  <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-3">{{t $ "page.docs.on_this_page_b5658fc8"}}</div>
   <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
-    <li><a href="#what-is" class="text-brand-600 hover:text-brand-700 hover:underline">What is CaddyUI?</a></li>
-    <li><a href="#first-time" class="text-brand-600 hover:text-brand-700 hover:underline">First-time setup</a></li>
-    <li><a href="#proxy-hosts" class="text-brand-600 hover:text-brand-700 hover:underline">Proxy Hosts</a></li>
-    <li><a href="#caddyfile-mapping" class="text-brand-600 hover:text-brand-700 hover:underline">Caddyfile ↔ form mapping</a></li>
-    <li><a href="#redirections" class="text-brand-600 hover:text-brand-700 hover:underline">Redirections</a></li>
-    <li><a href="#advanced" class="text-brand-600 hover:text-brand-700 hover:underline">Advanced Routes</a></li>
-    <li><a href="#certificates" class="text-brand-600 hover:text-brand-700 hover:underline">Certificates</a></li>
-    <li><a href="#cloudflare" class="text-brand-600 hover:text-brand-700 hover:underline">Cloudflare DNS</a></li>
-    <li><a href="#porkbun" class="text-brand-600 hover:text-brand-700 hover:underline">Porkbun DNS</a></li>
-    <li><a href="#namecheap" class="text-brand-600 hover:text-brand-700 hover:underline">Namecheap DNS</a></li>
-    <li><a href="#godaddy" class="text-brand-600 hover:text-brand-700 hover:underline">GoDaddy DNS</a></li>
-    <li><a href="#digitalocean" class="text-brand-600 hover:text-brand-700 hover:underline">DigitalOcean DNS</a></li>
-    <li><a href="#hetzner" class="text-brand-600 hover:text-brand-700 hover:underline">Hetzner DNS</a></li>
-    <li><a href="#route53" class="text-brand-600 hover:text-brand-700 hover:underline">Amazon Route 53 DNS</a></li>
-    <li><a href="#gandi" class="text-brand-600 hover:text-brand-700 hover:underline">Gandi DNS</a></li>
-    <li><a href="#import" class="text-brand-600 hover:text-brand-700 hover:underline">Import from Caddy</a></li>
-    <li><a href="#snapshots" class="text-brand-600 hover:text-brand-700 hover:underline">Snapshots & Backup</a></li>
-    <li><a href="#multiserver" class="text-brand-600 hover:text-brand-700 hover:underline">Multi-server</a></li>
-    <li><a href="#prometheus" class="text-brand-600 hover:text-brand-700 hover:underline">Prometheus metrics</a></li>
-    <li><a href="#users" class="text-brand-600 hover:text-brand-700 hover:underline">Users & 2FA</a></li>
-    <li><a href="#docker-networking" class="text-brand-600 hover:text-brand-700 hover:underline">Docker networking</a></li>
-    <li><a href="#faq" class="text-brand-600 hover:text-brand-700 hover:underline">FAQ & Troubleshooting</a></li>
+    <li><a href="#what-is" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.what_is_caddyui_1410280a"}}</a></li>
+    <li><a href="#first-time" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.first_time_setup_b3c0ddc8"}}</a></li>
+    <li><a href="#proxy-hosts" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.proxy_hosts_d98d2003"}}</a></li>
+    <li><a href="#caddyfile-mapping" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.caddyfile_form_mapping_6443ffac"}}</a></li>
+    <li><a href="#redirections" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.redirections_10f77acc"}}</a></li>
+    <li><a href="#advanced" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.advanced_routes_ad978f82"}}</a></li>
+    <li><a href="#certificates" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.certificates_16f63792"}}</a></li>
+    <li><a href="#cloudflare" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.cloudflare_dns_9f2ad6d0"}}</a></li>
+    <li><a href="#porkbun" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.porkbun_dns_4610fc71"}}</a></li>
+    <li><a href="#namecheap" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.namecheap_dns_b777af88"}}</a></li>
+    <li><a href="#godaddy" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.godaddy_dns_871bc880"}}</a></li>
+    <li><a href="#digitalocean" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.digitalocean_dns_e1940424"}}</a></li>
+    <li><a href="#hetzner" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.hetzner_dns_482811f8"}}</a></li>
+    <li><a href="#route53" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.amazon_route_53_dns_3d5a7d37"}}</a></li>
+    <li><a href="#gandi" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.gandi_dns_1cc3d6e0"}}</a></li>
+    <li><a href="#import" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.import_from_caddy_ce3b366a"}}</a></li>
+    <li><a href="#snapshots" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.snapshots_backup_8a6dcdbb"}}</a></li>
+    <li><a href="#multiserver" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.multi_server_80225ea3"}}</a></li>
+    <li><a href="#prometheus" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.prometheus_metrics_05be9e15"}}</a></li>
+    <li><a href="#users" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.users_2fa_047737dd"}}</a></li>
+    <li><a href="#docker-networking" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.docker_networking_d0518ff2"}}</a></li>
+    <li><a href="#faq" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.docs.faq_troubleshooting_5a3c3d47"}}</a></li>
   </ul>
 </nav>
 
@@ -42,13 +42,13 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
     </span>
-    What is CaddyUI?
+    {{t $ "page.docs.what_is_caddyui_1410280a"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>CaddyUI is a web interface for managing <a href="https://caddyserver.com" target="_blank" rel="noopener" class="text-brand-600 hover:text-brand-700">Caddy</a>, the modern HTTPS web server. Instead of editing <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">Caddyfile</code> by hand, you click through a UI to manage reverse-proxy rules, redirects, certificates, and more.</p>
-    <p>Everything you do in the UI is pushed to Caddy's admin API in real time — no restarts, no re-reads.</p>
+    <p>{{t $ "page.docs.caddyui_is_a_web_interface_for_managing_af605001"}} <a href="https://caddyserver.com" target="_blank" rel="noopener" class="text-brand-600 hover:text-brand-700">Caddy</a>{{t $ "page.docs.the_modern_https_web_server_instead_of_editing_d3eab444"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">Caddyfile</code> {{t $ "page.docs.by_hand_you_click_through_a_ui_to_manage_reverse_9e7bbe10"}}</p>
+    <p>{{t $ "page.docs.everything_you_do_in_the_ui_is_pushed_to_caddy_s_a2c0a459"}}</p>
     <div class="bg-brand-50 border border-brand-100 rounded-lg px-4 py-3 text-xs text-ink-700">
-      <strong class="text-brand-700">Who this is for:</strong> home-lab users, small teams, anyone with 1 – 20 Caddy servers who wants a faster workflow than editing config files.
+      <strong class="text-brand-700">{{t $ "page.docs.who_this_is_for_36031048"}}</strong> {{t $ "page.docs.home_lab_users_small_teams_anyone_with_1_20_cadd_384c97b9"}}
     </div>
   </div>
 </section>
@@ -59,19 +59,19 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><polyline points="20 6 9 17 4 12"/></svg>
     </span>
-    First-time setup
+    {{t $ "page.docs.first_time_setup_b3c0ddc8"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>If you're reading this, you're already logged in. CaddyUI keeps the setup journey available under <a href="/onboarding" class="text-brand-600 hover:text-brand-700">Getting Started</a>, where progress is calculated from the active environment instead of a one-time tutorial checkbox.</p>
+    <p>{{t $ "page.docs.if_you_re_reading_this_you_re_already_logged_in_c_e240b9ee"}} <a href="/onboarding" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.getting_started_d00eca1b"}}</a>{{t $ "page.docs.where_progress_is_calculated_from_the_active_env_d61662d3"}}</p>
     <ol class="list-decimal ml-5 space-y-1.5">
-      <li>Start Caddy with its admin API exposed on <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">:2019</code> (Docker or bare metal — both work).</li>
-      <li>Start CaddyUI with <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">CADDY_ADMIN_URL</code> pointed at that address (the sample <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">docker-compose.yml</code> does this automatically).</li>
-      <li>Visit <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">/setup</code> and create the first administrator. The account wizard only appears while the database is empty.</li>
-      <li>Follow <strong>Getting Started</strong> to verify Caddy connectivity, enable TOTP, and publish the first service.</li>
-      <li>Optional: save a DNS provider profile when you need managed records, DNS-01, or wildcard certificates. DNS is not required for ordinary HTTP-01 proxy hosts.</li>
+      <li>{{t $ "page.docs.start_caddy_with_its_admin_api_exposed_on_88b5ba12"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">:2019</code> {{t $ "page.docs.docker_or_bare_metal_both_work_e318dc61"}}</li>
+      <li>{{t $ "page.docs.start_caddyui_with_904a09f4"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">CADDY_ADMIN_URL</code> {{t $ "page.docs.pointed_at_that_address_the_sample_bb485cf8"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">docker-compose.yml</code> {{t $ "page.docs.does_this_automatically_a7326b9c"}}</li>
+      <li>{{t $ "page.docs.visit_1c8ac867"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">/setup</code> {{t $ "page.docs.and_create_the_first_administrator_the_account_w_fedfee06"}}</li>
+      <li>{{t $ "page.docs.follow_641d1ef6"}} <strong>{{t $ "page.docs.getting_started_d00eca1b"}}</strong> {{t $ "page.docs.to_verify_caddy_connectivity_enable_totp_and_pub_bb5c6bab"}}</li>
+      <li>{{t $ "page.docs.optional_save_a_dns_provider_profile_when_you_ne_b7be384b"}}</li>
     </ol>
     <div class="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-xs text-amber-900">
-      <strong>Don't expose port 2019</strong> to the internet. It has full control over Caddy. Keep it on <code class="px-1 bg-amber-100 rounded font-mono">localhost</code>, a Docker network, or a WireGuard VPN.
+      <strong>{{t $ "page.docs.don_t_expose_port_2019_aa142777"}}</strong> {{t $ "page.docs.to_the_internet_it_has_full_control_over_caddy_k_dbf76b16"}} <code class="px-1 bg-amber-100 rounded font-mono">localhost</code>{{t $ "page.docs.a_docker_network_or_a_wireguard_vpn_17b9b232"}}
     </div>
   </div>
 </section>
@@ -82,21 +82,21 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </span>
-    Proxy Hosts
+    {{t $ "page.docs.proxy_hosts_d98d2003"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>A <strong>proxy host</strong> says: <em>"requests for <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">my.domain.com</code> should be forwarded to this internal service."</em></p>
-    <p>Choose <a href="/proxy-hosts/new" class="text-brand-600 hover:text-brand-700">Publish a service</a>. New hosts use a four-stage workflow:</p>
+    <p>{{t $ "page.docs.a_proxy_host"}} <strong>{{t $ "page.docs.proxy_host_2cc87605"}}</strong> {{t $ "page.docs.says_ac8f8b9a"}} <em>{{t $ "page.docs.requests_for_c5bac304"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">my.domain.com</code> {{t $ "page.docs.should_be_forwarded_to_this_internal_service_404191dc"}}</em></p>
+    <p>{{t $ "page.docs.choose_c7f93783"}} <a href="/proxy-hosts/new" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.publish_a_service_2ef3eba1"}}</a>{{t $ "page.docs.new_hosts_use_a_four_stage_workflow_429a9027"}}</p>
     <ol class="list-decimal ml-5 space-y-1.5">
-      <li><strong>Hostname</strong> — enter one or more public names and choose any canonical redirect behavior.</li>
-      <li><strong>Upstream</strong> — select the scheme, host, and port for the backend (for example <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">http://192.168.1.50:3000</code>), then optionally test reachability.</li>
-      <li><strong>Policy</strong> — confirm whether the host is enabled, choose automatic HTTPS or a custom certificate, and configure DNS automation when needed.</li>
-      <li><strong>Review</strong> — inspect the effective hostname, upstream, HTTPS/DNS policy, deployment scope, and initial state before selecting <strong>Deploy service</strong>.</li>
+      <li><strong>{{t $ "page.docs.hostname_2db53355"}}</strong> {{t $ "page.docs.enter_one_or_more_public_names_and_choose_any_ca_cf6a9e89"}}</li>
+      <li><strong>{{t $ "page.docs.upstream_94adc696"}}</strong> {{t $ "page.docs.select_the_scheme_host_and_port_for_the_backend_f_1654e773"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">http://192.168.1.50:3000</code>{{t $ "page.docs.then_optionally_test_reachability_f523dd7b"}}</li>
+      <li><strong>{{t $ "page.docs.policy_c611981f"}}</strong> {{t $ "page.docs.confirm_whether_the_host_is_enabled_choose_autom_97c2e4b8"}}</li>
+      <li><strong>{{t $ "page.docs.review_aff0766a"}}</strong> {{t $ "page.docs.inspect_the_effective_hostname_upstream_https_dn_a87c8189"}} <strong>{{t $ "page.docs.deploy_service_489a2198"}}</strong>.</li>
     </ol>
-    <p>The guided flow uses the same underlying form and safe defaults as the complete editor. Choose <strong>Use advanced editor</strong> when you need request headers, access control, path-based upstreams, health checks, transport tuning, or the rest of CaddyUI's detailed proxy policy.</p>
-    <p>After deployment, the source-domain pill on the list page opens the service in a new tab for verification.</p>
+    <p>{{t $ "page.docs.the_guided_flow_uses_the_same_underlying_form_an_b30043c5"}} <strong>{{t $ "page.docs.use_advanced_editor_6f2894d7"}}</strong> {{t $ "page.docs.when_you_need_request_headers_access_control_pat_f4ee4e0a"}}</p>
+    <p>{{t $ "page.docs.after_deployment_the_source_domain_pill_on_the_l_1806a143"}}</p>
     <div class="bg-ink-50 border border-ink-200 rounded-lg px-4 py-3 text-xs text-ink-600">
-      <strong class="text-ink-800">Tip:</strong> use the <strong>Enabled</strong> toggle to temporarily turn a rule off without deleting it. Great for maintenance windows.
+      <strong class="text-ink-800">{{t $ "page.docs.tip_ab744fe2"}}</strong> {{t $ "page.docs.use_the_dca28eda"}} <strong>{{t $ "page.docs.enabled_92c1cdfd"}}</strong> {{t $ "page.docs.toggle_to_temporarily_turn_a_rule_off_without_de_2ff6cbba"}}
     </div>
   </div>
 </section>
@@ -107,78 +107,78 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
     </span>
-    Caddyfile ↔ form mapping
+    {{t $ "page.docs.caddyfile_form_mapping_6443ffac"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-4">
 
-    <p>If you've used Caddy before, you've probably written a <strong>Caddyfile</strong> — Caddy's friendly text format. The proxy-host form covers the same ground, just point-and-click. This section translates between them so you can move existing configs into the form (or read what the form actually generates).</p>
+    <p>{{t $ "page.docs.if_you_ve_used_caddy_before_you_ve_probably_writ_bbc180a5"}} <strong>{{t $ "page.docs.caddyfile_1f38639f"}}</strong> {{t $ "page.docs.caddy_s_friendly_text_format_the_proxy_host_form_23b48e5d"}}</p>
 
-    <h3 class="text-base font-semibold text-ink-900 pt-2">A minimal Caddyfile, broken down</h3>
+    <h3 class="text-base font-semibold text-ink-900 pt-2">{{t $ "page.docs.a_minimal_caddyfile_broken_down_99fe8aa3"}}</h3>
 
 <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs overflow-x-auto"><code>example.com {
     reverse_proxy backend:8080
 }</code></pre>
 
-    <p>Three things happen here:</p>
+    <p>{{t $ "page.docs.three_things_happen_here_38190fde"}}</p>
     <ol class="list-decimal ml-5 space-y-1">
-      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">example.com</code> — the <strong>site address</strong> (your public hostname). Caddy auto-provisions an HTTPS cert via Let's Encrypt for it.</li>
-      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">reverse_proxy backend:8080</code> — forward all requests to <code class="px-1 bg-ink-100 rounded font-mono text-xs">backend:8080</code>. The hostname can be a Docker container name, an internal LAN host, or an IP.</li>
-      <li>Everything else is implicit defaults: HTTPS only, auto-cert, X-Forwarded-For added, Host header preserved.</li>
+      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">example.com</code> {{t $ "page.docs.the_4b4c2eda"}} <strong>{{t $ "page.docs.site_address_4c5f5910"}}</strong> {{t $ "page.docs.your_public_hostname_caddy_auto_provisions_an_ht_3f357e09"}}</li>
+      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">reverse_proxy backend:8080</code> {{t $ "page.docs.forward_all_requests_to_f3ff892b"}} <code class="px-1 bg-ink-100 rounded font-mono text-xs">backend:8080</code>{{t $ "page.docs.the_hostname_can_be_a_docker_container_name_an_i_bc90cb1c"}}</li>
+      <li>{{t $ "page.docs.everything_else_is_implicit_defaults_https_only_a_d9511edb"}}</li>
     </ol>
 
-    <p class="mt-3">In the proxy-host form, that's:</p>
+    <p class="mt-3">{{t $ "page.docs.in_the_proxy_host_form_that_s_414bd687"}}</p>
 
     <table class="w-full text-xs border border-ink-200 rounded-lg overflow-hidden">
       <thead class="bg-ink-50 text-left">
         <tr>
-          <th class="px-3 py-2 font-medium">Caddyfile bit</th>
-          <th class="px-3 py-2 font-medium">Form field</th>
-          <th class="px-3 py-2 font-medium">Value</th>
+          <th class="px-3 py-2 font-medium">{{t $ "page.docs.caddyfile_bit_0bade008"}}</th>
+          <th class="px-3 py-2 font-medium">{{t $ "page.docs.form_field_b55f2170"}}</th>
+          <th class="px-3 py-2 font-medium">{{t $ "page.docs.value_8e37953d"}}</th>
         </tr>
       </thead>
       <tbody class="font-mono">
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">example.com {</td><td class="px-3 py-1.5">Domains</td><td class="px-3 py-1.5">example.com</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">reverse_proxy</td><td class="px-3 py-1.5">Forward Scheme</td><td class="px-3 py-1.5">http (default)</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">backend</td><td class="px-3 py-1.5">Forward Host</td><td class="px-3 py-1.5">backend</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">:8080</td><td class="px-3 py-1.5">Forward Port</td><td class="px-3 py-1.5">8080</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">(implicit HTTPS)</td><td class="px-3 py-1.5">Auto SSL + Force SSL</td><td class="px-3 py-1.5">both ticked</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.example_com_24c2e11a"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.domains_ced67718"}}</td><td class="px-3 py-1.5">example.com</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">reverse_proxy</td><td class="px-3 py-1.5">{{t $ "page.docs.forward_scheme_b1d7374a"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.http_default_8cd1f4f5"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.backend_10e08a41"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.forward_host_0b65743e"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.backend_10e08a41"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">:8080</td><td class="px-3 py-1.5">{{t $ "page.docs.forward_port_5402aa1d"}}</td><td class="px-3 py-1.5">8080</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.implicit_https_1046b4a3"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.auto_ssl_force_ssl_3cb3e514"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.both_ticked_5f6f5856"}}</td></tr>
       </tbody>
     </table>
 
-    <h3 class="text-base font-semibold text-ink-900 pt-4">Common Caddyfile directives → form fields</h3>
+    <h3 class="text-base font-semibold text-ink-900 pt-4">{{t $ "page.docs.common_caddyfile_directives_form_fields_81d9f0a2"}}</h3>
 
     <table class="w-full text-xs border border-ink-200 rounded-lg overflow-hidden">
       <thead class="bg-ink-50 text-left">
         <tr>
-          <th class="px-3 py-2 font-medium">Caddyfile</th>
-          <th class="px-3 py-2 font-medium">Form field</th>
-          <th class="px-3 py-2 font-medium">Notes</th>
+          <th class="px-3 py-2 font-medium">{{t $ "page.docs.caddyfile_1f38639f"}}</th>
+          <th class="px-3 py-2 font-medium">{{t $ "page.docs.form_field_b55f2170"}}</th>
+          <th class="px-3 py-2 font-medium">{{t $ "page.docs.notes_8a7525b1"}}</th>
         </tr>
       </thead>
       <tbody class="font-mono">
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">reverse_proxy https://...</td><td class="px-3 py-1.5">Forward Scheme = https</td><td class="px-3 py-1.5 font-sans text-ink-500">use when upstream serves TLS itself</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">tls_server_name name</td><td class="px-3 py-1.5">Upstream SNI</td><td class="px-3 py-1.5 font-sans text-ink-500">override SNI for self-signed / shared-cert backends</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">tls_insecure_skip_verify</td><td class="px-3 py-1.5">Verify Upstream TLS Certificate = off</td><td class="px-3 py-1.5 font-sans text-ink-500">in Options &amp; Forwarded Headers; only applies when Forward Scheme = https</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">tls { client_auth { mode … } }</td><td class="px-3 py-1.5">Client certificate authentication → mode</td><td class="px-3 py-1.5 font-sans text-ink-500">in Security &amp; Performance; mTLS — asks the visitor for a certificate</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">trust_pool file /path/ca.pem</td><td class="px-3 py-1.5">Trusted CA certificate files</td><td class="px-3 py-1.5 font-sans text-ink-500">one path per line, as seen inside the Caddy container</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">header_up Host {host}</td><td class="px-3 py-1.5">(default — no field)</td><td class="px-3 py-1.5 font-sans text-ink-500">Caddy passes the original Host by default</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">header_up X-Real-IP {remote_host}</td><td class="px-3 py-1.5">Add X-Real-IP Header (checkbox)</td><td class="px-3 py-1.5 font-sans text-ink-500"></td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">header_up X-Forwarded-Host {host}</td><td class="px-3 py-1.5">Add X-Forwarded-Host (checkbox)</td><td class="px-3 py-1.5 font-sans text-ink-500"></td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">header_up X-Forwarded-Proto {scheme}</td><td class="px-3 py-1.5">(default — Caddy adds it)</td><td class="px-3 py-1.5 font-sans text-ink-500">explicit only if you want to be sure</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">encode gzip zstd</td><td class="px-3 py-1.5">Enable compression (checkbox)</td><td class="px-3 py-1.5 font-sans text-ink-500">in Security &amp; Performance details</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">header X-Frame-Options DENY</td><td class="px-3 py-1.5">Custom Response Headers</td><td class="px-3 py-1.5 font-sans text-ink-500">or use Security headers bundle for a curated set</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">@root path /</td><td class="px-3 py-1.5">Path redirects table</td><td class="px-3 py-1.5 font-sans text-ink-500">add a row with Path = /</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">redir @root /webmail 302</td><td class="px-3 py-1.5">Path redirects table</td><td class="px-3 py-1.5 font-sans text-ink-500">Code = 302, Destination = /webmail</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">handle /push/* {…}</td><td class="px-3 py-1.5">Path-based upstream overrides</td><td class="px-3 py-1.5 font-sans text-ink-500">add a rule with that path + upstream</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">handle_path /push/* {…}</td><td class="px-3 py-1.5">Same + tick "Strip Prefix"</td><td class="px-3 py-1.5 font-sans text-ink-500">handle_path drops the matched prefix from the upstream URI</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">:7070 { respond /healthz 200 }</td><td class="px-3 py-1.5">Advanced route → Listen on = :7070</td><td class="px-3 py-1.5 font-sans text-ink-500">gets its own listener on that port (filled in automatically from the block); 80/443 always mean the normal listeners</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">basicauth /admin {…}</td><td class="px-3 py-1.5">Basic Auth fields</td><td class="px-3 py-1.5 font-sans text-ink-500">in Security details</td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">request_body { max_size 100MB }</td><td class="px-3 py-1.5">Max Request Body (MB)</td><td class="px-3 py-1.5 font-sans text-ink-500"></td></tr>
-        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">@bots header User-Agent *Bot* / abort</td><td class="px-3 py-1.5">Block Common Bots (checkbox)</td><td class="px-3 py-1.5 font-sans text-ink-500">built-in regex covers AhrefsBot, SemrushBot, etc.</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.reverse_proxy_https_634ab3cf"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.forward_scheme_https_e80d6fa3"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.use_when_upstream_serves_tls_itself_fb77b9d2"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.tls_server_name_name_36d25001"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.upstream_sni_f38e2325"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.override_sni_for_self_signed_shared_cert_backend_66915ac1"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">tls_insecure_skip_verify</td><td class="px-3 py-1.5">{{t $ "page.docs.verify_upstream_tls_certificate_off_4c320273"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.in_options_forwarded_headers_only_applies_when_f_0858aea6"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.tls_client_auth_mode_0277ed66"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.client_certificate_authentication_mode_4fa66822"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.in_security_performance_mtls_asks_the_visitor_fo_088f0276"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.trust_pool_file_path_ca_pem_a3c98768"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.trusted_ca_certificate_files_f4d1bf5e"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.one_path_per_line_as_seen_inside_the_caddy_conta_8a37de18"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.header_up_host_host_1a2128fe"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.default_no_field_bdcd06ed"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.caddy_passes_the_original_host_by_default_6f820d5c"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.header_up_x_real_ip_remote_host_7f2b773c"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.add_x_real_ip_header_checkbox_495e2640"}}</td><td class="px-3 py-1.5 font-sans text-ink-500"></td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.header_up_x_forwarded_host_host_948f9d64"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.add_x_forwarded_host_checkbox_c3f1c62f"}}</td><td class="px-3 py-1.5 font-sans text-ink-500"></td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.header_up_x_forwarded_proto_scheme_63cab91a"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.default_caddy_adds_it_96583e07"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.explicit_only_if_you_want_to_be_sure_848ea00f"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.encode_gzip_zstd_b6a2efa9"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.enable_compression_checkbox_cf25544c"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.in_security_performance_details_561f317d"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.header_x_frame_options_deny_9c790b48"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.custom_response_headers_9c6af7cf"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.or_use_security_headers_bundle_for_a_curated_set_8f31e763"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.root_path_abca9b1f"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.path_redirects_table_92cbb1e0"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.add_a_row_with_path_b539754e"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.redir_root_webmail_302_18b43304"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.path_redirects_table_92cbb1e0"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.code_302_destination_webmail_02aa4519"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.handle_push_8bb62acb"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.path_based_upstream_overrides_5f9cff3b"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.add_a_rule_with_that_path_upstream_4fc9df31"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.handle_path_push_dcaff00f"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.same_tick_strip_prefix_2fc3b7b7"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.handle_path_drops_the_matched_prefix_from_the_up_94456547"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.7070_respond_healthz_200_ddf52bd4"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.advanced_route_listen_on_7070_6bfd457b"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.gets_its_own_listener_on_that_port_filled_in_aut_1502c19c"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.basicauth_admin_09a9831b"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.basic_auth_fields_e0777546"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.in_security_details_b113e9c4"}}</td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.request_body_max_size_100mb_322f5908"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.max_request_body_mb_92e26824"}}</td><td class="px-3 py-1.5 font-sans text-ink-500"></td></tr>
+        <tr class="border-t border-ink-200"><td class="px-3 py-1.5">{{t $ "page.docs.bots_header_user_agent_bot_abort_60d2f2d8"}}</td><td class="px-3 py-1.5">{{t $ "page.docs.block_common_bots_checkbox_9ce8f240"}}</td><td class="px-3 py-1.5 font-sans text-ink-500">{{t $ "page.docs.built_in_regex_covers_ahrefsbot_semrushbot_etc_11d00f6c"}}</td></tr>
       </tbody>
     </table>
 
-    <h3 class="text-base font-semibold text-ink-900 pt-4">Worked example — a Nextcloud Caddyfile</h3>
+    <h3 class="text-base font-semibold text-ink-900 pt-4">{{t $ "page.docs.worked_example_a_nextcloud_caddyfile_7128163b"}}</h3>
 
 <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs overflow-x-auto"><code>cloud.example.com {
     redir /.well-known/carddav /remote.php/dav 301
@@ -197,52 +197,52 @@
     }
 }</code></pre>
 
-    <p>Same thing in the proxy-host form — <em>one</em> proxy host:</p>
+    <p>{{t $ "page.docs.same_thing_in_the_proxy_host_form_44b0b594"}} <em>{{t $ "page.docs.one_7692c3ad"}}</em> {{t $ "page.docs.proxy_host_0f086a47"}}</p>
     <ul class="list-disc ml-5 space-y-1">
-      <li><strong>Domains</strong>: <code class="px-1 bg-ink-100 rounded font-mono text-xs">cloud.example.com</code></li>
-      <li><strong>Forward Host / Port</strong>: <code class="px-1 bg-ink-100 rounded font-mono text-xs">nextcloud</code> / <code class="px-1 bg-ink-100 rounded font-mono text-xs">80</code> (the <em>catch-all</em> upstream — `handle { reverse_proxy nextcloud:80 }`)</li>
-      <li><strong>Path redirects</strong> — two rows: <code class="px-1 bg-ink-100 rounded font-mono text-xs">/.well-known/carddav</code> → 301 → <code class="px-1 bg-ink-100 rounded font-mono text-xs">/remote.php/dav</code>, and the same for <code class="px-1 bg-ink-100 rounded font-mono text-xs">/.well-known/caldav</code></li>
-      <li><strong>Path-based upstream overrides</strong> — two rows:
+      <li><strong>{{t $ "page.docs.domains_ced67718"}}</strong>: <code class="px-1 bg-ink-100 rounded font-mono text-xs">cloud.example.com</code></li>
+      <li><strong>{{t $ "page.docs.forward_host_port_48ce7d54"}}</strong>: <code class="px-1 bg-ink-100 rounded font-mono text-xs">nextcloud</code> / <code class="px-1 bg-ink-100 rounded font-mono text-xs">80</code> {{t $ "page.docs.the_86c4f49b"}} <em>{{t $ "page.docs.catch_all_1aff53a2"}}</em> {{t $ "page.docs.upstream_handle_reverse_proxy_nextcloud_80_12f8db33"}}</li>
+      <li><strong>{{t $ "page.docs.path_redirects_b94f56b4"}}</strong> {{t $ "page.docs.two_rows_bf2c3974"}} <code class="px-1 bg-ink-100 rounded font-mono text-xs">/.well-known/carddav</code> → 301 → <code class="px-1 bg-ink-100 rounded font-mono text-xs">/remote.php/dav</code>{{t $ "page.docs.and_the_same_for_c3d68f4b"}} <code class="px-1 bg-ink-100 rounded font-mono text-xs">/.well-known/caldav</code></li>
+      <li><strong>{{t $ "page.docs.path_based_upstream_overrides_5f9cff3b"}}</strong> {{t $ "page.docs.two_rows_bf2c3974"}}
         <ul class="list-disc ml-5 mt-1">
-          <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">/push/*</code> → <code class="px-1 bg-ink-100 rounded font-mono text-xs">notify_push:7867</code> + <strong>Strip Prefix</strong> ticked (because Caddyfile uses <code class="px-1 bg-ink-100 rounded font-mono text-xs">handle_path</code>)</li>
-          <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">/exapps/*</code> → <code class="px-1 bg-ink-100 rounded font-mono text-xs">nextcloud-harp:8780</code> + Strip Prefix <em>not</em> ticked (Caddyfile used <code class="px-1 bg-ink-100 rounded font-mono text-xs">handle</code>)</li>
+          <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">/push/*</code> → <code class="px-1 bg-ink-100 rounded font-mono text-xs">notify_push:7867</code> + <strong>{{t $ "page.docs.strip_prefix_06f4fc42"}}</strong> {{t $ "page.docs.ticked_because_caddyfile_uses_ef3669a8"}} <code class="px-1 bg-ink-100 rounded font-mono text-xs">handle_path</code>)</li>
+          <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">/exapps/*</code> → <code class="px-1 bg-ink-100 rounded font-mono text-xs">nextcloud-harp:8780</code> {{t $ "page.docs.strip_prefix_cfd4b3b4"}} <em>{{t $ "page.docs.not_254bb97b"}}</em> {{t $ "page.docs.ticked_caddyfile_used_171ed4d6"}} <code class="px-1 bg-ink-100 rounded font-mono text-xs">handle</code>)</li>
         </ul>
       </li>
     </ul>
 
-    <h3 class="text-base font-semibold text-ink-900 pt-4">Things Caddy already does by default</h3>
-    <p>Caddy's <code class="px-1 bg-ink-100 rounded font-mono text-xs">reverse_proxy</code> module sets these on every upstream request without you doing anything:</p>
+    <h3 class="text-base font-semibold text-ink-900 pt-4">{{t $ "page.docs.things_caddy_already_does_by_default_23789dc3"}}</h3>
+    <p>{{t $ "page.docs.caddy_s_9785eaaa"}} <code class="px-1 bg-ink-100 rounded font-mono text-xs">reverse_proxy</code> {{t $ "page.docs.module_sets_these_on_every_upstream_request_with_bc922483"}}</p>
     <ul class="list-disc ml-5 space-y-1">
-      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Forwarded-For</code> — original client IP, prior values preserved and the new IP appended</li>
-      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Forwarded-Proto</code> — <code class="px-1 bg-ink-100 rounded font-mono text-xs">http</code> or <code class="px-1 bg-ink-100 rounded font-mono text-xs">https</code> matching the inbound request</li>
-      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Forwarded-Host</code> — the original Host header (Caddy v2.7+)</li>
-      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">Host</code> — passed through unchanged from the client</li>
-      <li>HTTPS termination + auto-cert via Let's Encrypt / ZeroSSL</li>
-      <li>HTTP → HTTPS auto-redirect (when Auto SSL is on)</li>
+      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Forwarded-For</code> {{t $ "page.docs.original_client_ip_prior_values_preserved_and_th_7ea9a709"}}</li>
+      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Forwarded-Proto</code> — <code class="px-1 bg-ink-100 rounded font-mono text-xs">http</code> {{t $ "page.docs.or_7175517a"}} <code class="px-1 bg-ink-100 rounded font-mono text-xs">https</code> {{t $ "page.docs.matching_the_inbound_request_f74eeeb8"}}</li>
+      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Forwarded-Host</code> {{t $ "page.docs.the_original_host_header_caddy_v2_7_74428bfb"}}</li>
+      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">Host</code> {{t $ "page.docs.passed_through_unchanged_from_the_client_cd2afa36"}}</li>
+      <li>{{t $ "page.docs.https_termination_auto_cert_via_let_s_encrypt_ze_492eb928"}}</li>
+      <li>{{t $ "page.docs.http_https_auto_redirect_when_auto_ssl_is_on_265265a2"}}</li>
     </ul>
-    <p class="mt-3"><strong>So why does CaddyUI have <code class="px-1 bg-ink-100 rounded font-mono text-xs">Add X-Forwarded-Host</code> / <code class="px-1 bg-ink-100 rounded font-mono text-xs">Add X-Forwarded-For</code> toggles if Caddy adds them anyway?</strong> Three reasons:</p>
+    <p class="mt-3"><strong>{{t $ "page.docs.so_why_does_caddyui_have_12a2015f"}} <code class="px-1 bg-ink-100 rounded font-mono text-xs">Add X-Forwarded-Host</code> / <code class="px-1 bg-ink-100 rounded font-mono text-xs">Add X-Forwarded-For</code> {{t $ "page.docs.toggles_if_caddy_adds_them_anyway_f4b7f1d8"}}</strong> {{t $ "page.docs.three_reasons_f2237836"}}</p>
     <ul class="list-disc ml-5 space-y-1">
-      <li><strong>Explicit override.</strong> The toggle uses <code class="px-1 bg-ink-100 rounded font-mono text-xs">set</code> semantics — it forces the value. If something earlier in the handler chain changed the request (e.g. a <code class="px-1 bg-ink-100 rounded font-mono text-xs">rewrite</code> directive), the toggle still sends the original/expected value.</li>
-      <li><strong>Audit clarity.</strong> A teammate reading the host's configuration sees the toggle is on and knows the upstream gets the header — they don't have to remember Caddy's default behaviour.</li>
-      <li><strong>Backwards compatibility.</strong> The toggles predate some of Caddy's current defaults. Removing them would silently change behaviour for existing installs.</li>
+      <li><strong>{{t $ "page.docs.explicit_override_ac90057e"}}</strong> {{t $ "page.docs.the_toggle_uses_076183c4"}} <code class="px-1 bg-ink-100 rounded font-mono text-xs">set</code> {{t $ "page.docs.semantics_it_forces_the_value_if_something_earli_8df8c651"}} <code class="px-1 bg-ink-100 rounded font-mono text-xs">rewrite</code> {{t $ "page.docs.directive_the_toggle_still_sends_the_original_ex_4f0a8c47"}}</li>
+      <li><strong>{{t $ "page.docs.audit_clarity_57fe37d3"}}</strong> {{t $ "page.docs.a_teammate_reading_the_host_s_configuration_sees_05dd90ec"}}</li>
+      <li><strong>{{t $ "page.docs.backwards_compatibility_bc94df7e"}}</strong> {{t $ "page.docs.the_toggles_predate_some_of_caddy_s_current_defa_c00e39e2"}}</li>
     </ul>
-    <p class="mt-2">Bottom line: leaving these toggles <em>off</em> is fine — Caddy still does the right thing. Turning them <em>on</em> is also fine — they just re-set the value Caddy was going to set anyway. They're not redundant in a buggy way; they're explicit-vs-implicit.</p>
+    <p class="mt-2">{{t $ "page.docs.bottom_line_leaving_these_toggles_5ad89816"}} <em>{{t $ "page.docs.off_b4dc66dd"}}</em> {{t $ "page.docs.is_fine_caddy_still_does_the_right_thing_turning_62e99c44"}} <em>{{t $ "page.docs.on_b8d31e85"}}</em> {{t $ "page.docs.is_also_fine_they_just_re_set_the_value_caddy_wa_e825ddf4"}}</p>
 
-    <h3 class="text-base font-semibold text-ink-900 pt-4">Toggles that DO add something Caddy wouldn't</h3>
-    <p>These are <strong>not</strong> Caddy defaults and only ship to the upstream if you tick the box:</p>
+    <h3 class="text-base font-semibold text-ink-900 pt-4">{{t $ "page.docs.toggles_that_do_add_something_caddy_wouldn_t_e1911332"}}</h3>
+    <p>{{t $ "page.docs.these_are_c3b33151"}} <strong>{{t $ "page.docs.not_254bb97b"}}</strong> {{t $ "page.docs.caddy_defaults_and_only_ship_to_the_upstream_if_y_f2f03fe4"}}</p>
     <ul class="list-disc ml-5 space-y-1">
-      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Real-IP</code> — Nginx convention, Caddy doesn't add this</li>
+      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Real-IP</code> {{t $ "page.docs.nginx_convention_caddy_doesn_t_add_this_c703ac52"}}</li>
       <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Real-Scheme</code>, <code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Forwarded-Method</code>, <code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Forwarded-Path</code>, <code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Forwarded-URI</code></li>
-      <li>Static identity headers: <code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Forwarded-User</code> / <code class="px-1 bg-ink-100 rounded font-mono text-xs">-Email</code> / <code class="px-1 bg-ink-100 rounded font-mono text-xs">-Groups</code> / <code class="px-1 bg-ink-100 rounded font-mono text-xs">-Roles</code></li>
-      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Request-*</code> debug/trace family (Method, Path, Query, Hostname, Referer, Origin, Start, Trace-ID, Session-ID, Local-Addr, etc.)</li>
-      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Real-SSL-Protocol</code>, <code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Real-SSL-Cipher</code> — TLS visibility for the upstream</li>
+      <li>{{t $ "page.docs.static_identity_headers_cf467d0d"}} <code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Forwarded-User</code> / <code class="px-1 bg-ink-100 rounded font-mono text-xs">-Email</code> / <code class="px-1 bg-ink-100 rounded font-mono text-xs">-Groups</code> / <code class="px-1 bg-ink-100 rounded font-mono text-xs">-Roles</code></li>
+      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Request-*</code> {{t $ "page.docs.debug_trace_family_method_path_query_hostname_re_2b472506"}}</li>
+      <li><code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Real-SSL-Protocol</code>, <code class="px-1 bg-ink-100 rounded font-mono text-xs">X-Real-SSL-Cipher</code> {{t $ "page.docs.tls_visibility_for_the_upstream_8b1b6724"}}</li>
     </ul>
 
-    <h3 class="text-base font-semibold text-ink-900 pt-4">When the form isn't enough</h3>
-    <p>For exotic setups (custom matchers like <code class="px-1 bg-ink-100 rounded font-mono text-xs">@nightowl client_ip 192.168.1.0/24</code>, layer-4 SSH proxies, complex template matching) drop into <a href="/raw-routes/new" class="text-brand-600 hover:text-brand-700">Advanced &rarr; New advanced route</a>. There you can paste full Caddyfile and CaddyUI runs it through Caddy's <code class="px-1 bg-ink-100 rounded font-mono text-xs">/adapt</code> on save. The Validate button will tell you if Caddy accepts your snippet before you commit.</p>
+    <h3 class="text-base font-semibold text-ink-900 pt-4">{{t $ "page.docs.when_the_form_isn_t_enough_0de6fc5d"}}</h3>
+    <p>{{t $ "page.docs.for_exotic_setups_custom_matchers_like_d11b4e7e"}} <code class="px-1 bg-ink-100 rounded font-mono text-xs">@nightowl client_ip 192.168.1.0/24</code>{{t $ "page.docs.layer_4_ssh_proxies_complex_template_matching_dr_7e85f16f"}} <a href="/raw-routes/new" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.advanced_new_advanced_route_cb754218"}}</a>{{t $ "page.docs.there_you_can_paste_full_caddyfile_and_caddyui_r_29200d3b"}} <code class="px-1 bg-ink-100 rounded font-mono text-xs">/adapt</code> {{t $ "page.docs.on_save_the_validate_button_will_tell_you_if_cad_8ee7d0ea"}}</p>
 
-    <h3 class="text-base font-semibold text-ink-900 pt-4">Reading what the form generates</h3>
-    <p>If you ever want to see the actual Caddy JSON CaddyUI is producing, hit <a href="/caddy-config" class="text-brand-600 hover:text-brand-700">Caddy Config</a> in the sidebar. That page shows the full live config Caddy is running. Useful for debugging unexpected behaviour or learning what each form toggle actually emits.</p>
+    <h3 class="text-base font-semibold text-ink-900 pt-4">{{t $ "page.docs.reading_what_the_form_generates_6dda0a58"}}</h3>
+    <p>{{t $ "page.docs.if_you_ever_want_to_see_the_actual_caddy_json_ca_6badf77c"}} <a href="/caddy-config" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.caddy_config_b0496da0"}}</a> {{t $ "page.docs.in_the_sidebar_that_page_shows_the_full_live_con_850e6521"}}</p>
 
   </div>
 </section>
@@ -253,18 +253,18 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
     </span>
-    Redirections
+    {{t $ "page.docs.redirections_10f77acc"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>A <strong>redirection</strong> sends visitors from an old hostname to a new one with a proper HTTP status code. Example: <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">old.example.com → new.example.com</code>.</p>
-    <p>Pick the right code on the form:</p>
+    <p>{{t $ "page.docs.a_redirection"}} <strong>{{t $ "page.docs.redirection_2564a6e0"}}</strong> {{t $ "page.docs.sends_visitors_from_an_old_hostname_to_a_new_one_3beb57fb"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">old.example.com → new.example.com</code>.</p>
+    <p>{{t $ "page.docs.pick_the_right_code_on_the_form_125d513d"}}</p>
     <ul class="space-y-1.5">
-      <li><span class="inline-block font-mono font-semibold text-brand-700 w-10">301</span><strong>Moved Permanently</strong> — browsers & search engines cache forever. Use for permanent domain moves.</li>
-      <li><span class="inline-block font-mono font-semibold text-brand-700 w-10">302</span><strong>Found / Temporary</strong> — not cached. Use when the redirect may change.</li>
-      <li><span class="inline-block font-mono font-semibold text-brand-700 w-10">307</span><strong>Temporary Redirect</strong> — like 302 but preserves POST/PUT. Safer for APIs.</li>
-      <li><span class="inline-block font-mono font-semibold text-brand-700 w-10">308</span><strong>Permanent Redirect</strong> — like 301 but preserves the HTTP method.</li>
+      <li><span class="inline-block font-mono font-semibold text-brand-700 w-10">301</span><strong>{{t $ "page.docs.moved_permanently_d18ed366"}}</strong> {{t $ "page.docs.browsers_search_engines_cache_forever_use_for_pe_1a863625"}}</li>
+      <li><span class="inline-block font-mono font-semibold text-brand-700 w-10">302</span><strong>{{t $ "page.docs.found_temporary_f44db16f"}}</strong> {{t $ "page.docs.not_cached_use_when_the_redirect_may_change_0c3f6440"}}</li>
+      <li><span class="inline-block font-mono font-semibold text-brand-700 w-10">307</span><strong>{{t $ "page.docs.temporary_redirect_21b17e0c"}}</strong> {{t $ "page.docs.like_302_but_preserves_post_put_safer_for_apis_eed075f8"}}</li>
+      <li><span class="inline-block font-mono font-semibold text-brand-700 w-10">308</span><strong>{{t $ "page.docs.permanent_redirect_03def6d7"}}</strong> {{t $ "page.docs.like_301_but_preserves_the_http_method_a2568b2e"}}</li>
     </ul>
-    <p><strong>Preserve path</strong> keeps the URL path intact: <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">old.com/blog/post</code> → <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">new.com/blog/post</code>. Turn it off to always land visitors on the root.</p>
+    <p><strong>{{t $ "page.docs.preserve_path_2883ed45"}}</strong> {{t $ "page.docs.keeps_the_url_path_intact_e9b5b6dd"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">old.com/blog/post</code> → <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">new.com/blog/post</code>{{t $ "page.docs.turn_it_off_to_always_land_visitors_on_the_root_8bdb5639"}}</p>
   </div>
 </section>
 
@@ -274,15 +274,15 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
     </span>
-    Advanced Routes
+    {{t $ "page.docs.advanced_routes_ad978f82"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>For anything the UI forms can't express — header manipulation, path rewrites, custom matchers — paste raw Caddy JSON here. CaddyUI imports it verbatim into <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">apps.http.servers.srv0.routes</code>.</p>
-    <p>Syntax check runs on every save. If Caddy rejects the config, you'll see the error inline and the old config stays live.</p>
+    <p>{{t $ "page.docs.for_anything_the_ui_forms_can_t_express_header_m_09d1b95b"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">apps.http.servers.srv0.routes</code>.</p>
+    <p>{{t $ "page.docs.syntax_check_runs_on_every_save_if_caddy_rejects_7329d18e"}}</p>
     <div class="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-xs text-amber-900">
-      <strong>Heads-up:</strong> advanced routes aren't linked to certificates or the host list. You're responsible for their TLS blocks.
+      <strong>{{t $ "page.docs.heads_up_bbb6043c"}}</strong> {{t $ "page.docs.advanced_routes_aren_t_linked_to_certificates_or_5a570b00"}}
     </div>
-    <p class="text-xs text-ink-500">One thing an advanced route <em>cannot</em> carry is client certificate authentication. Caddy keeps <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">tls { client_auth … }</code> in the server's TLS connection policies rather than in the route, and only the routes are stored here — so the block would be dropped and the site would serve everyone. Since v2.64.0 such a paste is refused with that explanation; configure mTLS on the proxy host instead (<strong>Security → Client certificate authentication</strong>) and keep the advanced route for the routing.</p>
+    <p class="text-xs text-ink-500">{{t $ "page.docs.one_thing_an_advanced_route_e5711b8e"}} <em>{{t $ "page.docs.cannot_9a43b6da"}}</em> {{t $ "page.docs.carry_is_client_certificate_authentication_caddy_a7fd860b"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">tls { client_auth … }</code> {{t $ "page.docs.in_the_server_s_tls_connection_policies_rather_t_402a56c0"}}<strong>{{t $ "page.docs.security_client_certificate_authentication_48805875"}}</strong>{{t $ "page.docs.and_keep_the_advanced_route_for_the_routing_bd3f1202"}}</p>
   </div>
 </section>
 
@@ -292,36 +292,34 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </span>
-    Certificates
+    {{t $ "page.docs.certificates_16f63792"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>For most people, <strong>you don't need this page</strong>. Caddy auto-provisions certificates via Let's Encrypt (or ZeroSSL as a fallback) whenever you create a proxy host with <em>Auto SSL</em> enabled.</p>
-    <p>Use the Certificates page when you need to:</p>
+    <p>{{t $ "page.docs.for_most_people_ee62d33c"}} <strong>{{t $ "page.docs.you_don_t_need_this_page_b5eb3e27"}}</strong>{{t $ "page.docs.caddy_auto_provisions_certificates_via_let_s_enc_429e50d4"}} <em>{{t $ "page.docs.auto_ssl_3a71ee4d"}}</em> {{t $ "page.docs.enabled_e8c89c33"}}</p>
+    <p>{{t $ "page.docs.use_the_certificates_page_when_you_need_to_f3341135"}}</p>
     <ul class="list-disc ml-5 space-y-1">
-      <li>Upload a bought / internal CA-issued certificate.</li>
-      <li>Use a DNS-01 challenge (for wildcard certs or hosts not reachable over HTTP).</li>
-      <li>Pin a specific cert to a proxy host instead of letting Caddy manage it.</li>
+      <li>{{t $ "page.docs.upload_a_bought_internal_ca_issued_certificate_f5b8d647"}}</li>
+      <li>{{t $ "page.docs.use_a_dns_01_challenge_for_wildcard_certs_or_hos_59a63fb9"}}</li>
+      <li>{{t $ "page.docs.pin_a_specific_cert_to_a_proxy_host_instead_of_l_429c39ce"}}</li>
     </ul>
     <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-xs text-blue-900">
-      <strong>Standalone wildcard certificate:</strong> first save your provider credentials under
-      <a href="/settings" class="text-brand-600 hover:underline">Settings → DNS</a>. Then open
-      <a href="/certificates/new" class="text-brand-600 hover:underline">Certificates → New</a>,
-      enter <code class="font-mono">*.example.com</code> (and optionally
-      <code class="font-mono">*.sub.example.com</code>), choose
-      <strong>Managed ACME (DNS-01)</strong>, and select the credentials. Caddy obtains and renews
-      the certificate automatically. You do not need to create a fake proxy host or copy a PEM key.
+      <strong>{{t $ "page.docs.standalone_wildcard_certificate_bc22c16e"}}</strong> {{t $ "page.docs.first_save_your_provider_credentials_under_99d4e739"}}
+      <a href="/settings" class="text-brand-600 hover:underline">{{t $ "page.docs.settings_dns_96b76a37"}}</a>{{t $ "page.docs.then_open_69d6edaf"}}
+      <a href="/certificates/new" class="text-brand-600 hover:underline">{{t $ "page.docs.certificates_new_6c803342"}}</a>{{t $ "page.docs.enter_d796ad23"}} <code class="font-mono">*.example.com</code> {{t $ "page.docs.and_optionally_223bded5"}}
+      <code class="font-mono">*.sub.example.com</code>{{t $ "page.docs.choose_86c779c6"}}
+      <strong>{{t $ "page.docs.managed_acme_dns_01_3da511f7"}}</strong>{{t $ "page.docs.and_select_the_credentials_caddy_obtains_and_ren_817ce646"}}
     </div>
-    <p>A managed wildcard entry is a certificate-only fallback: unmatched requests receive 404. Real proxy hosts and redirects for matching subdomains take precedence and automatically reuse the wildcard certificate on Caddy 2.10+.</p>
-    <p>For multiple Caddy instances, select servers under <strong>Also configure on</strong>. For a managed certificate each Caddy server performs its own ACME order and stores its own private key. Since v2.41.0 the same picker — and the Caddy Fleet <strong>Sync configuration</strong> action — also copies <strong>PEM</strong> certificates (certificate and key travel with them; save again after replacing the PEM to push a renewal) and <strong>file path</strong> certificates (copied as stored PEM when CaddyUI can read the files, otherwise by path, in which case the files must exist on the target at the same paths). Proxy hosts, redirections and Advanced routes created on a target by a sync or <strong>Also deploy to</strong> keep referencing the copy of their certificate; existing target hosts keep their own choice. When using a proxy host's <strong>Also deploy to</strong> option, CaddyUI also discovers any managed wildcard that covers the hostname and copies its definition to targets automatically. A wildcard covers one label only: <code class="font-mono">*.example.com</code> covers <code class="font-mono">app.example.com</code>, not <code class="font-mono">deep.app.example.com</code> or the bare apex.</p>
-    <p>Leaving a covered proxy host on <strong>Auto (Let's Encrypt / ZeroSSL)</strong> reuses the managed wildcard: CaddyUI suppresses a redundant exact-host ACME order while keeping HTTPS enabled. Edit the managed certificate to see live expiry, issuer, and renewal health for every configured Caddy server.</p>
-    <h3 class="text-sm font-semibold text-ink-900 pt-2">Internal CA (self-signed) for local services</h3>
-    <p>For a service on a private network where a publicly trusted certificate isn't wanted or possible, a proxy host can be served from <strong>Caddy's built-in internal CA</strong> instead of ACME. On the proxy host's <strong>TLS</strong> section — with the certificate left on <strong>Auto</strong> — tick <strong>Internal CA (self-signed)</strong>. Since v2.46.0 CaddyUI then issues that host from Caddy's <code class="font-mono">internal</code> issuer (the equivalent of a <code class="font-mono">tls internal</code> block) and skips ACME/DNS-01 for it. The <code class="font-mono">internal</code> issuer is a core Caddy module, so no special Caddy build is required — but clients must <strong>trust Caddy's root CA</strong> (<code class="font-mono">pki/authorities/local/root.crt</code> under Caddy's data directory) or they will see a certificate warning. It applies only on Auto TLS: a custom or managed certificate, or a covering wildcard, still takes precedence.</p>
-    <h3 class="text-sm font-semibold text-ink-900 pt-2">Export a managed certificate to a directory</h3>
-    <p>Other services on the same host — a mail server is the usual case — often need the certificate Caddy obtains, and need it again after every renewal. Since v2.42.0 a managed certificate can be <strong>exported to a directory</strong>: mount the node's Caddy data volume into the CaddyUI container (read-only is enough, e.g. <code class="font-mono">caddy_data:/caddy-data:ro</code>), enter that mount path under <strong>Caddy Fleet → edit server → Data directory</strong>, then set an export directory and file names on the certificate (defaults <code class="font-mono">fullchain.pem</code> and <code class="font-mono">privkey.pem</code>). CaddyUI copies the files out of Caddy's storage atomically, with the key readable by owner only, when the node reports an issuance or renewal, every 10 minutes as a safety net, after you save, and on <strong>Export now</strong>. The certificate form shows the last export (serial, expiry, files) and the Activity log records every export. The export directory must be a path inside the CaddyUI container — typically a bind mount the consuming service also sees, and writable by the user CaddyUI runs as.</p>
-    <p><strong>Permissions:</strong> Caddy keeps its data volume private to the user it runs as (root, mode <code class="font-mono">0700</code>, in the official image), while the CaddyUI container runs as an unprivileged user. For export to work, run the <code class="font-mono">caddyui</code> service as root — <code class="font-mono">user: "0:0"</code> in the compose file; the data mount can stay read-only, and a fresh Docker volume for the export directory is then writable too. Without it the export fails with a <em>permission denied</em> message that says so (before v2.61.2 it misleadingly claimed Caddy had not stored the certificate yet).</p>
-    <h3 class="text-sm font-semibold text-ink-900 pt-2">File-path certificates</h3>
-    <p>A <strong>file path</strong> certificate names files <em>inside the Caddy container</em> (for example a certbot-managed wildcard mounted at <code class="font-mono">/certs</code>). CaddyUI runs in its own container, so it usually cannot open those files. Since v2.39.0 it fills in expiry, issuer, and days left anyway by opening a TLS connection to the Caddy node for the certificate's domain and reading what is being served — every 30 minutes, after you save the certificate, and whenever you press <strong>Refresh status</strong>. The Certificates page marks such rows <em>live TLS probe</em>, and <strong>Inspect</strong> shows the full served certificate plus a <em>Live check</em> card.</p>
-    <p>To let CaddyUI read the file itself, mount the same directory into the CaddyUI container <strong>read-only at the same path</strong>, for example <code class="font-mono">- /certs:/certs:ro</code> under the <code class="font-mono">caddyui</code> service (the shipped <code class="font-mono">docker-compose.yml</code> carries a commented example). Then Inspect reads the file directly and the Live check tells you whether Caddy is serving that exact certificate. Caddy loads file certificates when its config loads, so after a renewal on disk the two can differ until Caddy is reloaded — the page says so when that happens.</p>
+    <p>{{t $ "page.docs.a_managed_wildcard_entry_is_a_certificate_only_f_62b0b30e"}}</p>
+    <p>{{t $ "page.docs.for_multiple_caddy_instances_select_servers_unde_2817df86"}} <strong>{{t $ "page.docs.also_configure_on_5200b922"}}</strong>{{t $ "page.docs.for_a_managed_certificate_each_caddy_server_perf_602b3643"}} <strong>{{t $ "page.docs.sync_configuration_4e102d39"}}</strong> {{t $ "page.docs.action_also_copies_79b2c885"}} <strong>PEM</strong> {{t $ "page.docs.certificates_certificate_and_key_travel_with_the_f32b0cb6"}} <strong>{{t $ "page.docs.file_path_3621eec2"}}</strong> {{t $ "page.docs.certificates_copied_as_stored_pem_when_caddyui_c_15a9379b"}} <strong>{{t $ "page.docs.also_deploy_to_cb49f674"}}</strong> {{t $ "page.docs.keep_referencing_the_copy_of_their_certificate_e_9462537b"}} <strong>{{t $ "page.docs.also_deploy_to_cb49f674"}}</strong> {{t $ "page.docs.option_caddyui_also_discovers_any_managed_wildca_d299dae9"}} <code class="font-mono">*.example.com</code> {{t $ "page.docs.covers_17ae69cc"}} <code class="font-mono">app.example.com</code>{{t $ "page.docs.not_fe6ed4ad"}} <code class="font-mono">deep.app.example.com</code> {{t $ "page.docs.or_the_bare_apex_531ad3b7"}}</p>
+    <p>{{t $ "page.docs.leaving_a_covered_proxy_host_on_020ddf1a"}} <strong>{{t $ "page.docs.auto_let_s_encrypt_zerossl_1cb00fb7"}}</strong> {{t $ "page.docs.reuses_the_managed_wildcard_caddyui_suppresses_a_11487eaf"}}</p>
+    <h3 class="text-sm font-semibold text-ink-900 pt-2">{{t $ "page.docs.internal_ca_self_signed_for_local_services_219ae3e4"}}</h3>
+    <p>{{t $ "page.docs.for_a_service_on_a_private_network_where_a_publi_c305c52c"}} <strong>{{t $ "page.docs.caddy_s_built_in_internal_ca_eee2d9f7"}}</strong> {{t $ "page.docs.instead_of_acme_on_the_proxy_host_s_83d74577"}} <strong>TLS</strong> {{t $ "page.docs.section_with_the_certificate_left_on_ccd4d774"}} <strong>{{t $ "page.docs.auto_02862497"}}</strong> {{t $ "page.docs.tick_86f9ec42"}} <strong>{{t $ "page.docs.internal_ca_self_signed_9aedbc2f"}}</strong>{{t $ "page.docs.since_v2_46_0_caddyui_then_issues_that_host_from_23e54da3"}} <code class="font-mono">internal</code> {{t $ "page.docs.issuer_the_equivalent_of_a_2e59b7bd"}} <code class="font-mono">tls internal</code> {{t $ "page.docs.block_and_skips_acme_dns_01_for_it_the_cecd58c2"}} <code class="font-mono">internal</code> {{t $ "page.docs.issuer_is_a_core_caddy_module_so_no_special_cadd_50187618"}} <strong>{{t $ "page.docs.trust_caddy_s_root_ca_0dc3a7e9"}}</strong> (<code class="font-mono">pki/authorities/local/root.crt</code> {{t $ "page.docs.under_caddy_s_data_directory_or_they_will_see_a_c_8a3431ab"}}</p>
+    <h3 class="text-sm font-semibold text-ink-900 pt-2">{{t $ "page.docs.export_a_managed_certificate_to_a_directory_17a2ad18"}}</h3>
+    <p>{{t $ "page.docs.other_services_on_the_same_host_a_mail_server_is_87c4b602"}} <strong>{{t $ "page.docs.exported_to_a_directory_183eb67c"}}</strong>{{t $ "page.docs.mount_the_node_s_caddy_data_volume_into_the_cadd_7a91b292"}} <code class="font-mono">caddy_data:/caddy-data:ro</code>{{t $ "page.docs.enter_that_mount_path_under_4515cbb2"}} <strong>{{t $ "page.docs.caddy_fleet_edit_server_data_directory_9e6cb007"}}</strong>{{t $ "page.docs.then_set_an_export_directory_and_file_names_on_t_f778f410"}} <code class="font-mono">fullchain.pem</code> {{t $ "page.docs.and_6201111b"}} <code class="font-mono">privkey.pem</code>{{t $ "page.docs.caddyui_copies_the_files_out_of_caddy_s_storage_a_a0c76e99"}} <strong>{{t $ "page.docs.export_now_3cfece16"}}</strong>{{t $ "page.docs.the_certificate_form_shows_the_last_export_seria_1cc9059c"}}</p>
+    <p><strong>{{t $ "page.docs.permissions_79e3c033"}}</strong> {{t $ "page.docs.caddy_keeps_its_data_volume_private_to_the_user_i_085f90b9"}} <code class="font-mono">0700</code>{{t $ "page.docs.in_the_official_image_while_the_caddyui_containe_61a4dfe4"}} <code class="font-mono">caddyui</code> {{t $ "page.docs.service_as_root_54ff820f"}} <code class="font-mono">user: "0:0"</code> {{t $ "page.docs.in_the_compose_file_the_data_mount_can_stay_read_87d00b23"}} <em>{{t $ "page.docs.permission_denied_b77f13ea"}}</em> {{t $ "page.docs.message_that_says_so_before_v2_61_2_it_misleadin_6bdf14aa"}}</p>
+    <h3 class="text-sm font-semibold text-ink-900 pt-2">{{t $ "page.docs.file_path_certificates_61fc3c53"}}</h3>
+    <p>{{t $ "page.docs.a_file_path_certificate"}} <strong>{{t $ "page.docs.file_path_3621eec2"}}</strong> {{t $ "page.docs.certificate_names_files_0d3a103a"}} <em>{{t $ "page.docs.inside_the_caddy_container_548cdcc6"}}</em> {{t $ "page.docs.for_example_a_certbot_managed_wildcard_mounted_a_ca22f950"}} <code class="font-mono">/certs</code>{{t $ "page.docs.caddyui_runs_in_its_own_container_so_it_usually_c_3aaafb3b"}} <strong>{{t $ "page.docs.refresh_status_442c4b89"}}</strong>{{t $ "page.docs.the_certificates_page_marks_such_rows_139a584a"}} <em>{{t $ "page.docs.live_tls_probe_2c1227d7"}}</em>{{t $ "page.docs.and_4aa9bfd2"}} <strong>{{t $ "page.docs.inspect_e0723a86"}}</strong> {{t $ "page.docs.shows_the_full_served_certificate_plus_a_2858f5a3"}} <em>{{t $ "page.docs.live_check_4d3890bf"}}</em> {{t $ "page.docs.card_67be48b6"}}</p>
+    <p>{{t $ "page.docs.to_let_caddyui_read_the_file_itself_mount_the_sa_56d8650c"}} <strong>{{t $ "page.docs.read_only_at_the_same_path_17d9194c"}}</strong>{{t $ "page.docs.for_example_859ae58b"}} <code class="font-mono">- /certs:/certs:ro</code> {{t $ "page.docs.under_the_35108186"}} <code class="font-mono">caddyui</code> {{t $ "page.docs.service_the_shipped_4fe3adea"}} <code class="font-mono">docker-compose.yml</code> {{t $ "page.docs.carries_a_commented_example_then_inspect_reads_t_bd69630f"}}</p>
   </div>
 </section>
 
@@ -331,18 +329,18 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/></svg>
     </span>
-    Cloudflare DNS
+    {{t $ "page.docs.cloudflare_dns_9f2ad6d0"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>If your domains are on Cloudflare, CaddyUI can create and manage the A records for you automatically. This is the recommended setup because Cloudflare's API is fast, well-documented, and free.</p>
+    <p>{{t $ "page.docs.if_your_domains_are_on_cloudflare_caddyui_can_cr_9091d014"}}</p>
     <ol class="list-decimal ml-5 space-y-1.5">
-      <li>First, set the shared <strong>Server IP</strong> at the top of the <a href="/settings" class="text-brand-600 hover:text-brand-700">Settings</a> DNS section — every provider writes this IP into its A records.</li>
-      <li>Create a token at <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">dash.cloudflare.com → API Tokens</a> with <em>Zone:Read</em> + <em>DNS:Edit</em> for the zones you want to manage.</li>
-      <li>Paste the token into <a href="/settings" class="text-brand-600 hover:text-brand-700">Settings → Cloudflare DNS</a>.</li>
-      <li>Optional: enable <em>Proxied</em> to route traffic through Cloudflare's CDN (orange cloud). Disable to run DNS-only (grey cloud).</li>
+      <li>{{t $ "page.docs.first_set_the_shared_fec5e74e"}} <strong>{{t $ "page.docs.server_ip_9a29fd44"}}</strong> {{t $ "page.docs.at_the_top_of_the_bae7edf3"}} <a href="/settings" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.settings_74a883a0"}}</a> {{t $ "page.docs.dns_section_every_provider_writes_this_ip_into_i_a5098fa2"}}</li>
+      <li>{{t $ "page.docs.create_a_token_at_3aff85db"}} <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.dash_cloudflare_com_api_tokens_1845c38c"}}</a> {{t $ "page.docs.with_0695b563"}} <em>Zone:Read</em> + <em>DNS:Edit</em> {{t $ "page.docs.for_the_zones_you_want_to_manage_6df1701d"}}</li>
+      <li>{{t $ "page.docs.paste_the_token_into_2a9322f3"}} <a href="/settings" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.settings_cloudflare_dns_d6e436d8"}}</a>.</li>
+      <li>{{t $ "page.docs.optional_enable_c7a85bf1"}} <em>{{t $ "page.docs.proxied_1e5e35d7"}}</em> {{t $ "page.docs.to_route_traffic_through_cloudflare_s_cdn_orange_1c527897"}}</li>
     </ol>
-    <p>When you create a proxy host, pick <em>Cloudflare</em> from the provider dropdown and choose the zone. CaddyUI creates the DNS record, stores its ID, and cleans up on host delete.</p>
-    <p>If you later change the Server IP, CaddyUI re-points every record it manages across all providers in one background pass. Records it didn't create are never touched.</p>
+    <p>{{t $ "page.docs.when_you_create_a_proxy_host_pick_6ee24c48"}} <em>{{t $ "page.docs.cloudflare_f9191531"}}</em> {{t $ "page.docs.from_the_provider_dropdown_and_choose_the_zone_c_3f0cc7da"}}</p>
+    <p>{{t $ "page.docs.if_you_later_change_the_server_ip_caddyui_re_poi_63106906"}}</p>
   </div>
 </section>
 
@@ -352,17 +350,17 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M8 3c0-.5.4-1 1-1h6c.6 0 1 .5 1 1v3c2 .5 4 2 4 5 0 4-4 5-4 5v4c0 1-1 2-2 2h-4c-1 0-2-1-2-2v-4s-4-1-4-5c0-3 2-4.5 4-5V3z"/></svg>
     </span>
-    Porkbun DNS
+    {{t $ "page.docs.porkbun_dns_4610fc71"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>If you registered your domain through Porkbun, CaddyUI can manage DNS A records there too — so your customer never needs to log in to Porkbun to repoint a subdomain.</p>
+    <p>{{t $ "page.docs.if_you_registered_your_domain_through_porkbun_ca_c7be3de9"}}</p>
     <ol class="list-decimal ml-5 space-y-1.5">
-      <li>Go to <a href="https://porkbun.com/account/api" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">porkbun.com/account/api</a> and create an API key pair. You'll get a public <em>API Key</em> (starts with <code>pk1_</code>) and a <em>Secret Key</em> (starts with <code>sk1_</code>).</li>
-      <li>In <a href="/settings" class="text-brand-600 hover:text-brand-700">Settings → Porkbun DNS</a>, paste both keys. The <strong>Server IP</strong> is shared — set it once at the top of the DNS section and every provider uses it.</li>
-      <li><strong>This one trips everyone up:</strong> for each domain you want CaddyUI to manage, open Porkbun → <em>Domain Management</em> → click <em>Details</em> next to the domain → toggle <strong>API Access</strong> to ON. The API will reject requests on any domain where that toggle is off, even with valid keys.</li>
+      <li>{{t $ "page.docs.go_to_a8aa078b"}} <a href="https://porkbun.com/account/api" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">porkbun.com/account/api</a> {{t $ "page.docs.and_create_an_api_key_pair_you_ll_get_a_public_92545e3c"}} <em>{{t $ "page.docs.api_key_23189d55"}}</em> {{t $ "page.docs.starts_with_5d09bd39"}} <code>pk1_</code>{{t $ "page.docs.and_a_d1f06307"}} <em>{{t $ "page.docs.secret_key_eeefa4ca"}}</em> {{t $ "page.docs.starts_with_5d09bd39"}} <code>sk1_</code>).</li>
+      <li>{{t $ "page.docs.in_8bc1d53c"}} <a href="/settings" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.settings_porkbun_dns_3cad9119"}}</a>{{t $ "page.docs.paste_both_keys_the_b5eb8ee1"}} <strong>{{t $ "page.docs.server_ip_9a29fd44"}}</strong> {{t $ "page.docs.is_shared_set_it_once_at_the_top_of_the_dns_sect_f29a5870"}}</li>
+      <li><strong>{{t $ "page.docs.this_one_trips_everyone_up_2d9e6bf1"}}</strong> {{t $ "page.docs.for_each_domain_you_want_caddyui_to_manage_open_p_af29bffc"}} <em>{{t $ "page.docs.domain_management_787e4084"}}</em> {{t $ "page.docs.click_82a7d741"}} <em>{{t $ "page.docs.details_45989de4"}}</em> {{t $ "page.docs.next_to_the_domain_toggle_628cf790"}} <strong>{{t $ "page.docs.api_access_5f31cc2f"}}</strong> {{t $ "page.docs.to_on_the_api_will_reject_requests_on_any_domain_a7f81e0c"}}</li>
     </ol>
-    <p>When you create a proxy host, pick <em>Porkbun</em> from the provider picker and choose the base domain. CaddyUI will create an A record (or an empty-name record for the apex) pointing at your server IP and remember its ID. Edit → update, delete → cleanup.</p>
-    <p class="text-xs text-ink-500">Porkbun enforces a minimum TTL of 600 seconds — values below that get silently clamped by the API. Porkbun has no CDN / proxying mode equivalent to Cloudflare's orange cloud.</p>
+    <p>{{t $ "page.docs.when_you_create_a_proxy_host_pick_6ee24c48"}} <em>{{t $ "page.docs.porkbun_dfffe699"}}</em> {{t $ "page.docs.from_the_provider_picker_and_choose_the_base_dom_e0c83c6b"}}</p>
+    <p class="text-xs text-ink-500">{{t $ "page.docs.porkbun_enforces_a_minimum_ttl_of_600_seconds_va_1ae82775"}}</p>
   </div>
 </section>
 
@@ -372,17 +370,17 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 3l18 18"/></svg>
     </span>
-    Namecheap DNS
+    {{t $ "page.docs.namecheap_dns_b777af88"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>Namecheap's API is the most finicky of the supported providers — worth reading this whole section before enabling it. The rough edges are all Namecheap's, not ours, but CaddyUI shields you from most of them.</p>
+    <p>{{t $ "page.docs.namecheap_s_api_is_the_most_finicky_of_the_suppo_ac775f78"}}</p>
     <ol class="list-decimal ml-5 space-y-1.5">
-      <li>Log in to Namecheap and go to <a href="https://ap.www.namecheap.com/settings/tools/apiaccess/" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">Profile → Tools → API Access</a>. Enable <em>API Access</em> and generate a key.</li>
-      <li>On the same page, add your server's public IP to the <strong>Whitelisted IPs</strong> list. Every request carries the IP and Namecheap rejects mismatches.</li>
-      <li>In <a href="/settings" class="text-brand-600 hover:text-brand-700">Settings → Namecheap DNS</a>, fill in: <em>API User</em> (your Namecheap username), <em>API Key</em>, and <em>Whitelisted IP</em> (the same IP you just whitelisted — usually the same as the shared Server IP).</li>
+      <li>{{t $ "page.docs.log_in_to_namecheap_and_go_to_625231b0"}} <a href="https://ap.www.namecheap.com/settings/tools/apiaccess/" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.profile_tools_api_access_f9b1e753"}}</a>{{t $ "page.docs.enable_61b28797"}} <em>{{t $ "page.docs.api_access_5f31cc2f"}}</em> {{t $ "page.docs.and_generate_a_key_b09211c7"}}</li>
+      <li>{{t $ "page.docs.on_the_same_page_add_your_server_s_public_ip_to_t_3bc6a788"}} <strong>{{t $ "page.docs.whitelisted_ips_3e49b5b0"}}</strong> {{t $ "page.docs.list_every_request_carries_the_ip_and_namecheap_r_af135cd5"}}</li>
+      <li>{{t $ "page.docs.in_8bc1d53c"}} <a href="/settings" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.settings_namecheap_dns_35eaf1a6"}}</a>{{t $ "page.docs.fill_in_ccb88246"}} <em>{{t $ "page.docs.api_user_6fd2b322"}}</em> {{t $ "page.docs.your_namecheap_username_81450186"}} <em>{{t $ "page.docs.api_key_23189d55"}}</em>{{t $ "page.docs.and_4aa9bfd2"}} <em>{{t $ "page.docs.whitelisted_ip_2bd99bf2"}}</em> {{t $ "page.docs.the_same_ip_you_just_whitelisted_usually_the_sam_3ae51249"}}</li>
     </ol>
-    <p class="text-xs text-ink-500"><strong>Under the hood:</strong> Namecheap's API doesn't support per-record CRUD — every create or delete fetches the full host list, mutates it, and POSTs the whole set back. CaddyUI serialises those calls internally, but if you're hand-editing records in the Namecheap panel <em>at the same time</em> an IP-retarget job is running, you may see one side overwrite the other. Let one finish before starting the other.</p>
-    <p class="text-xs text-ink-500">Namecheap requires <em>at least 20 active domains</em> on your account <strong>or</strong> a positive account balance to unlock API access on sandbox-free production. If the API returns <em>"No Permission"</em>, that's the gate.</p>
+    <p class="text-xs text-ink-500"><strong>{{t $ "page.docs.under_the_hood_6747d0d8"}}</strong> {{t $ "page.docs.namecheap_s_api_doesn_t_support_per_record_crud_e_c63da702"}} <em>{{t $ "page.docs.at_the_same_time_cdc874b9"}}</em> {{t $ "page.docs.an_ip_retarget_job_is_running_you_may_see_one_si_f91defd5"}}</p>
+    <p class="text-xs text-ink-500">{{t $ "page.docs.namecheap_requires_29eb6f43"}} <em>{{t $ "page.docs.at_least_20_active_domains_7799a245"}}</em> {{t $ "page.docs.on_your_account_ef903ce4"}} <strong>{{t $ "page.docs.or_7175517a"}}</strong> {{t $ "page.docs.a_positive_account_balance_to_unlock_api_access_o_45a3866b"}} <em>{{t $ "page.docs.no_permission_8dcf627d"}}</em>{{t $ "page.docs.that_s_the_gate_a3554fc1"}}</p>
   </div>
 </section>
 
@@ -392,18 +390,18 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M12 2L4 7v6c0 4.5 3.5 8.5 8 9 4.5-.5 8-4.5 8-9V7l-8-5z"/></svg>
     </span>
-    GoDaddy DNS
+    {{t $ "page.docs.godaddy_dns_871bc880"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>GoDaddy offers a clean JSON API, but read the tier gate below before wiring it up — it bites a lot of users.</p>
+    <p>{{t $ "page.docs.godaddy_offers_a_clean_json_api_but_read_the_tie_31944588"}}</p>
     <ol class="list-decimal ml-5 space-y-1.5">
-      <li>Create a <em>Production</em> key at <a href="https://developer.godaddy.com/keys" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">developer.godaddy.com/keys</a>. You'll get an <em>API Key</em> and an <em>API Secret</em>.</li>
-      <li>Paste both into <a href="/settings" class="text-brand-600 hover:text-brand-700">Settings → GoDaddy DNS</a>.</li>
+      <li>{{t $ "page.docs.create_a_a2a769e9"}} <em>{{t $ "page.docs.production_13a7c655"}}</em> {{t $ "page.docs.key_at_6d8d6e6b"}} <a href="https://developer.godaddy.com/keys" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">developer.godaddy.com/keys</a>{{t $ "page.docs.you_ll_get_an_dab87fe3"}} <em>{{t $ "page.docs.api_key_23189d55"}}</em> {{t $ "page.docs.and_an_a62ccb1e"}} <em>{{t $ "page.docs.api_secret_e2453eca"}}</em>.</li>
+      <li>{{t $ "page.docs.paste_both_into_0cfda93a"}} <a href="/settings" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.settings_godaddy_dns_251005e8"}}</a>.</li>
     </ol>
     <div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-      <strong>Tier gate:</strong> as of 2024-04 GoDaddy restricts API access to accounts that hold <strong>10 or more domains</strong> or have a <em>Discount Domain Club</em> membership. Keys on smaller accounts return <code class="font-mono">403 ACCESS_DENIED</code> — that error is surfaced verbatim in the proxy host form so you can see it when it happens. This is not a CaddyUI bug; it's a GoDaddy policy.
+      <strong>{{t $ "page.docs.tier_gate_6f650fb5"}}</strong> {{t $ "page.docs.as_of_2024_04_godaddy_restricts_api_access_to_ac_6bdbe73e"}} <strong>{{t $ "page.docs.10_or_more_domains_f52b7fd0"}}</strong> {{t $ "page.docs.or_have_a_be7f16eb"}} <em>{{t $ "page.docs.discount_domain_club_8ac0a1d3"}}</em> {{t $ "page.docs.membership_keys_on_smaller_accounts_return_339f390b"}} <code class="font-mono">403 ACCESS_DENIED</code> {{t $ "page.docs.that_error_is_surfaced_verbatim_in_the_proxy_hos_e9bc7416"}}
     </div>
-    <p class="text-xs text-ink-500"><strong>Under the hood:</strong> GoDaddy doesn't expose stable per-record IDs in its list response. CaddyUI tracks records by the pair <code class="font-mono">type|name</code> — deleting sends <code class="font-mono">DELETE /records/{type}/{name}</code>. If you hand-edit a record's type or name in GoDaddy's panel, CaddyUI may not be able to find it for cleanup on host delete — remove the orphan manually in that case.</p>
+    <p class="text-xs text-ink-500"><strong>{{t $ "page.docs.under_the_hood_6747d0d8"}}</strong> {{t $ "page.docs.godaddy_doesn_t_expose_stable_per_record_ids_in_i_6b789aa9"}} <code class="font-mono">type|name</code> {{t $ "page.docs.deleting_sends_b5160002"}} <code class="font-mono">DELETE /records/{type}/{name}</code>{{t $ "page.docs.if_you_hand_edit_a_record_s_type_or_name_in_goda_755a3a5d"}}</p>
   </div>
 </section>
 
@@ -413,16 +411,16 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="12" cy="12" r="9"/><path d="M12 3v9h9"/></svg>
     </span>
-    DigitalOcean DNS
+    {{t $ "page.docs.digitalocean_dns_e1940424"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>DigitalOcean's DNS API is free for any account and Just Works. Recommended if your domain nameservers already point at DigitalOcean (ns1/ns2/ns3.digitalocean.com).</p>
+    <p>{{t $ "page.docs.digitalocean_s_dns_api_is_free_for_any_account_a_58b963e9"}}</p>
     <ol class="list-decimal ml-5 space-y-1.5">
-      <li>At <a href="https://cloud.digitalocean.com/account/api/tokens" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">cloud.digitalocean.com → API → Tokens</a>, create a <strong>Personal Access Token</strong> with <em>read</em> + <em>write</em> scopes (DNS needs both).</li>
-      <li>Paste the token into <a href="/settings" class="text-brand-600 hover:text-brand-700">Settings → DigitalOcean DNS</a>.</li>
-      <li>The domain must already exist in DigitalOcean's <em>Networking → Domains</em> panel. CaddyUI creates records inside existing zones — it doesn't add the zone itself.</li>
+      <li>{{t $ "page.docs.at_c72c5404"}} <a href="https://cloud.digitalocean.com/account/api/tokens" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.cloud_digitalocean_com_api_tokens_c736535c"}}</a>{{t $ "page.docs.create_a_60b86f9a"}} <strong>{{t $ "page.docs.personal_access_token_5572fccc"}}</strong> {{t $ "page.docs.with_0695b563"}} <em>{{t $ "page.docs.read_3316348d"}}</em> + <em>{{t $ "page.docs.write_10fd874b"}}</em> {{t $ "page.docs.scopes_dns_needs_both_ea1c8b91"}}</li>
+      <li>{{t $ "page.docs.paste_the_token_into_2a9322f3"}} <a href="/settings" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.settings_digitalocean_dns_d509402c"}}</a>.</li>
+      <li>{{t $ "page.docs.the_domain_must_already_exist_in_digitalocean_s_0d1b0082"}} <em>{{t $ "page.docs.networking_domains_f0cf8400"}}</em> {{t $ "page.docs.panel_caddyui_creates_records_inside_existing_zo_fb27f01a"}}</li>
     </ol>
-    <p class="text-xs text-ink-500">Minimum TTL on DigitalOcean is <strong>30 seconds</strong>. Nameservers must be pointed at DigitalOcean at the registrar for the record to actually resolve — the API will happily create records on zones whose nameservers point elsewhere, but those records are dark until you repoint.</p>
+    <p class="text-xs text-ink-500">{{t $ "page.docs.minimum_ttl_on_digitalocean_is_39031696"}} <strong>{{t $ "page.docs.30_seconds_f3d19541"}}</strong>{{t $ "page.docs.nameservers_must_be_pointed_at_digitalocean_at_t_44c17bb6"}}</p>
   </div>
 </section>
 
@@ -432,16 +430,16 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 12h18"/></svg>
     </span>
-    Hetzner DNS
+    {{t $ "page.docs.hetzner_dns_482811f8"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>Hetzner's DNS Console is a free, separate product from Hetzner Cloud — you don't need a Hetzner server to use it. Good choice for EU-hosted zones.</p>
+    <p>{{t $ "page.docs.hetzner_s_dns_console_is_a_free_separate_product_60df0ab7"}}</p>
     <ol class="list-decimal ml-5 space-y-1.5">
-      <li>Go to <a href="https://dns.hetzner.com/settings/api-token" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">dns.hetzner.com → API Tokens</a> and create a token with full DNS permissions.</li>
-      <li>Paste the token into <a href="/settings" class="text-brand-600 hover:text-brand-700">Settings → Hetzner DNS</a>. The API uses the <code class="font-mono">Auth-API-Token</code> header — CaddyUI sets that automatically, you only paste the token value.</li>
-      <li>The zone (domain) must already be created in Hetzner DNS Console and the registrar's nameservers must point at <code class="font-mono">hydrogen.ns.hetzner.com</code> + <code class="font-mono">helium.ns.hetzner.de</code> + <code class="font-mono">oxygen.ns.hetzner.com</code>.</li>
+      <li>{{t $ "page.docs.go_to_a8aa078b"}} <a href="https://dns.hetzner.com/settings/api-token" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.dns_hetzner_com_api_tokens_e65190b0"}}</a> {{t $ "page.docs.and_create_a_token_with_full_dns_permissions_b2c7391a"}}</li>
+      <li>{{t $ "page.docs.paste_the_token_into_2a9322f3"}} <a href="/settings" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.settings_hetzner_dns_02b2ddba"}}</a>{{t $ "page.docs.the_api_uses_the_adf24f25"}} <code class="font-mono">Auth-API-Token</code> {{t $ "page.docs.header_caddyui_sets_that_automatically_you_only_p_0079c960"}}</li>
+      <li>{{t $ "page.docs.the_zone_domain_must_already_be_created_in_hetzn_5c84a6d6"}} <code class="font-mono">hydrogen.ns.hetzner.com</code> + <code class="font-mono">helium.ns.hetzner.de</code> + <code class="font-mono">oxygen.ns.hetzner.com</code>.</li>
     </ol>
-    <p class="text-xs text-ink-500">Hetzner returns opaque zone IDs (not the domain name) — CaddyUI stores both so the proxy-host list and log lines can display the human-readable zone name.</p>
+    <p class="text-xs text-ink-500">{{t $ "page.docs.hetzner_returns_opaque_zone_ids_not_the_domain_n_f9e0b439"}}</p>
   </div>
 </section>
 
@@ -451,16 +449,16 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
     </span>
-    Gandi DNS
+    {{t $ "page.docs.gandi_dns_1cc3d6e0"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>CaddyUI drives Gandi's <strong>LiveDNS</strong> API: it lists your domains, creates and removes the A records for proxy hosts, redirections and Advanced routes, and reuses the same token for Caddy's DNS-01 certificate issuance.</p>
+    <p>{{t $ "page.docs.caddyui_drives_gandi_s_dd94e381"}} <strong>{{t $ "page.docs.livedns_1ebc5873"}}</strong> {{t $ "page.docs.api_it_lists_your_domains_creates_and_removes_th_01d168a8"}}</p>
     <ol class="list-decimal ml-5 space-y-1.5">
-      <li>In <a href="https://admin.gandi.net/" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">admin.gandi.net</a> open <em>User settings → Personal Access Token (PAT)</em> and create a token for the organization that owns the domains, with the permission to manage domain name technical configurations. Copy it — Gandi shows it once.</li>
-      <li>Paste it into <a href="/settings/dns" class="text-brand-600 hover:text-brand-700">Settings → DNS → Gandi</a>. CaddyUI sends it as a <code class="font-mono">Bearer</code> token; the older <code class="font-mono">Apikey</code> scheme is not supported.</li>
-      <li>The domain must use Gandi's LiveDNS nameservers (the default for domains registered at Gandi). Domains delegated elsewhere do not appear in the picker.</li>
+      <li>{{t $ "page.docs.in_8bc1d53c"}} <a href="https://admin.gandi.net/" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">admin.gandi.net</a> {{t $ "page.docs.open_2348f998"}} <em>{{t $ "page.docs.user_settings_personal_access_token_pat_ac7ef41e"}}</em> {{t $ "page.docs.and_create_a_token_for_the_organization_that_own_a0ccdd42"}}</li>
+      <li>{{t $ "page.docs.paste_it_into_e3323a16"}} <a href="/settings/dns" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.settings_dns_gandi_ec06d42c"}}</a>{{t $ "page.docs.caddyui_sends_it_as_a_a00076fa"}} <code class="font-mono">Bearer</code> {{t $ "page.docs.token_the_older_4ac3df2f"}} <code class="font-mono">Apikey</code> {{t $ "page.docs.scheme_is_not_supported_818988ce"}}</li>
+      <li>{{t $ "page.docs.the_domain_must_use_gandi_s_livedns_nameservers_t_9af9d15c"}}</li>
     </ol>
-    <p class="text-xs text-ink-500">LiveDNS stores records as sets keyed by name and type, so CaddyUI's record reference is <code class="font-mono">name/type</code> (for example <code class="font-mono">app/A</code>, <code class="font-mono">@/A</code> for the apex). Creating a record where a set of that name and type already exists is refused rather than merged — CaddyUI never overwrites records it did not create, so remove or change the existing set in the Gandi console first, then save again. TTLs below 300 seconds are raised to 300, the LiveDNS minimum. For DNS-01 the connected Caddy needs the <code class="font-mono">github.com/caddy-dns/gandi</code> module; the repository's <code class="font-mono">Dockerfile.caddy</code> includes it from v2.45.0.</p>
+    <p class="text-xs text-ink-500">{{t $ "page.docs.livedns_stores_records_as_sets_keyed_by_name_and_e90813a0"}} <code class="font-mono">name/type</code> {{t $ "page.docs.for_example_901813cd"}} <code class="font-mono">app/A</code>, <code class="font-mono">@/A</code> {{t $ "page.docs.for_the_apex_creating_a_record_where_a_set_of_th_6f5109ab"}} <code class="font-mono">github.com/caddy-dns/gandi</code> {{t $ "page.docs.module_the_repository_s_b3f95b67"}} <code class="font-mono">Dockerfile.caddy</code> {{t $ "page.docs.includes_it_from_v2_45_0_01b41601"}}</p>
   </div>
 </section>
 
@@ -470,16 +468,16 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M12 2l8 4.5v11L12 22l-8-4.5v-11L12 2z"/><path d="M4 6.5l8 4.5 8-4.5M12 11v11"/></svg>
     </span>
-    Amazon Route 53 DNS
+    {{t $ "page.docs.amazon_route_53_dns_3d5a7d37"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>CaddyUI can discover your public Route 53 hosted zones, optionally create and clean up managed A records, and reuse the same credentials for Caddy DNS-01 certificate issuance. The selected hosted-zone ID is passed directly to Caddy so `_acme-challenge` TXT records cannot drift into a similarly named split-horizon zone.</p>
+    <p>{{t $ "page.docs.caddyui_can_discover_your_public_route_53_hosted_195e8a12"}}</p>
     <ol class="list-decimal ml-5 space-y-1.5">
-      <li>Create a dedicated IAM user or role for CaddyUI. Do not use the AWS account root user's access keys.</li>
-      <li>Attach a least-privilege policy like the example below. Replace <code class="font-mono">Z0123456789EXAMPLE</code> with each public hosted-zone ID CaddyUI may manage.</li>
-      <li>Create an access key for that IAM principal, then paste the <em>Access Key ID</em> and <em>Secret Access Key</em> into <a href="/settings" class="text-brand-600 hover:text-brand-700">Settings → Amazon Route 53</a>.</li>
-      <li>Leave <em>AWS Region</em> blank for the standard AWS partition (<code class="font-mono">us-east-1</code> is used). A session token is needed only when you supply temporary STS credentials.</li>
-      <li>On a proxy, redirection, or advanced route, turn off <em>Create public A records</em> when the hostname is internal or managed by split DNS. DNS-01 TXT automation remains enabled in the selected public zone.</li>
+      <li>{{t $ "page.docs.create_a_dedicated_iam_user_or_role_for_caddyui_d_352dd3af"}}</li>
+      <li>{{t $ "page.docs.attach_a_least_privilege_policy_like_the_example_a8acd86c"}} <code class="font-mono">Z0123456789EXAMPLE</code> {{t $ "page.docs.with_each_public_hosted_zone_id_caddyui_may_mana_2a86c3b5"}}</li>
+      <li>{{t $ "page.docs.create_an_access_key_for_that_iam_principal_then_1527e8fa"}} <em>{{t $ "page.docs.access_key_id_8761c0cc"}}</em> {{t $ "page.docs.and_6201111b"}} <em>{{t $ "page.docs.secret_access_key_d2aeacd6"}}</em> {{t $ "page.docs.into_6b847a0e"}} <a href="/settings" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.settings_amazon_route_53_3bcc0aff"}}</a>.</li>
+      <li>{{t $ "page.docs.leave_fc6e4a40"}} <em>{{t $ "page.docs.aws_region_7e489ee6"}}</em> {{t $ "page.docs.blank_for_the_standard_aws_partition_4781cf3c"}}<code class="font-mono">us-east-1</code> {{t $ "page.docs.is_used_a_session_token_is_needed_only_when_you_s_efc76f0d"}}</li>
+      <li>{{t $ "page.docs.on_a_proxy_redirection_or_advanced_route_turn_of_e437d6ea"}} <em>{{t $ "page.docs.create_public_a_records_e9e3bb1d"}}</em> {{t $ "page.docs.when_the_hostname_is_internal_or_managed_by_spli_59f165e1"}}</li>
     </ol>
     <pre class="overflow-x-auto rounded-lg bg-ink-950 text-ink-100 p-4 text-xs leading-relaxed"><code>{
   "Version": "2012-10-17",
@@ -507,11 +505,11 @@
     }
   ]
 }</code></pre>
-    <p>Add another hosted-zone ARN to the second statement when CaddyUI should manage more than one zone. AWS documents access-key creation in the <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">IAM User Guide</a>.</p>
+    <p>{{t $ "page.docs.add_another_hosted_zone_arn_to_the_second_statem_7a24d54d"}} <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.iam_user_guide_136ca985"}}</a>.</p>
     <div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-      <strong>Public zones only:</strong> private hosted zones are intentionally hidden. Public ACME DNS-01 validation cannot query them, and hiding them prevents choosing the wrong zone in split-horizon setups.
+      <strong>{{t $ "page.docs.public_zones_only_16c7c281"}}</strong> {{t $ "page.docs.private_hosted_zones_are_intentionally_hidden_pu_a944bb9a"}}
     </div>
-    <p class="text-xs text-ink-500">Route 53 has no record-set ID, so CaddyUI stores the complete definition of every record it creates and uses that exact definition during cleanup. Existing records are reported as collisions and never overwritten automatically. Traffic Flow-managed records are also never deleted automatically; remove their traffic policy instance in AWS first.</p>
+    <p class="text-xs text-ink-500">{{t $ "page.docs.route_53_has_no_record_set_id_so_caddyui_stores_t_2621d6c9"}}</p>
   </div>
 </section>
 
@@ -521,15 +519,15 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     </span>
-    Import from Caddy
+    {{t $ "page.docs.import_from_caddy_ce3b366a"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>Already running Caddy with a hand-written config? You don't have to start from scratch.</p>
+    <p>{{t $ "page.docs.already_running_caddy_with_a_hand_written_config_14bfdb19"}}</p>
     <ul class="list-disc ml-5 space-y-1">
-      <li><a href="/import" class="text-brand-600 hover:text-brand-700">Import from Caddy</a> — pulls the live JSON config over the admin API and lets you pick which routes to adopt.</li>
-      <li><a href="/caddyfile-import" class="text-brand-600 hover:text-brand-700">Paste Caddyfile</a> — dump a Caddyfile in, preview what it will create, then accept.</li>
+      <li><a href="/import" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.import_from_caddy_ce3b366a"}}</a> {{t $ "page.docs.pulls_the_live_json_config_over_the_admin_api_an_a4312feb"}}</li>
+      <li><a href="/caddyfile-import" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.paste_caddyfile_32f9c3af"}}</a> {{t $ "page.docs.dump_a_caddyfile_in_preview_what_it_will_create_t_58c1b9ec"}}</li>
     </ul>
-    <p>Imports are non-destructive: CaddyUI creates its own rules alongside yours. Delete the original routes after you confirm everything works.</p>
+    <p>{{t $ "page.docs.imports_are_non_destructive_caddyui_creates_its_o_80822f12"}}</p>
   </div>
 </section>
 
@@ -539,11 +537,11 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
     </span>
-    Snapshots & Backup
+    {{t $ "page.docs.snapshots_backup_8a6dcdbb"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>Every time you save a rule, CaddyUI records a <strong>snapshot</strong> of the full Caddy config. If something goes wrong, open <a href="/snapshots" class="text-brand-600 hover:text-brand-700">Snapshots</a> and restore an earlier version with one click.</p>
-    <p>You can also download the raw config JSON to keep off-box. {{if eq .DatabaseBackend "mariadb"}}MariaDB installations use <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">mariadb-dump</code> or platform-managed backups for disaster recovery.{{else}}Admins get a <a href="/backup" class="text-brand-600 hover:text-brand-700">full SQLite database backup</a> endpoint for disaster recovery.{{end}}</p>
+    <p>{{t $ "page.docs.every_time_you_save_a_rule_caddyui_records_a_fde61fb2"}} <strong>{{t $ "page.docs.snapshot_16a0eeb0"}}</strong> {{t $ "page.docs.of_the_full_caddy_config_if_something_goes_wrong_961c0376"}} <a href="/snapshots" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.snapshots_f187f78e"}}</a> {{t $ "page.docs.and_restore_an_earlier_version_with_one_click_a97c211e"}}</p>
+    <p>{{t $ "page.docs.you_can_also_download_the_raw_config_json_to_kee_d5b7e655"}} {{if eq .DatabaseBackend "mariadb"}}{{t $ "page.docs.mariadb_installations_use_448d44e0"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">mariadb-dump</code> {{t $ "page.docs.or_platform_managed_backups_for_disaster_recover_b5a5bb88"}}{{else}}{{t $ "page.docs.admins_get_a_0d192a38"}} <a href="/backup" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.full_sqlite_database_backup_3d4bc940"}}</a> {{t $ "page.docs.endpoint_for_disaster_recovery_316bd2ff"}}{{end}}</p>
   </div>
 </section>
 
@@ -553,23 +551,23 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
     </span>
-    Multi-server
+    {{t $ "page.docs.multi_server_80225ea3"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>One CaddyUI can manage many Caddy instances. Add them in <a href="/servers" class="text-brand-600 hover:text-brand-700">Caddy Servers</a> by giving each an <em>Admin URL</em>.</p>
-    <p>Five ways to connect — pick whatever matches your setup:</p>
+    <p>{{t $ "page.docs.one_caddyui_can_manage_many_caddy_instances_add_t_8a1c77e0"}} <a href="/servers" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.caddy_servers_6b6da6d9"}}</a> {{t $ "page.docs.by_giving_each_an_b9a68600"}} <em>{{t $ "page.docs.admin_url_2a4854db"}}</em>.</p>
+    <p>{{t $ "page.docs.five_ways_to_connect_pick_whatever_matches_your_s_e87acb94"}}</p>
     <ul class="list-disc ml-5 space-y-1">
-      <li><strong>Same host / Docker</strong> — <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">http://caddy:2019</code> works fine over the internal Docker network.</li>
-      <li><strong>Unix socket (local-only, zero network exposure)</strong> — <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">unix:///run/caddy-admin.sock</code>. Set <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">admin unix//run/caddy-admin.sock</code> in your Caddyfile, then share the socket path between containers via a bind-mount. Nothing listens on any TCP port — unreachable from the network by design.</li>
-      <li><strong>WireGuard / Tailscale</strong> — wrap traffic in a private overlay and use the peer's tunnel IP. Never expose 2019 on the public internet.</li>
-      <li><strong>Reverse proxy with HTTP Basic Auth</strong> — put Caddy (or nginx) in front of port 2019 with <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">basic_auth</code>. Fill in the <em>HTTP Basic Auth</em> section on the server form; CaddyUI sends an <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">Authorization: Basic …</code> header on every call. Simpler than WireGuard when you just need one remote server gated behind a password.</li>
-      <li><strong>SSH reverse-tunnel</strong> — <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">ssh -L 2019:localhost:2019 user@host</code> also works for one-off cases.</li>
+      <li><strong>{{t $ "page.docs.same_host_docker_f03af2ec"}}</strong> — <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">http://caddy:2019</code> {{t $ "page.docs.works_fine_over_the_internal_docker_network_2987fc3f"}}</li>
+      <li><strong>{{t $ "page.docs.unix_socket_local_only_zero_network_exposure_6980f7f1"}}</strong> — <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">unix:///run/caddy-admin.sock</code>{{t $ "page.docs.set_d8e3b7c2"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">admin unix//run/caddy-admin.sock</code> {{t $ "page.docs.in_your_caddyfile_then_share_the_socket_path_bet_45d00543"}}</li>
+      <li><strong>{{t $ "page.docs.wireguard_tailscale_c7e1b3e8"}}</strong> {{t $ "page.docs.wrap_traffic_in_a_private_overlay_and_use_the_pe_e11ce43b"}}</li>
+      <li><strong>{{t $ "page.docs.reverse_proxy_with_http_basic_auth_b40e5c0d"}}</strong> {{t $ "page.docs.put_caddy_or_nginx_in_front_of_port_2019_with_7fef7c8f"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">basic_auth</code>{{t $ "page.docs.fill_in_the_7a3ffdbe"}} <em>{{t $ "page.docs.http_basic_auth_a8b8b7c5"}}</em> {{t $ "page.docs.section_on_the_server_form_caddyui_sends_an_d7cb026d"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">Authorization: Basic …</code> {{t $ "page.docs.header_on_every_call_simpler_than_wireguard_when_10fe4e25"}}</li>
+      <li><strong>{{t $ "page.docs.ssh_reverse_tunnel_1ae621f5"}}</strong> — <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">ssh -L 2019:localhost:2019 user@host</code> {{t $ "page.docs.also_works_for_one_off_cases_5cbbea2f"}}</li>
     </ul>
     <div class="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-xs text-amber-900 my-3">
-      <strong>🚨 Don't ever expose port 2019 directly on the internet.</strong> The Caddy admin API has no built-in authentication — whoever reaches it owns your server. Pick one of the options above instead.
+      <strong>{{t $ "page.docs.don_t_ever_expose_port_2019_directly_on_the_inte_3ce96f16"}}</strong> {{t $ "page.docs.the_caddy_admin_api_has_no_built_in_authenticati_9ebd6148"}}
     </div>
-    <p>The <em>Also deploy to</em> checkboxes on each form create or update the same paired rule on several servers. Repeating a deployment is safe: CaddyUI tracks the source-to-target relationship and updates the existing target row instead of creating a duplicate.</p>
-    <p>To copy every managed route at once, select the source environment in the application shell, open <a href="/servers" class="text-brand-600 hover:text-brand-700">Caddy Fleet</a>, and choose <strong>Sync from current</strong> on the target. This non-destructive merge includes proxy hosts, redirects, advanced routes, and managed certificate definitions while retaining target-only routes. Target DNS records and custom certificate choices stay unchanged. ACME keys and uploaded private keys are never transferred; each Caddy server provisions and stores its own keys.</p>
+    <p>{{t $ "page.docs.the_b344d80e"}} <em>{{t $ "page.docs.also_deploy_to_cb49f674"}}</em> {{t $ "page.docs.checkboxes_on_each_form_create_or_update_the_sam_4742f43c"}}</p>
+    <p>{{t $ "page.docs.to_copy_every_managed_route_at_once_select_the_s_c824a23e"}} <a href="/servers" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.caddy_fleet_a0835b49"}}</a>{{t $ "page.docs.and_choose_a98dd7b0"}} <strong>{{t $ "page.docs.sync_from_current_3feda88d"}}</strong> {{t $ "page.docs.on_the_target_this_non_destructive_merge_include_0abfdc1f"}}</p>
   </div>
 </section>
 
@@ -579,20 +577,20 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M3 3v18h18"/><path d="m7 16 4-5 4 3 4-7"/></svg>
     </span>
-    Prometheus metrics
+    {{t $ "page.docs.prometheus_metrics_05be9e15"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>Open <a href="/settings/integrations" class="text-brand-600 hover:text-brand-700">Settings → Metrics</a>, select the managed Caddy servers CaddyUI should own, and enable the metric detail you need.</p>
+    <p>{{t $ "page.docs.open_ed077f3d"}} <a href="/settings/integrations" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.settings_metrics_75574e31"}}</a>{{t $ "page.docs.select_the_managed_caddy_servers_caddyui_should_o_21369575"}}</p>
     <ul class="list-disc ml-5 space-y-1">
-      <li><strong>Prometheus metrics</strong> enables Caddy's base HTTP measurements.</li>
-      <li><strong>Per-host labels</strong> adds a host label to HTTP metrics.</li>
-      <li><strong>Observe catch-all hosts</strong> includes hostnames outside explicit route matchers. It requires Caddy 2.11+, requires per-host labels, and can create unbounded cardinality on public HTTP listeners.</li>
+      <li><strong>{{t $ "page.docs.prometheus_metrics_05be9e15"}}</strong> {{t $ "page.docs.enables_caddy_s_base_http_measurements_384d93f3"}}</li>
+      <li><strong>{{t $ "page.docs.per_host_labels_3798941a"}}</strong> {{t $ "page.docs.adds_a_host_label_to_http_metrics_3ad9e782"}}</li>
+      <li><strong>{{t $ "page.docs.observe_catch_all_hosts_8135804a"}}</strong> {{t $ "page.docs.includes_hostnames_outside_explicit_route_matche_59adf132"}}</li>
     </ul>
-    <p>The card shows each selected server's scrape target, normally <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">http://private-caddy:2019/metrics</code>. Configure Prometheus to reach that address over the same private Docker, LAN, loopback, or VPN network as CaddyUI.</p>
+    <p>{{t $ "page.docs.the_card_shows_each_selected_server_s_scrape_tar_e45a15a2"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">http://private-caddy:2019/metrics</code>{{t $ "page.docs.configure_prometheus_to_reach_that_address_over_t_bdc1b377"}}</p>
     <div class="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-xs text-amber-900">
-      <strong>Keep the admin endpoint private.</strong> Port 2019 controls the complete Caddy configuration and has no built-in authentication. Do not expose it publicly just to make <code class="px-1 bg-amber-100 rounded font-mono">/metrics</code> reachable.
+      <strong>{{t $ "page.docs.keep_the_admin_endpoint_private_1a001fa0"}}</strong> {{t $ "page.docs.port_2019_controls_the_complete_caddy_configurat_c2df46e9"}} <code class="px-1 bg-amber-100 rounded font-mono">/metrics</code> {{t $ "page.docs.reachable_df883b53"}}
     </div>
-    <p>Only checked servers are managed. Existing metrics on every unselected server—including Caddyfile global options and direct JSON/API changes—remain untouched during route sync. See <a href="https://caddyserver.com/docs/metrics" target="_blank" rel="noopener" class="text-brand-600 hover:text-brand-700">Caddy's metrics guide</a> for Prometheus queries and metric names.</p>
+    <p>{{t $ "page.docs.only_checked_servers_are_managed_existing_metric_def4af6e"}} <a href="https://caddyserver.com/docs/metrics" target="_blank" rel="noopener" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.caddy_s_metrics_guide_5115faed"}}</a> {{t $ "page.docs.for_prometheus_queries_and_metric_names_cb1c5cd6"}}</p>
   </div>
 </section>
 
@@ -602,22 +600,22 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     </span>
-    Users & 2FA
+    {{t $ "page.docs.users_2fa_047737dd"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p><strong>Roles:</strong></p>
+    <p><strong>{{t $ "page.docs.roles_47d6de66"}}</strong></p>
     <ul class="list-disc ml-5 space-y-1">
-      <li><span class="inline-block px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 text-[10px] font-semibold uppercase tracking-wider">admin</span> — full access to every page including users, servers, and settings.</li>
-      <li><span class="inline-block px-1.5 py-0.5 rounded bg-ink-100 text-ink-600 text-[10px] font-semibold uppercase tracking-wider">viewer</span> — read-only. Can see dashboards and lists but can't create / edit / delete.</li>
+      <li><span class="inline-block px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 text-[10px] font-semibold uppercase tracking-wider">{{t $ "page.docs.admin_8c6976e5"}}</span> {{t $ "page.docs.full_access_to_every_page_including_users_server_ba23e42e"}}</li>
+      <li><span class="inline-block px-1.5 py-0.5 rounded bg-ink-100 text-ink-600 text-[10px] font-semibold uppercase tracking-wider">{{t $ "page.docs.viewer_d35ca505"}}</span> {{t $ "page.docs.read_only_can_see_dashboards_and_lists_but_can_t_e81eaf8b"}}</li>
     </ul>
-    <p>Each user can enable <strong>TOTP 2FA</strong> on their profile at <a href="/totp/setup" class="text-brand-600 hover:text-brand-700">/totp/setup</a>. Scan the QR with Google Authenticator, Authy, 1Password, etc., enter the 6-digit code, and it's active on next login.</p>
-    <p>The two controls are separate, and it's worth keeping them straight. Each person switches their <em>own</em> TOTP on or off under <strong>user menu → My two-factor authentication</strong> (that is this same <code class="font-mono">/totp/setup</code> page). Admins set the site-wide policy — <strong>Require two-factor authentication (TOTP) for everyone</strong> — under <a href="/settings/security" class="text-brand-600 hover:text-brand-700">Settings → Security</a>, which sends anyone not yet enrolled to the setup page until they finish, including the admin who switched it on. Admins can also reset TOTP on any account from <a href="/users" class="text-brand-600 hover:text-brand-700">Users</a>.</p>
-    <h3 class="text-sm font-semibold text-ink-900 mt-4 mb-1">Single sign-on (OIDC)</h3>
-    <p>Register CaddyUI with your provider using the callback URL shown under <a href="/settings/security" class="text-brand-600 hover:text-brand-700">Settings → Security → SSO</a> — it ends in <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">/auth/oidc/callback</code>, and the full value is printed under the <em>Redirect URL</em> field. Registering the bare <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">/auth/oidc</code> path is the usual first mistake and the provider will reject the login.</p>
-    <p>With <strong>Auto-create accounts</strong> on, a first-time SSO user is provisioned with the <strong>default role</strong> you choose (since v2.65.0; <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">view</code> unless changed). To take the role from your directory instead, set the <strong>groups claim</strong> your IdP sends and add <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">group|role</code> rules — first match wins, so list the most privileged first. Roles apply only when the account is created: signing in never changes the role of a user who already exists, so promotions and demotions stay with <a href="/users" class="text-brand-600 hover:text-brand-700">Users</a>.</p>
-    <h3 class="text-sm font-semibold text-ink-900 mt-4 mb-1">Admin panel IP allowlist</h3>
-    <p>The allowlist is matched against the visitor's address as CaddyUI resolves it: the connection itself, or — when the connection comes from a machine listed under <strong>Trusted proxy IPs/CIDRs</strong> — the address that proxy forwarded. Settings → Security prints the address your current request arrived with, so check that before saving a list. If it shows your reverse proxy rather than you, add the proxy as a trusted proxy first, or every visitor will arrive as that one address.</p>
-    <p><strong>Locked yourself out?</strong> Set <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">CADDYUI_ADMIN_ALLOWLIST</code> in your compose file and restart. It overrides the stored list, and <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">CADDYUI_ADMIN_ALLOWLIST=off</code> turns the gate off entirely while you get back in. Whatever you saved in the UI is left untouched, so deleting the variable restores it.</p>
+    <p>{{t $ "page.docs.each_user_can_enable_5af23dd6"}} <strong>{{t $ "page.docs.totp_2fa_61d16592"}}</strong> {{t $ "page.docs.on_their_profile_at_70d4624a"}} <a href="/totp/setup" class="text-brand-600 hover:text-brand-700">/totp/setup</a>{{t $ "page.docs.scan_the_qr_with_google_authenticator_authy_1pas_eba1d602"}}</p>
+    <p>{{t $ "page.docs.the_two_controls_are_separate_and_it_s_worth_kee_7cd2a39f"}} <em>{{t $ "page.docs.own_5b397565"}}</em> {{t $ "page.docs.totp_on_or_off_under_5dcff849"}} <strong>{{t $ "page.docs.user_menu_my_two_factor_authentication_bfca2f8a"}}</strong> {{t $ "page.docs.that_is_this_same_4a1c0473"}} <code class="font-mono">/totp/setup</code> {{t $ "page.docs.page_admins_set_the_site_wide_policy_d6a0f7a1"}} <strong>{{t $ "page.docs.require_two_factor_authentication_totp_for_every_753dc3f7"}}</strong> {{t $ "page.docs.under_a44b91f5"}} <a href="/settings/security" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.settings_security_2394b198"}}</a>{{t $ "page.docs.which_sends_anyone_not_yet_enrolled_to_the_setup_47ccee65"}} <a href="/users" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.users_6b0cc904"}}</a>.</p>
+    <h3 class="text-sm font-semibold text-ink-900 mt-4 mb-1">{{t $ "page.docs.single_sign_on_oidc_22c712af"}}</h3>
+    <p>{{t $ "page.docs.register_caddyui_with_your_provider_using_the_ca_bba0503f"}} <a href="/settings/security" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.settings_security_sso_4c92e312"}}</a> {{t $ "page.docs.it_ends_in_0405471d"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">/auth/oidc/callback</code>{{t $ "page.docs.and_the_full_value_is_printed_under_the_ff5061f7"}} <em>{{t $ "page.docs.redirect_url_35e46192"}}</em> {{t $ "page.docs.field_registering_the_bare_f4261698"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">/auth/oidc</code> {{t $ "page.docs.path_is_the_usual_first_mistake_and_the_provider_ddbe53f9"}}</p>
+    <p>{{t $ "page.docs.with_b708724a"}} <strong>{{t $ "page.docs.auto_create_accounts_14cb9080"}}</strong> {{t $ "page.docs.on_a_first_time_sso_user_is_provisioned_with_the_95837843"}} <strong>{{t $ "page.docs.default_role_53229b15"}}</strong> {{t $ "page.docs.you_choose_since_v2_65_0_0c132356"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">view</code> {{t $ "page.docs.unless_changed_to_take_the_role_from_your_direct_35d11345"}} <strong>{{t $ "page.docs.groups_claim_9ae16153"}}</strong> {{t $ "page.docs.your_idp_sends_and_add_c7969bb6"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">group|role</code> {{t $ "page.docs.rules_first_match_wins_so_list_the_most_privileg_c0f2ca6f"}} <a href="/users" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.users_6b0cc904"}}</a>.</p>
+    <h3 class="text-sm font-semibold text-ink-900 mt-4 mb-1">{{t $ "page.docs.admin_panel_ip_allowlist_d81eadd6"}}</h3>
+    <p>{{t $ "page.docs.the_allowlist_is_matched_against_the_visitor_s_a_b809df39"}} <strong>{{t $ "page.docs.trusted_proxy_ips_cidrs_4228d1e2"}}</strong> {{t $ "page.docs.the_address_that_proxy_forwarded_settings_securi_99bf3e61"}}</p>
+    <p><strong>{{t $ "page.docs.locked_yourself_out_fdbb0bd6"}}</strong> {{t $ "page.docs.set_b6f6f3ad"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">CADDYUI_ADMIN_ALLOWLIST</code> {{t $ "page.docs.in_your_compose_file_and_restart_it_overrides_th_30c769dd"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">CADDYUI_ADMIN_ALLOWLIST=off</code> {{t $ "page.docs.turns_the_gate_off_entirely_while_you_get_back_i_e9602838"}}</p>
   </div>
 </section>
 
@@ -627,19 +625,19 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect x="2" y="7" width="6" height="6" rx="1"/><rect x="9" y="4" width="6" height="6" rx="1"/><rect x="9" y="14" width="6" height="6" rx="1"/><rect x="16" y="7" width="6" height="6" rx="1"/><path d="M5 13v2a2 2 0 0 0 2 2h2M19 13v2a2 2 0 0 1-2 2h-2M12 10v4"/></svg>
     </span>
-    Docker networking: why Caddy can't see your container
+    {{t $ "page.docs.docker_networking_why_caddy_can_t_see_your_conta_0478e30a"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>This trips up <em>everyone</em> running Caddy in Docker. You add a proxy host, the cert issues fine, you open the URL… and get a <strong>502</strong>. Caddy's logs say something like:</p>
+    <p>{{t $ "page.docs.this_trips_up_fdce3b1a"}} <em>{{t $ "page.docs.everyone_5d67991a"}}</em> {{t $ "page.docs.running_caddy_in_docker_you_add_a_proxy_host_the_51712813"}} <strong>502</strong>{{t $ "page.docs.caddy_s_logs_say_something_like_92330452"}}</p>
     <pre class="bg-ink-900 text-ink-100 text-xs rounded-lg p-3 overflow-x-auto"><code>dial tcp: lookup status-server on 127.0.0.11:53: server misbehaving
 status: 502</code></pre>
-    <p>That error is Docker's internal DNS (<code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">127.0.0.11</code>) telling Caddy it has no idea what <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">status-server</code> is. Not an SSL problem, not a Caddy bug — a <strong>Docker network</strong> problem.</p>
+    <p>{{t $ "page.docs.that_error_is_docker_s_internal_dns_3231e2fb"}}<code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">127.0.0.11</code>{{t $ "page.docs.telling_caddy_it_has_no_idea_what_e0a4b436"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">status-server</code> {{t $ "page.docs.is_not_an_ssl_problem_not_a_caddy_bug_a_19eb6bc7"}} <strong>{{t $ "page.docs.docker_network_7a7865e1"}}</strong> {{t $ "page.docs.problem_1b8cbc6e"}}</p>
 
-    <h3 class="font-semibold text-ink-900 mt-4">The rule</h3>
-    <p>Docker's embedded DNS only resolves container names on the <strong>same user-defined network</strong>. If Caddy is on network <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">proxy-net</code> and your upstream container is on <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">status-net</code> (or on the default <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">bridge</code>, which has no DNS at all), Caddy cannot resolve it — full stop.</p>
+    <h3 class="font-semibold text-ink-900 mt-4">{{t $ "page.docs.the_rule_4d88e08f"}}</h3>
+    <p>{{t $ "page.docs.docker_s_embedded_dns_only_resolves_container_na_044b9827"}} <strong>{{t $ "page.docs.same_user_defined_network_d1515d96"}}</strong>{{t $ "page.docs.if_caddy_is_on_network_7d4c61c2"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">proxy-net</code> {{t $ "page.docs.and_your_upstream_container_is_on_bffb6fcb"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">status-net</code> {{t $ "page.docs.or_on_the_default_1aece9cc"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">bridge</code>{{t $ "page.docs.which_has_no_dns_at_all_caddy_cannot_resolve_it_f_3815160a"}}</p>
 
-    <h3 class="font-semibold text-ink-900 mt-4">The fix: one shared network</h3>
-    <p>Create a single network (call it whatever — <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">caddy-net</code> is common) and attach <strong>every</strong> container Caddy needs to reach. Example <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">docker-compose.yml</code>:</p>
+    <h3 class="font-semibold text-ink-900 mt-4">{{t $ "page.docs.the_fix_one_shared_network_aebad474"}}</h3>
+    <p>{{t $ "page.docs.create_a_single_network_call_it_whatever_76c6048f"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">caddy-net</code> {{t $ "page.docs.is_common_and_attach_c7a29d62"}} <strong>{{t $ "page.docs.every_66a424a9"}}</strong> {{t $ "page.docs.container_caddy_needs_to_reach_example_5cdec56b"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">docker-compose.yml</code>:</p>
     <pre class="bg-ink-900 text-ink-100 text-xs rounded-lg p-3 overflow-x-auto"><code>services:
   caddy:
     image: caddy:latest
@@ -676,16 +674,16 @@ volumes:
   caddy_data:
   caddyui_data:
   kuma_data:</code></pre>
-    <p>Now in CaddyUI's proxy host, the <strong>Forward host</strong> is simply the service name (<code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">status-server</code>) — Docker's DNS resolves it to the container's internal IP.</p>
+    <p>{{t $ "page.docs.now_in_caddyui_s_proxy_host_the_0a6bba46"}} <strong>{{t $ "page.docs.forward_host_3e42647c"}}</strong> {{t $ "page.docs.is_simply_the_service_name_560bfac4"}}<code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">status-server</code>{{t $ "page.docs.docker_s_dns_resolves_it_to_the_container_s_inte_922b2a37"}}</p>
 
-    <h3 class="font-semibold text-ink-900 mt-4">Already-running containers: bolt them on</h3>
-    <p>If the app you want to expose was already running in a separate <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">docker-compose.yml</code>, you don't have to merge everything. Make the Caddy network <em>external</em> and import it on the other side:</p>
-    <p>In Caddy's compose file:</p>
+    <h3 class="font-semibold text-ink-900 mt-4">{{t $ "page.docs.already_running_containers_bolt_them_on_3f2383a8"}}</h3>
+    <p>{{t $ "page.docs.if_the_app_you_want_to_expose_was_already_runnin_1e45b504"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">docker-compose.yml</code>{{t $ "page.docs.you_don_t_have_to_merge_everything_make_the_cadd_6eb7e073"}} <em>{{t $ "page.docs.external_3c462384"}}</em> {{t $ "page.docs.and_import_it_on_the_other_side_7c9cf199"}}</p>
+    <p>{{t $ "page.docs.in_caddy_s_compose_file_525c5919"}}</p>
     <pre class="bg-ink-900 text-ink-100 text-xs rounded-lg p-3 overflow-x-auto"><code>networks:
   caddy-net:
     name: caddy-net
     driver: bridge</code></pre>
-    <p>In the other app's compose file:</p>
+    <p>{{t $ "page.docs.in_the_other_app_s_compose_file_ecdce9dd"}}</p>
     <pre class="bg-ink-900 text-ink-100 text-xs rounded-lg p-3 overflow-x-auto"><code>services:
   status-server:
     # … existing config …
@@ -696,19 +694,19 @@ volumes:
 networks:
   caddy-net:
     external: true</code></pre>
-    <p>The upstream keeps its own private network for talking to its database, AND joins <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">caddy-net</code> so Caddy can reach it.</p>
+    <p>{{t $ "page.docs.the_upstream_keeps_its_own_private_network_for_t_01627195"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">caddy-net</code> {{t $ "page.docs.so_caddy_can_reach_it_11ef6011"}}</p>
 
-    <h3 class="font-semibold text-ink-900 mt-4">No recompose? Connect a live container</h3>
+    <h3 class="font-semibold text-ink-900 mt-4">{{t $ "page.docs.no_recompose_connect_a_live_container_53e3273b"}}</h3>
     <pre class="bg-ink-900 text-ink-100 text-xs rounded-lg p-3 overflow-x-auto"><code>docker network connect caddy-net status-server</code></pre>
-    <p>Immediate, no restart. (But write it into compose too — this won't survive <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">docker compose up</code>.)</p>
+    <p>{{t $ "page.docs.immediate_no_restart_but_write_it_into_compose_t_00f8b5b2"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">docker compose up</code>.)</p>
 
-    <h3 class="font-semibold text-ink-900 mt-4">When the upstream isn't in Docker at all</h3>
+    <h3 class="font-semibold text-ink-900 mt-4">{{t $ "page.docs.when_the_upstream_isn_t_in_docker_at_all_72475061"}}</h3>
     <ul class="list-disc ml-5 space-y-1">
-      <li><strong>On the same host</strong> (a native systemd service, a bare-metal daemon): use <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">host.docker.internal</code> (Docker Desktop) or <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">172.17.0.1</code> / <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">host-gateway</code> on Linux.</li>
-      <li><strong>On another machine</strong>: use its LAN IP. Make sure the upstream is listening on all interfaces, not just <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">127.0.0.1</code>.</li>
+      <li><strong>{{t $ "page.docs.on_the_same_host_df3a8045"}}</strong> {{t $ "page.docs.a_native_systemd_service_a_bare_metal_daemon_use_ad86da9c"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">host.docker.internal</code> {{t $ "page.docs.docker_desktop_or_8ae15ffb"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">172.17.0.1</code> / <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">host-gateway</code> {{t $ "page.docs.on_linux_4b270a66"}}</li>
+      <li><strong>{{t $ "page.docs.on_another_machine_4b887bce"}}</strong>{{t $ "page.docs.use_its_lan_ip_make_sure_the_upstream_is_listeni_0fcee081"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">127.0.0.1</code>.</li>
     </ul>
 
-    <h3 class="font-semibold text-ink-900 mt-4">Quick diagnosis cheat sheet</h3>
+    <h3 class="font-semibold text-ink-900 mt-4">{{t $ "page.docs.quick_diagnosis_cheat_sheet_57934607"}}</h3>
     <pre class="bg-ink-900 text-ink-100 text-xs rounded-lg p-3 overflow-x-auto"><code># what network is Caddy on?
 docker inspect caddy --format '{{`{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}`}}'
 
@@ -718,10 +716,10 @@ docker exec caddy nslookup status-server
 
 # list everything on a given network
 docker network inspect caddy-net</code></pre>
-    <p>If <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">nslookup</code> works but <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">wget</code> fails, the DNS is fine but the upstream port is wrong — double-check the <strong>Forward port</strong> in CaddyUI.</p>
+    <p>{{t $ "page.docs.if_1e3abf61"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">nslookup</code> {{t $ "page.docs.works_but_394c4439"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">wget</code> {{t $ "page.docs.fails_the_dns_is_fine_but_the_upstream_port_is_w_238cf50c"}} <strong>{{t $ "page.docs.forward_port_99e73cdd"}}</strong> {{t $ "page.docs.in_caddyui_93ba683b"}}</p>
 
     <div class="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-xs text-amber-900">
-      <strong>Rule of thumb:</strong> any new upstream you add needs to either share a network with Caddy or be reached by host/LAN IP. A single <code class="px-1 py-0.5 bg-amber-100 rounded font-mono">caddy-net</code> that every service joins saves a lot of "why can't Caddy see this" debugging later.
+      <strong>{{t $ "page.docs.rule_of_thumb_ec0ffedb"}}</strong> {{t $ "page.docs.any_new_upstream_you_add_needs_to_either_share_a_7497a41d"}} <code class="px-1 py-0.5 bg-amber-100 rounded font-mono">caddy-net</code> {{t $ "page.docs.that_every_service_joins_saves_a_lot_of_why_can_t_ab9f1442"}}
     </div>
   </div>
 </section>
@@ -732,108 +730,107 @@ docker network inspect caddy-net</code></pre>
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
     </span>
-    FAQ & Troubleshooting
+    {{t $ "page.docs.faq_troubleshooting_5a3c3d47"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-4">
     <details class="group">
-      <summary class="font-medium text-ink-800 cursor-pointer">My domain won't get a certificate. Why?</summary>
+      <summary class="font-medium text-ink-800 cursor-pointer">{{t $ "page.docs.my_domain_won_t_get_a_certificate_why_d9886aec"}}</summary>
       <div class="mt-2 text-ink-600 space-y-1.5">
-        <p>Check, in order:</p>
+        <p>{{t $ "page.docs.check_in_order_83e01a8f"}}</p>
         <ol class="list-decimal ml-5 space-y-1">
-          <li>DNS A/AAAA record actually points at this server's public IP.</li>
-          <li>Ports <strong>80</strong> and <strong>443</strong> are open on your firewall and port-forwarded to Caddy.</li>
-          <li>You're not rate-limited by Let's Encrypt (5 fails per account/hostname/hour).</li>
-          <li>For wildcards or internal-only hosts, use a DNS-01 challenge — see Certificates.</li>
+          <li>{{t $ "page.docs.dns_a_aaaa_record_actually_points_at_this_server_6f78f33d"}}</li>
+          <li>{{t $ "page.docs.ports_de5648dd"}} <strong>80</strong> {{t $ "page.docs.and_6201111b"}} <strong>443</strong> {{t $ "page.docs.are_open_on_your_firewall_and_port_forwarded_to_c_279d26a9"}}</li>
+          <li>{{t $ "page.docs.you_re_not_rate_limited_by_let_s_encrypt_5_fails_4d405ab0"}}</li>
+          <li>{{t $ "page.docs.for_wildcards_or_internal_only_hosts_use_a_dns_0_071d3752"}}</li>
         </ol>
       </div>
     </details>
     <details class="group">
-      <summary class="font-medium text-ink-800 cursor-pointer">I changed a rule but the site still shows the old behavior.</summary>
+      <summary class="font-medium text-ink-800 cursor-pointer">{{t $ "page.docs.i_changed_a_rule_but_the_site_still_shows_the_ol_42cd46b9"}}</summary>
       <div class="mt-2 text-ink-600">
-        <p>Hard-refresh your browser (Ctrl/Cmd + Shift + R). Clients, CDNs, and service workers cache aggressively. On the Caddy side the config changes on save — no restart needed.</p>
+        <p>{{t $ "page.docs.hard_refresh_your_browser_ctrl_cmd_shift_r_clien_eae9a3d2"}}</p>
       </div>
     </details>
     <details class="group">
-      <summary class="font-medium text-ink-800 cursor-pointer">My proxy host gets a cert but returns 502 Bad Gateway.</summary>
+      <summary class="font-medium text-ink-800 cursor-pointer">{{t $ "page.docs.my_proxy_host_gets_a_cert_but_returns_502_bad_ga_6260bcd8"}}</summary>
       <div class="mt-2 text-ink-600 space-y-1.5">
-        <p>TLS succeeded, but Caddy can't reach the upstream. Usually a Docker network mismatch — if you see <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">lookup <em>name</em> on 127.0.0.11:53: server misbehaving</code> in the logs, your upstream container isn't on the same Docker network as Caddy.</p>
-        <p>See <a href="#docker-networking" class="text-brand-600 hover:text-brand-700">Docker networking</a> above for the full fix — short version: create one shared <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">caddy-net</code> and attach every container Caddy needs to reach.</p>
+        <p>{{t $ "page.docs.tls_succeeded_but_caddy_can_t_reach_the_upstream_63d44df2"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">lookup <em>name</em> on 127.0.0.11:53: server misbehaving</code> {{t $ "page.docs.in_the_logs_your_upstream_container_isn_t_on_the_bb71a16a"}}</p>
+        <p>{{t $ "page.docs.see_6863067e"}} <a href="#docker-networking" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.docker_networking_d0518ff2"}}</a> {{t $ "page.docs.above_for_the_full_fix_short_version_create_one_s_3283ce40"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">caddy-net</code> {{t $ "page.docs.and_attach_every_container_caddy_needs_to_reach_f6562113"}}</p>
       </div>
     </details>
     <details class="group">
-      <summary class="font-medium text-ink-800 cursor-pointer">"attempt to write a readonly database" / "database is locked"</summary>
+      <summary class="font-medium text-ink-800 cursor-pointer">{{t $ "page.docs.attempt_to_write_a_readonly_database_database_is_f0a98cd5"}}</summary>
       <div class="mt-2 text-ink-600 space-y-1.5">
         {{if eq .DatabaseBackend "mariadb"}}
-        <p>This message applies to SQLite installations. MariaDB connection or permission errors appear in the CaddyUI container log; verify <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">CADDYUI_DB_DSN</code>, network reachability, and the database user's grants.</p>
+        <p>{{t $ "page.docs.this_message_applies_to_sqlite_installations_mar_b34619e9"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">CADDYUI_DB_DSN</code>{{t $ "page.docs.network_reachability_and_the_database_user_s_gra_29bc2d0b"}}</p>
         {{else}}
-        <p><strong>Readonly:</strong> the data volume isn't writable by the container's user (UID 10001). Fix with <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">chown -R 10001:10001 /path/to/caddyui_data</code> and add <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">user: "10001:10001"</code> to your compose file.</p>
-        <p><strong>Locked:</strong> transient — CaddyUI uses WAL + busy-timeout to survive contention. If you see it constantly, your storage is very slow (NFS, SMB, etc.). Put the DB on local disk.</p>
+        <p><strong>{{t $ "page.docs.readonly_504e1433"}}</strong> {{t $ "page.docs.the_data_volume_isn_t_writable_by_the_container_s_fbda18a2"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">chown -R 10001:10001 /path/to/caddyui_data</code> {{t $ "page.docs.and_add_93a00376"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">user: "10001:10001"</code> {{t $ "page.docs.to_your_compose_file_9cd020d9"}}</p>
+        <p><strong>{{t $ "page.docs.locked_252fa934"}}</strong> {{t $ "page.docs.transient_caddyui_uses_wal_busy_timeout_to_survi_149e7af9"}}</p>
         {{end}}
       </div>
     </details>
     <details class="group">
-      <summary class="font-medium text-ink-800 cursor-pointer">Can I back up just the CaddyUI settings and re-import them?</summary>
+      <summary class="font-medium text-ink-800 cursor-pointer">{{t $ "page.docs.can_i_back_up_just_the_caddyui_settings_and_re_i_9a85d3ab"}}</summary>
       <div class="mt-2 text-ink-600">
         {{if eq .DatabaseBackend "mariadb"}}
-        <p>Back up MariaDB with <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">mariadb-dump</code>, a volume snapshot, or your database platform's backup and point-in-time recovery tools. Caddy configuration snapshots remain downloadable from the Snapshots page.</p>
+        <p>{{t $ "page.docs.back_up_mariadb_with_3ef5cdd5"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">mariadb-dump</code>{{t $ "page.docs.a_volume_snapshot_or_your_database_platform_s_ba_ca4e1c9e"}}</p>
         {{else}}
-        <p>Yes. Admins can download a full DB backup from <a href="/backup" class="text-brand-600 hover:text-brand-700">/backup</a>. To restore, stop the container, replace <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">/data/caddyui.db</code> with the backup file, start it again.</p>
+        <p>{{t $ "page.docs.yes_admins_can_download_a_full_db_backup_from_3d3b7413"}} <a href="/backup" class="text-brand-600 hover:text-brand-700">/backup</a>{{t $ "page.docs.to_restore_stop_the_container_replace_c3f627b6"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">/data/caddyui.db</code> {{t $ "page.docs.with_the_backup_file_start_it_again_99e99e57"}}</p>
         {{end}}
       </div>
     </details>
     <details class="group">
-      <summary class="font-medium text-ink-800 cursor-pointer">Is CaddyUI safe to expose on the internet?</summary>
+      <summary class="font-medium text-ink-800 cursor-pointer">{{t $ "page.docs.is_caddyui_safe_to_expose_on_the_internet_86829866"}}</summary>
       <div class="mt-2 text-ink-600">
-        <p>Yes, if you put it behind HTTPS (Caddy can reverse-proxy to itself) and enable 2FA + Cloudflare Turnstile in Settings. But the <strong>Caddy admin API</strong> on port 2019 must <em>never</em> be public — keep it on a private network.</p>
+        <p>{{t $ "page.docs.yes_if_you_put_it_behind_https_caddy_can_reverse_9f0e4dae"}} <strong>{{t $ "page.docs.caddy_admin_api_fa6b5ce7"}}</strong> {{t $ "page.docs.on_port_2019_must_c33b9f3a"}} <em>{{t $ "page.docs.never_6497e4b3"}}</em> {{t $ "page.docs.be_public_keep_it_on_a_private_network_d3117688"}}</p>
       </div>
     </details>
     <details class="group">
-      <summary class="font-medium text-ink-800 cursor-pointer">How do I secure port 2019 if I don't have WireGuard or Tailscale?</summary>
+      <summary class="font-medium text-ink-800 cursor-pointer">{{t $ "page.docs.how_do_i_secure_port_2019_if_i_don_t_have_wiregu_62c927e7"}}</summary>
       <div class="mt-2 text-ink-600 space-y-2">
-        <p>Caddy's admin API has no built-in password. You have three options that don't need a VPN:</p>
+        <p>{{t $ "page.docs.caddy_s_admin_api_has_no_built_in_password_you_h_1a723b78"}}</p>
         <ol class="list-decimal ml-5 space-y-2">
           <li>
-            <strong>Unix socket (simplest, local-only)</strong> — in your Caddyfile's global block, set
-            <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">admin unix//run/caddy-admin.sock</code>.
-            Bind-mount the socket path into the CaddyUI container (e.g. <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">/run/caddy:/run/caddy</code>) and set the server's Admin URL to <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">unix:///run/caddy/caddy-admin.sock</code>. No TCP port is opened at all — nothing to expose.
+            <strong>{{t $ "page.docs.unix_socket_simplest_local_only_7a5c7f3c"}}</strong> {{t $ "page.docs.in_your_caddyfile_s_global_block_set_cc7a6c50"}}
+            <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">admin unix//run/caddy-admin.sock</code>{{t $ "page.docs.bind_mount_the_socket_path_into_the_caddyui_cont_eb00bbea"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">/run/caddy:/run/caddy</code>{{t $ "page.docs.and_set_the_server_s_admin_url_to_954e09a8"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">unix:///run/caddy/caddy-admin.sock</code>{{t $ "page.docs.no_tcp_port_is_opened_at_all_nothing_to_expose_060f58e5"}}
           </li>
           <li>
-            <strong>Reverse proxy with HTTP Basic Auth</strong> — put another Caddy block (or nginx) in front of port 2019 with <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">basic_auth</code>. Enter the username/password in the <em>HTTP Basic Auth</em> section when adding the server; CaddyUI will send the credentials on every request. Works across the public internet if you put it behind HTTPS.
+            <strong>{{t $ "page.docs.reverse_proxy_with_http_basic_auth_b40e5c0d"}}</strong> {{t $ "page.docs.put_another_caddy_block_or_nginx_in_front_of_por_857e2426"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">basic_auth</code>{{t $ "page.docs.enter_the_username_password_in_the_81b50f67"}} <em>{{t $ "page.docs.http_basic_auth_a8b8b7c5"}}</em> {{t $ "page.docs.section_when_adding_the_server_caddyui_will_send_1c60df7f"}}
           </li>
           <li>
-            <strong>UFW / firewall allowlist</strong> — limit inbound port 2019 to known source IPs only. Weakest of the three (IP-based auth isn't great), but fine as a belt-and-suspenders layer on top of options 1 or 2. Concrete commands below.
+            <strong>{{t $ "page.docs.ufw_firewall_allowlist_ea82e099"}}</strong> {{t $ "page.docs.limit_inbound_port_2019_to_known_source_ips_only_0d3ce0f0"}}
           </li>
         </ol>
-        <p class="mt-2">Options 1 and 2 are both supported natively on the <a href="/servers" class="text-brand-600 hover:text-brand-700">Caddy Servers</a> form — you can start with a unix socket for local Caddy and add a remote server behind basic auth without changing anything else.</p>
+        <p class="mt-2">{{t $ "page.docs.options_1_and_2_are_both_supported_natively_on_t_f739e6a6"}} <a href="/servers" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.caddy_servers_6b6da6d9"}}</a> {{t $ "page.docs.form_you_can_start_with_a_unix_socket_for_local_c_91c61ffd"}}</p>
       </div>
     </details>
     <details class="group">
-      <summary class="font-medium text-ink-800 cursor-pointer">Example: firewall port 2019 to one source IP only (UFW / iptables)</summary>
+      <summary class="font-medium text-ink-800 cursor-pointer">{{t $ "page.docs.example_firewall_port_2019_to_one_source_ip_only_ad30bf0e"}}</summary>
       <div class="mt-2 text-ink-600 space-y-2">
-        <p>Use this when CaddyUI and Caddy are on different hosts and you want to block everyone except the CaddyUI host from hitting the admin API. Replace <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">203.0.113.5</code> with CaddyUI's public IP (or WireGuard/Tailscale address).</p>
-        <p class="font-medium mt-3">UFW (Ubuntu / Debian):</p>
+        <p>{{t $ "page.docs.use_this_when_caddyui_and_caddy_are_on_different_a6e6520f"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">203.0.113.5</code> {{t $ "page.docs.with_caddyui_s_public_ip_or_wireguard_tailscale_a_71473ac7"}}</p>
+        <p class="font-medium mt-3">{{t $ "page.docs.ufw_ubuntu_debian_aafc6358"}}</p>
         <pre class="bg-ink-900 text-ink-100 text-xs p-3 rounded-lg overflow-x-auto leading-relaxed"><code># On the Caddy host:
 sudo ufw allow from 203.0.113.5 to any port 2019 proto tcp
 sudo ufw deny 2019/tcp         # everyone else is blocked
 sudo ufw reload
 sudo ufw status numbered       # verify the rule order — allow must come first</code></pre>
-        <p class="font-medium mt-3">iptables (no UFW):</p>
+        <p class="font-medium mt-3">{{t $ "page.docs.iptables_no_ufw_baec02e9"}}</p>
         <pre class="bg-ink-900 text-ink-100 text-xs p-3 rounded-lg overflow-x-auto leading-relaxed"><code>sudo iptables -A INPUT -p tcp --dport 2019 -s 203.0.113.5 -j ACCEPT
 sudo iptables -A INPUT -p tcp --dport 2019 -j DROP
 # Persist across reboots:
 sudo apt install iptables-persistent
 sudo netfilter-persistent save</code></pre>
-        <p class="font-medium mt-3">If Caddy runs in Docker:</p>
-        <p>Docker bypasses UFW by writing its own iptables rules. Either:</p>
+        <p class="font-medium mt-3">{{t $ "page.docs.if_caddy_runs_in_docker_df3fdab7"}}</p>
+        <p>{{t $ "page.docs.docker_bypasses_ufw_by_writing_its_own_iptables_r_fbbc55f4"}}</p>
         <ul class="list-disc ml-5 space-y-1">
-          <li>Bind Caddy's admin port to the private interface only — in <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">docker-compose.yml</code> use <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">ports: ["10.8.0.1:2019:2019"]</code> instead of <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">"2019:2019"</code> so it never listens on <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">0.0.0.0</code>, <em>or</em></li>
-          <li>Don't publish port 2019 at all — attach the CaddyUI container to the same Docker network as Caddy, and set the Admin URL to <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">http://caddy:2019</code>. That's what the shipped <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">docker-compose.yml</code> already does.</li>
+          <li>{{t $ "page.docs.bind_caddy_s_admin_port_to_the_private_interface_f0fe3459"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">docker-compose.yml</code> {{t $ "page.docs.use_a3b142af"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">ports: ["10.8.0.1:2019:2019"]</code> {{t $ "page.docs.instead_of_a2c8bc5a"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">"2019:2019"</code> {{t $ "page.docs.so_it_never_listens_on_926600ed"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">0.0.0.0</code>, <em>{{t $ "page.docs.or_7175517a"}}</em></li>
+          <li>{{t $ "page.docs.don_t_publish_port_2019_at_all_attach_the_caddyu_a4417278"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">http://caddy:2019</code>{{t $ "page.docs.that_s_what_the_shipped_c7cdd953"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">docker-compose.yml</code> {{t $ "page.docs.already_does_7f4a5f8a"}}</li>
         </ul>
-        <p class="mt-2 text-amber-700"><strong>Check it worked:</strong> from a different machine, run <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">curl -m 5 http://&lt;caddy-host-ip&gt;:2019/config/</code>. It should hang or return "connection refused". From the CaddyUI host it should return JSON.</p>
+        <p class="mt-2 text-amber-700"><strong>{{t $ "page.docs.check_it_worked_df2ef455"}}</strong> {{t $ "page.docs.from_a_different_machine_run_14ca17c3"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">curl -m 5 http://&lt;caddy-host-ip&gt;:2019/config/</code>{{t $ "page.docs.it_should_hang_or_return_connection_refused_from_64407e5e"}}</p>
       </div>
     </details>
     <details class="group">
-      <summary class="font-medium text-ink-800 cursor-pointer">Example: Caddyfile with Unix socket admin endpoint</summary>
+      <summary class="font-medium text-ink-800 cursor-pointer">{{t $ "page.docs.example_caddyfile_with_unix_socket_admin_endpoin_beac137b"}}</summary>
       <div class="mt-2 text-ink-600 space-y-2">
         <pre class="bg-ink-900 text-ink-100 text-xs p-3 rounded-lg overflow-x-auto leading-relaxed"><code># Caddyfile
 {
@@ -842,7 +839,7 @@ sudo netfilter-persistent save</code></pre>
 
 # …your site blocks…
 </code></pre>
-        <p>In <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">docker-compose.yml</code>, share the socket directory between Caddy and CaddyUI:</p>
+        <p>{{t $ "page.docs.in_8bc1d53c"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">docker-compose.yml</code>{{t $ "page.docs.share_the_socket_directory_between_caddy_and_cad_61f4012b"}}</p>
         <pre class="bg-ink-900 text-ink-100 text-xs p-3 rounded-lg overflow-x-auto leading-relaxed"><code>services:
   caddy:
     volumes:
@@ -859,9 +856,9 @@ volumes:
       </div>
     </details>
     <details class="group">
-      <summary class="font-medium text-ink-800 cursor-pointer">Example: Caddy admin behind HTTP Basic Auth</summary>
+      <summary class="font-medium text-ink-800 cursor-pointer">{{t $ "page.docs.example_caddy_admin_behind_http_basic_auth_cb8b20f5"}}</summary>
       <div class="mt-2 text-ink-600 space-y-2">
-        <p>Run two Caddy instances (or two site blocks in one instance): one hosts your sites, the other terminates TLS and proxies <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">/</code> to the admin API with basic auth.</p>
+        <p>{{t $ "page.docs.run_two_caddy_instances_or_two_site_blocks_in_on_481e7d62"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">/</code> {{t $ "page.docs.to_the_admin_api_with_basic_auth_3e687cb1"}}</p>
         <pre class="bg-ink-900 text-ink-100 text-xs p-3 rounded-lg overflow-x-auto leading-relaxed"><code>admin.example.com {
     basic_auth {
         caddyui $2a$14$…bcrypt-hash…
@@ -869,25 +866,25 @@ volumes:
     reverse_proxy localhost:2019
 }
 </code></pre>
-        <p>Generate the bcrypt hash with <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">caddy hash-password</code>. Then add the server in CaddyUI with:</p>
+        <p>{{t $ "page.docs.generate_the_bcrypt_hash_with_b4ac11c2"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">caddy hash-password</code>{{t $ "page.docs.then_add_the_server_in_caddyui_with_4c6a1a62"}}</p>
         <ul class="list-disc ml-5">
-          <li><strong>Admin URL:</strong> <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">https://admin.example.com</code></li>
-          <li><strong>Username:</strong> <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">caddyui</code></li>
-          <li><strong>Password:</strong> the plaintext password that matches the hash</li>
+          <li><strong>{{t $ "page.docs.admin_url_e343de27"}}</strong> <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">https://admin.example.com</code></li>
+          <li><strong>{{t $ "page.docs.username_3806d61c"}}</strong> <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">caddyui</code></li>
+          <li><strong>{{t $ "page.docs.password_569b2482"}}</strong> {{t $ "page.docs.the_plaintext_password_that_matches_the_hash_3b609bd1"}}</li>
         </ul>
       </div>
     </details>
     <details class="group">
-      <summary class="font-medium text-ink-800 cursor-pointer">Where's the source code?</summary>
+      <summary class="font-medium text-ink-800 cursor-pointer">{{t $ "page.docs.where_s_the_source_code_26f8217e"}}</summary>
       <div class="mt-2 text-ink-600">
-        <p><a href="https://github.com/X4Applegate/caddyui" target="_blank" rel="noopener" class="text-brand-600 hover:text-brand-700">github.com/X4Applegate/caddyui</a> — MIT-licensed. Issues and PRs welcome.</p>
+        <p><a href="https://github.com/X4Applegate/caddyui" target="_blank" rel="noopener" class="text-brand-600 hover:text-brand-700">github.com/X4Applegate/caddyui</a> {{t $ "page.docs.mit_licensed_issues_and_prs_welcome_1fa708cf"}}</p>
       </div>
     </details>
   </div>
 </section>
 
 <div class="pt-4 border-t border-ink-200 text-xs text-ink-500 text-center">
-  Still stuck? Open an issue on <a href="https://github.com/X4Applegate/caddyui/issues" target="_blank" rel="noopener" class="text-brand-600 hover:text-brand-700">GitHub</a> and include your CaddyUI version from the sidebar.
+  {{t $ "page.docs.still_stuck_open_an_issue_on_cb3c2f83"}} <a href="https://github.com/X4Applegate/caddyui/issues" target="_blank" rel="noopener" class="text-brand-600 hover:text-brand-700">{{t $ "page.docs.github_f911e414"}}</a> {{t $ "page.docs.and_include_your_caddyui_version_from_the_sideba_3abba388"}}
 </div>
 
 </div>

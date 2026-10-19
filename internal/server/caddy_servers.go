@@ -162,15 +162,15 @@ func (s *Server) createServer(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 	if c.Name == "" {
-		renderErr("Name is required")
+		renderErr(s.tr(r, "message.caddy_servers.createserver.name_is_required_604fd1b2"))
 		return
 	}
 	if c.AdminURL == "" {
-		renderErr("Admin URL is required (e.g. http://10.0.0.2:2019 or unix:///run/caddy-admin.sock)")
+		renderErr(s.tr(r, "message.caddy_servers.createserver.admin_url_is_required_e_g_3921a74b"))
 		return
 	}
 	if !isValidAdminURL(c.AdminURL) {
-		renderErr("Admin URL must start with http://, https://, or unix:///")
+		renderErr(s.tr(r, "message.caddy_servers.createserver.admin_url_must_start_with_http_08e40296"))
 		return
 	}
 	// v2.56.0 (issue #113): adapt the pasted layer4 block against this
@@ -179,7 +179,7 @@ func (s *Server) createServer(w http.ResponseWriter, r *http.Request) {
 	// sync of this server from now on.
 	if c.Layer4Caddyfile != "" {
 		if _, err := buildLayer4App(caddy.New(c.AdminURL, c.AdminUsername, c.AdminPassword), c.Layer4Caddyfile); err != nil {
-			renderErr("Layer4 Caddyfile rejected by Caddy: " + err.Error())
+			renderErr(s.tr(r, "message.caddy_servers.createserver.layer4_caddyfile_rejected_by_caddy_d2dc05b2") + err.Error())
 			return
 		}
 	}
@@ -262,17 +262,17 @@ func (s *Server) updateServer(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 	if existing.Name == "" {
-		renderErr("Name is required")
+		renderErr(s.tr(r, "message.caddy_servers.updateserver.name_is_required_604fd1b2"))
 		return
 	}
 	if existing.AdminURL == "" || !isValidAdminURL(existing.AdminURL) {
-		renderErr("Admin URL must start with http://, https://, or unix:///")
+		renderErr(s.tr(r, "message.caddy_servers.updateserver.admin_url_must_start_with_http_08e40296"))
 		return
 	}
 	if s.caddyLogHub != nil {
 		if _, active := s.caddyLogHub.Capture(id); active {
 			if err := s.disableRuntimeLogCapture(previous); err != nil {
-				renderErr("Stop full server-log capture before changing this server: " + err.Error())
+				renderErr(s.tr(r, "message.caddy_servers.updateserver.stop_full_server_log_capture_before_8891df60") + err.Error())
 				return
 			}
 		}
@@ -281,7 +281,7 @@ func (s *Server) updateServer(w http.ResponseWriter, r *http.Request) {
 	// just-edited) admin URL/credentials before saving — see createServer.
 	if existing.Layer4Caddyfile != "" {
 		if _, err := buildLayer4App(caddy.New(existing.AdminURL, existing.AdminUsername, existing.AdminPassword), existing.Layer4Caddyfile); err != nil {
-			renderErr("Layer4 Caddyfile rejected by Caddy: " + err.Error())
+			renderErr(s.tr(r, "message.caddy_servers.updateserver.layer4_caddyfile_rejected_by_caddy_d2dc05b2") + err.Error())
 			return
 		}
 	}
@@ -290,7 +290,7 @@ func (s *Server) updateServer(w http.ResponseWriter, r *http.Request) {
 	// instead of leaving it to a warning in the form text.
 	for _, targetID := range existing.DefaultDeployTargetIDs() {
 		if t, err := models.GetCaddyServer(s.DB, targetID); err == nil && t.DefaultDeployTargetSet()[id] {
-			renderErr(fmt.Sprintf("%s already deploys to this server automatically. Pointing two servers at each other would make each save overwrite the other — remove %s from %s's targets, or untick it here.", t.Name, existing.Name, t.Name))
+			renderErr(fmt.Sprintf(s.tr(r, "message.caddy_servers.updateserver.s_already_deploys_to_this_server_992fba08"), t.Name, existing.Name, t.Name))
 			return
 		}
 	}

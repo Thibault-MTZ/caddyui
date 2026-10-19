@@ -1,43 +1,42 @@
-{{define "title"}}Activity · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.activity.activity_caddyui_003d0537"}}{{end}}
 {{define "content"}}
 <div class="mb-8">
-  <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Activity log</h1>
+  <h1 class="text-2xl font-semibold tracking-tight text-ink-900">{{t $ "page.activity.activity_log_a9d562d6"}}</h1>
   <p class="text-sm text-ink-500 mt-1 max-w-2xl">
-    Every mutation CaddyUI makes — create / update / delete of proxies, redirects, advanced routes,
-    certificates, plus every sync and snapshot. Newest first; last 500 shown.
+    {{t $ "page.activity.every_mutation_caddyui_makes_create_update_delet_16e9c370"}}
   </p>
 </div>
 
 <div class="flex items-center gap-3 mb-4 flex-wrap">
   <form method="get" action="/activity" class="flex items-center gap-2 flex-wrap">
-    <input type="text" name="search" value="{{.Search}}" placeholder="Search actions, actors, targets…"
+    <input type="text" name="search" value="{{.Search}}" placeholder="{{t $ "page.activity.placeholder.search_actions_actors_targets_12250401"}}"
       class="text-sm px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-72">
     <select name="action"
       class="rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-      <option value="" {{if eq .ActionFilter ""}}selected{{end}}>All actions</option>
-      <option value="proxy_host" {{if eq .ActionFilter "proxy_host"}}selected{{end}}>Proxy hosts</option>
-      <option value="sync" {{if eq .ActionFilter "sync"}}selected{{end}}>Sync</option>
-      <option value="cert" {{if eq .ActionFilter "cert"}}selected{{end}}>Certificates</option>
-      <option value="user" {{if eq .ActionFilter "user"}}selected{{end}}>Users</option>
-      <option value="settings" {{if eq .ActionFilter "settings"}}selected{{end}}>Settings</option>
-      <option value="login" {{if eq .ActionFilter "login"}}selected{{end}}>Login</option>
-      <option value="snapshot" {{if eq .ActionFilter "snapshot"}}selected{{end}}>Snapshots</option>
-      <option value="api_token" {{if eq .ActionFilter "api_token"}}selected{{end}}>API tokens</option>
+      <option value="" {{if eq .ActionFilter ""}}selected{{end}}>{{t $ "page.activity.all_actions_83140cf1"}}</option>
+      <option value="proxy_host" {{if eq .ActionFilter "proxy_host"}}selected{{end}}>{{t $ "page.activity.proxy_hosts_226e6362"}}</option>
+      <option value="sync" {{if eq .ActionFilter "sync"}}selected{{end}}>{{t $ "page.activity.sync_8d261a37"}}</option>
+      <option value="cert" {{if eq .ActionFilter "cert"}}selected{{end}}>{{t $ "page.activity.certificates_16f63792"}}</option>
+      <option value="user" {{if eq .ActionFilter "user"}}selected{{end}}>{{t $ "page.activity.users_6b0cc904"}}</option>
+      <option value="settings" {{if eq .ActionFilter "settings"}}selected{{end}}>{{t $ "page.activity.settings_74a883a0"}}</option>
+      <option value="login" {{if eq .ActionFilter "login"}}selected{{end}}>{{t $ "page.activity.login_9d6322c1"}}</option>
+      <option value="snapshot" {{if eq .ActionFilter "snapshot"}}selected{{end}}>{{t $ "page.activity.snapshots_f187f78e"}}</option>
+      <option value="api_token" {{if eq .ActionFilter "api_token"}}selected{{end}}>{{t $ "page.activity.api_tokens_fa884c0e"}}</option>
     </select>
-    <button type="submit" class="px-3 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">Search</button>
-    {{if or .Search .ActionFilter}}<a href="/activity" class="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">Clear</a>{{end}}
+    <button type="submit" class="px-3 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">{{t $ "page.activity.search_49c266ba"}}</button>
+    {{if or .Search .ActionFilter}}<a href="/activity" class="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">{{t $ "page.activity.clear_83b12c22"}}</a>{{end}}
   </form>
   <a href="/activity/export.csv{{if .Search}}?search={{.Search}}{{end}}" download
      class="inline-flex items-center gap-1.5 text-sm text-ink-600 hover:text-ink-800 border border-ink-200 hover:border-ink-300 px-3 py-1.5 rounded-lg transition">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
     </svg>
-    Export CSV
+    {{t $ "page.activity.export_csv_91f71c14"}}
   </a>
 </div>
 
 <div class="mb-3">
-  <input id="activity-search" type="search" placeholder="Filter by actor, action, target, or detail…" autocomplete="off"
+  <input id="activity-search" type="search" placeholder="{{t $ "page.activity.placeholder.filter_by_actor_action_target_or_detail_b661ab0a"}}" autocomplete="off"
     class="w-full max-w-sm rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
 </div>
 
@@ -45,12 +44,12 @@
   <table class="w-full text-sm" id="activity-table">
     <thead class="bg-ink-50/50 text-left">
       <tr class="text-xs uppercase tracking-wider text-ink-500">
-        <th class="px-5 py-3 font-medium">When</th>
-        <th class="px-5 py-3 font-medium">Actor</th>
-        <th class="px-5 py-3 font-medium">Action</th>
-        <th class="px-5 py-3 font-medium">Target</th>
-        <th class="px-5 py-3 font-medium">Detail</th>
-        <th class="px-5 py-3 font-medium">Result</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.activity.when_cf9c7aa2"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.activity.actor_449995c4"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.activity.action_64cff131"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.activity.target_978354db"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.activity.detail_fb5f27d5"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.activity.result_6e7d50e8"}}</th>
       </tr>
     </thead>
     <tbody>
@@ -64,16 +63,16 @@
         <td class="px-5 py-3 text-xs text-ink-600 break-all max-w-xs">{{if .Detail}}{{.Detail}}{{else}}<span class="text-ink-300">—</span>{{end}}</td>
         <td class="px-5 py-3 whitespace-nowrap">
           {{if .Success}}
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700"><span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>ok</span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700"><span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>{{t $ "page.activity.ok_2689367b"}}</span>
           {{else}}
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>failed</span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>{{t $ "page.activity.failed_5d28a90f"}}</span>
           {{end}}
         </td>
       </tr>
       {{else}}
       <tr>
         <td colspan="6" class="px-5 py-16 text-center">
-          <div class="text-ink-400 text-sm">No activity yet.</div>
+          <div class="text-ink-400 text-sm">{{t $ "page.activity.no_activity_yet_a288d2d0"}}</div>
         </td>
       </tr>
       {{end}}

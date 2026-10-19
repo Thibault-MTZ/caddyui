@@ -1,20 +1,20 @@
-{{define "title"}}Two-Factor Authentication · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.totp_setup.two_factor_authentication_caddyui_e86607a9"}}{{end}}
 {{define "content"}}
 <div class="max-w-lg">
   <div class="mb-6">
-    <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Two-Factor Authentication</h1>
-    <p class="text-sm text-ink-500 mt-1">Secure your account with an authenticator app.</p>
+    <h1 class="text-2xl font-semibold tracking-tight text-ink-900">{{t $ "page.totp_setup.two_factor_authentication_bc074b60"}}</h1>
+    <p class="text-sm text-ink-500 mt-1">{{t $ "page.totp_setup.secure_your_account_with_an_authenticator_app_b064b153"}}</p>
   </div>
 
   {{if .Required}}
   <div class="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl mb-4 text-sm">
-    Two-factor authentication is required for all users. Please set it up to continue.
+    {{t $ "page.totp_setup.two_factor_authentication_is_required_for_all_us_8545b393"}}
   </div>
   {{end}}
 
   {{if .Enforce}}
   <div class="bg-amber-50 border border-amber-200 rounded-xl px-5 py-3 mb-5 text-sm text-amber-800">
-    <strong>Two-factor authentication required.</strong> Your administrator requires all users to enroll TOTP before accessing CaddyUI. Please set it up now.
+    <strong>{{t $ "page.totp_setup.two_factor_authentication_required_e263d513"}}</strong> {{t $ "page.totp_setup.your_administrator_requires_all_users_to_enroll_t_713401f6"}}
   </div>
   {{end}}
 
@@ -22,16 +22,16 @@
   <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6">
     <h2 class="text-sm font-semibold text-amber-800 mb-2 flex items-center gap-2">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-      Backup codes — copy now, shown once
+      {{t $ "page.totp_setup.backup_codes_copy_now_shown_once_577b46b4"}}
     </h2>
-    <p class="text-xs text-amber-700 mb-3">These 10 single-use codes let you sign in if you lose your authenticator app. Store them somewhere safe.</p>
+    <p class="text-xs text-amber-700 mb-3">{{t $ "page.totp_setup.these_10_single_use_codes_let_you_sign_in_if_you_7bf7a56b"}}</p>
     <div id="backup-codes-grid" class="grid grid-cols-2 gap-2 mb-3">
       {{range .BackupCodes}}
       <code class="font-mono text-sm bg-white border border-amber-200 rounded px-2 py-1 text-center select-all">{{.}}</code>
       {{end}}
     </div>
-    <button type="button" onclick="(function(){var codes=[];document.querySelectorAll('#backup-codes-grid code').forEach(function(el){codes.push(el.textContent)});navigator.clipboard&&navigator.clipboard.writeText(codes.join('\n')).then(function(){this.textContent='Copied!';setTimeout(function(){this.textContent='Copy all'},2000)}.bind(this))}.call(this))"
-      class="text-xs bg-amber-100 hover:bg-amber-200 text-amber-800 font-medium px-3 py-1.5 rounded-lg transition">Copy all</button>
+    <button type="button" onclick="(function(){var codes=[];document.querySelectorAll('#backup-codes-grid code').forEach(function(el){codes.push(el.textContent)});navigator.clipboard&&navigator.clipboard.writeText(codes.join('\n')).then(function(){this.textContent=caddyuiT('js.totp_setup.copied_ea61bc15');setTimeout(function(){this.textContent=caddyuiT('js.totp_setup.copy_all_96e3f09a')},2000)}.bind(this))}.call(this))"
+      class="text-xs bg-amber-100 hover:bg-amber-200 text-amber-800 font-medium px-3 py-1.5 rounded-lg transition">{{t $ "page.totp_setup.copy_all_96e3f09a"}}</button>
   </div>
   {{end}}
 
@@ -40,48 +40,48 @@
   <div class="bg-white border border-ink-200 rounded-xl p-4 mb-4 text-sm">
     <div class="flex items-center justify-between">
       <div>
-        <span class="font-medium text-ink-800">Backup codes</span>
-        <span class="ml-2 text-ink-500">{{.BackupCodeCount}} remaining</span>
+        <span class="font-medium text-ink-800">{{t $ "page.totp_setup.backup_codes_a13fe23d"}}</span>
+        <span class="ml-2 text-ink-500">{{.BackupCodeCount}} {{t $ "page.totp_setup.remaining_43e3ece7"}}</span>
       </div>
       <form method="post" action="/totp/regenerate-backup-codes" class="flex items-center gap-2"
-            onsubmit="return confirm('Regenerate backup codes? Your existing codes will be invalidated.')">
-        <input type="password" name="current_password" required autocomplete="current-password" placeholder="Current password"
+            onsubmit="return confirm(caddyuiT('js.totp_setup.regenerate_backup_codes_your_existing_codes_will_ed5eb751'))">
+        <input type="password" name="current_password" required autocomplete="current-password" placeholder="{{t $ "page.totp_setup.placeholder.current_password_72ed2bd7"}}"
                class="w-40 rounded-lg border border-ink-200 px-2 py-1 text-xs bg-white focus:border-brand-500 focus:outline-none" />
-        <button type="submit" class="text-xs text-brand-600 hover:text-brand-800 font-medium transition">Regenerate</button>
+        <button type="submit" class="text-xs text-brand-600 hover:text-brand-800 font-medium transition">{{t $ "page.totp_setup.regenerate_1651031b"}}</button>
       </form>
     </div>
   </div>
   {{end}}
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 mb-4">
     <div class="flex items-center gap-3 mb-4">
-      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-700"><span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>Enabled</span>
-      <span class="text-sm text-ink-600">2FA is active on your account.</span>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-700"><span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>{{t $ "page.totp_setup.enabled_92c1cdfd"}}</span>
+      <span class="text-sm text-ink-600">{{t $ "page.totp_setup.2fa_is_active_on_your_account_70b54061"}}</span>
     </div>
     {{if .Error}}<div data-toast="error" class="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg mb-3">{{.Error}}</div>{{end}}
-    <form method="post" action="/totp/setup" onsubmit="return confirm('Disable two-factor authentication?')" class="flex flex-wrap items-center gap-2">
+    <form method="post" action="/totp/setup" onsubmit="return confirm(caddyuiT('js.totp_setup.disable_two_factor_authentication_742b58b1'))" class="flex flex-wrap items-center gap-2">
       <input type="hidden" name="action" value="disable">
-      <input type="password" name="current_password" required autocomplete="current-password" placeholder="Current password"
+      <input type="password" name="current_password" required autocomplete="current-password" placeholder="{{t $ "page.totp_setup.placeholder.current_password_72ed2bd7"}}"
              class="w-48 rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:outline-none" />
-      <button class="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 text-sm font-medium px-4 py-2 rounded-lg transition">Disable 2FA</button>
+      <button class="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 text-sm font-medium px-4 py-2 rounded-lg transition">{{t $ "page.totp_setup.disable_2fa_1c3193f3"}}</button>
     </form>
-    <p class="text-xs text-ink-400 mt-2">Disabling two-factor authentication or regenerating backup codes asks for your current password, so a stolen browser session cannot remove your second factor.</p>
+    <p class="text-xs text-ink-400 mt-2">{{t $ "page.totp_setup.disabling_two_factor_authentication_or_regenerat_2ce7f317"}}</p>
   </div>
   {{else}}
   {{if .Error}}<div data-toast="error" class="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-lg mb-4">{{.Error}}</div>{{end}}
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5">
-    <h2 class="text-sm font-semibold text-ink-800 mb-3">Setup authenticator</h2>
+    <h2 class="text-sm font-semibold text-ink-800 mb-3">{{t $ "page.totp_setup.setup_authenticator_8022ef41"}}</h2>
     <ol class="text-sm text-ink-600 space-y-2 mb-4">
-      <li class="flex gap-2"><span class="font-medium text-ink-800 shrink-0">1.</span>Install an authenticator app (Google Authenticator, Authy, 1Password, etc.)</li>
-      <li class="flex gap-2"><span class="font-medium text-ink-800 shrink-0">2.</span>Scan the QR code below or enter the secret key manually.</li>
-      <li class="flex gap-2"><span class="font-medium text-ink-800 shrink-0">3.</span>Enter the 6-digit code to verify and enable.</li>
+      <li class="flex gap-2"><span class="font-medium text-ink-800 shrink-0">1.</span>{{t $ "page.totp_setup.install_an_authenticator_app_google_authenticato_09754c64"}}</li>
+      <li class="flex gap-2"><span class="font-medium text-ink-800 shrink-0">2.</span>{{t $ "page.totp_setup.scan_the_qr_code_below_or_enter_the_secret_key_m_f0a501b5"}}</li>
+      <li class="flex gap-2"><span class="font-medium text-ink-800 shrink-0">3.</span>{{t $ "page.totp_setup.enter_the_6_digit_code_to_verify_and_enable_28f75339"}}</li>
     </ol>
 
     <div class="flex flex-col items-center gap-3 mb-5 p-4 bg-ink-50 rounded-lg">
       {{if .OTPQRCode}}
-      <img src="{{.OTPQRCode}}" alt="QR code for authenticator app enrolment" width="160" height="160"
+      <img src="{{.OTPQRCode}}" alt="{{t $ "page.totp_setup.alt.qr_code_for_authenticator_app_enrolment_701f65e6"}}" width="160" height="160"
         class="w-40 h-40 bg-white rounded p-1" />
       {{else}}
-      <p class="w-40 text-[11px] text-ink-500 text-center">QR code unavailable — enter the key below manually.</p>
+      <p class="w-40 text-[11px] text-ink-500 text-center">{{t $ "page.totp_setup.qr_code_unavailable_enter_the_key_below_manually_ae3c8810"}}</p>
       {{end}}
       <p class="text-[11px] font-mono text-ink-500 break-all text-center max-w-xs">{{.Secret}}</p>
     </div>
@@ -90,12 +90,12 @@
       <input type="hidden" name="action" value="enable">
       <input type="hidden" name="secret" value="{{.Secret}}">
       <div class="mb-4">
-        <label class="block text-xs font-medium text-ink-700 mb-1">Verification code</label>
+        <label class="block text-xs font-medium text-ink-700 mb-1">{{t $ "page.totp_setup.verification_code_3ee75029"}}</label>
         <input type="text" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code"
           class="w-full border border-ink-200 rounded-lg px-3 py-2.5 text-sm text-center tracking-widest font-mono focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition"
           placeholder="000000">
       </div>
-      <button class="w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium py-2.5 rounded-lg transition">Enable 2FA</button>
+      <button class="w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium py-2.5 rounded-lg transition">{{t $ "page.totp_setup.enable_2fa_649b5dc5"}}</button>
     </form>
   </div>
   {{end}}

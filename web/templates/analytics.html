@@ -1,12 +1,12 @@
-{{define "title"}}Analytics · CaddyUI{{end}}
+{{define "title"}}{{t $ "analytics.heading"}} {{t $ "page.analytics.caddyui_a80cd555"}}{{end}}
 {{define "content"}}
 <div class="flex items-start justify-between mb-6 gap-6 flex-wrap">
   <div>
-    <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Analytics</h1>
+    <h1 class="text-2xl font-semibold tracking-tight text-ink-900">{{t $ "analytics.analytics"}}</h1>
     <p class="text-sm text-ink-500 mt-1 max-w-2xl">
-      Privacy-light visitor stats built from Caddy's access logs.
-      {{if .IsAdmin}}{{if eq .SelectedServerID 0}}You're seeing events handled across the fleet.{{else}}You're seeing requests actually handled by the selected node.{{end}}
-      {{else}}You're seeing the hosts you own.{{end}}
+      {{t $ "analytics.description"}}
+      {{if .IsAdmin}}{{if eq .SelectedServerID 0}}{{t $ "analytics.scope.fleet"}}{{else}}{{t $ "analytics.scope.node"}}{{end}}
+      {{else}}{{t $ "analytics.scope.owned"}}{{end}}
     </p>
   </div>
   <div class="flex items-center gap-2 flex-wrap">
@@ -16,14 +16,14 @@
          nav: changing this picker doesn't rewrite the admin's working
          server context, it just narrows what this one page shows. */}}
     {{if gt (len .AllServers) 1}}
-    <label class="text-xs text-ink-500 font-medium">Server</label>
+    <label class="text-xs text-ink-500 font-medium">{{t $ "analytics.server"}}</label>
     {{/* v2.12.13: picker always sets ?server= explicitly (either a numeric
          ID or 'all') so the URL is canonical / shareable. Bare /analytics
          (e.g. from the sidebar) defaults to the picker-active server. */}}
     <select
       class="text-sm border border-ink-200 rounded-lg px-2 py-1.5 bg-white hover:border-ink-300 focus:border-brand-400 focus:ring-1 focus:ring-brand-100 transition"
       onchange="window.location='/analytics?server='+encodeURIComponent(this.value);">
-      <option value="all" {{if eq .SelectedServerID 0}}selected{{end}}>All servers (slow)</option>
+      <option value="all" {{if eq .SelectedServerID 0}}selected{{end}}>{{t $ "analytics.all_servers_slow"}}</option>
       {{range .AllServers}}
       <option value="{{.ID}}" {{if eq $.SelectedServerID .ID}}selected{{end}}>{{.Name}}</option>
       {{end}}
@@ -34,12 +34,12 @@
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
       </svg>
-      Export CSV
+      {{t $ "analytics.export_csv"}}
     </a>
     {{if .IsAdmin}}
     <a href="/settings/analytics" class="inline-flex items-center gap-1.5 text-sm text-brand-600 hover:text-brand-700 border border-brand-200 hover:border-brand-300 px-3 py-1.5 rounded-lg transition">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="12" cy="12" r="3"/></svg>
-      Settings
+      {{t $ "analytics.settings"}}
     </a>
     {{end}}
   </div>
@@ -49,8 +49,8 @@
 <div class="bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 mb-6 flex items-start gap-3">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
   <div class="flex-1">
-    <div class="text-sm font-medium text-amber-900">Access log forwarding is off</div>
-    <p class="text-xs text-amber-800 mt-0.5">Turn it on in <a href="/settings/analytics" class="underline font-medium">Settings → Analytics</a> to start collecting visitor data.</p>
+    <div class="text-sm font-medium text-amber-900">{{t $ "analytics.access_log_forwarding_is_off"}}</div>
+    <p class="text-xs text-amber-800 mt-0.5">{{t $ "analytics.turn_it_on_in"}} <a href="/settings/analytics" class="underline font-medium">{{t $ "analytics.settings_analytics"}}</a> {{t $ "analytics.to_start_collecting_visitor_data"}}</p>
   </div>
 </div>
 {{end}}{{end}}
@@ -58,35 +58,35 @@
 {{/* ── Summary cards ── */}}
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Live now</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.live_now"}}</div>
     <div class="mt-1 flex items-baseline gap-2">
       <div class="text-2xl font-semibold text-ink-900">{{.LiveVisitors}}</div>
-      <div class="text-xs text-ink-400">last 5 min</div>
+      <div class="text-xs text-ink-400">{{t $ "analytics.last_5_min"}}</div>
     </div>
   </div>
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Today</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.today"}}</div>
     <div class="mt-1 flex items-baseline gap-2">
       <div class="text-2xl font-semibold text-ink-900">{{.Today.Visitors}}</div>
-      <div class="text-xs text-ink-400">visitors · {{.Today.Views}} views</div>
+      <div class="text-xs text-ink-400">{{t $ "analytics.visitors_views" "views" .Today.Views}}</div>
     </div>
   </div>
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Last 7 days</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.last_7_days"}}</div>
     <div class="mt-1 flex items-baseline gap-2">
       <div class="text-2xl font-semibold text-ink-900">{{.SevenDay.Visitors}}</div>
-      <div class="text-xs text-ink-400">visitors · {{.SevenDay.Views}} views</div>
+      <div class="text-xs text-ink-400">{{t $ "analytics.visitors_views" "views" .SevenDay.Views}}</div>
     </div>
   </div>
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Status mix (7d)</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.status_mix_7d"}}</div>
     <div class="mt-1 flex items-center gap-2 text-xs">
       <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>{{.Status.S2xx}}</span>
       <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span>{{.Status.S3xx}}</span>
       <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span>{{.Status.S4xx}}</span>
       <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span>{{.Status.S5xx}}</span>
     </div>
-    <div class="mt-1 text-[10px] text-ink-400">2xx · 3xx · 4xx · 5xx</div>
+    <div class="mt-1 text-[10px] text-ink-400">{{t $ "page.analytics.2xx_3xx_4xx_5xx_d7726232"}}</div>
   </div>
 </div>
 
@@ -94,8 +94,8 @@
 <div class="bg-white border border-ink-200 rounded-xl p-4 mb-6 shadow-card">
   <div class="flex items-baseline justify-between mb-3">
     <div>
-      <div class="text-sm font-medium text-ink-800">Requests, last 24 hours</div>
-      <div class="text-xs text-ink-400">1-hour buckets</div>
+      <div class="text-sm font-medium text-ink-800">{{t $ "analytics.requests_last_24_hours"}}</div>
+      <div class="text-xs text-ink-400">{{t $ "analytics.1_hour_buckets"}}</div>
     </div>
   </div>
   {{if .Sparkline}}
@@ -109,7 +109,7 @@
     {{end}}
   </svg>
   {{else}}
-  <div class="py-8 text-center text-sm text-ink-400">No data in the last 24 hours.</div>
+  <div class="py-8 text-center text-sm text-ink-400">{{t $ "analytics.no_data_in_the_last_24_hours"}}</div>
   {{end}}
 </div>
 
@@ -117,11 +117,11 @@
 <div class="bg-white border border-ink-200 rounded-xl p-4 mb-6 shadow-card">
   <div class="flex items-baseline justify-between mb-3">
     <div>
-      <div class="text-sm font-medium text-ink-800">Bandwidth out, last 24 hours</div>
-      <div class="text-xs text-ink-400">1-hour buckets</div>
+      <div class="text-sm font-medium text-ink-800">{{t $ "analytics.bandwidth_out_last_24_hours"}}</div>
+      <div class="text-xs text-ink-400">{{t $ "analytics.1_hour_buckets"}}</div>
     </div>
     <div class="text-xs text-ink-500 font-medium">
-      {{fmtBytes .BandwidthTotal}} total
+      {{t $ "analytics.total_bytes" "bytes" (fmtBytes .BandwidthTotal)}}
     </div>
   </div>
   {{if .BandwidthSparkline}}
@@ -133,24 +133,24 @@
     {{end}}
   </svg>
   {{else}}
-  <div class="py-8 text-center text-sm text-ink-400">No bandwidth data in the last 24 hours.</div>
+  <div class="py-8 text-center text-sm text-ink-400">{{t $ "analytics.no_bandwidth_data_in_the_last_24_hours"}}</div>
   {{end}}
 </div>
 
 {{/* ── Per-host table ── */}}
 <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-x-auto mb-6">
   <div class="flex items-baseline justify-between px-5 pt-4 pb-2">
-    <div class="text-sm font-medium text-ink-800">Top hosts, last 7 days</div>
-    <div class="text-xs text-ink-400">click a row to drill down</div>
+    <div class="text-sm font-medium text-ink-800">{{t $ "analytics.top_hosts_last_7_days"}}</div>
+    <div class="text-xs text-ink-400">{{t $ "analytics.click_a_row_to_drill_down"}}</div>
   </div>
   <table class="w-full text-sm min-w-[640px]">
     <thead class="bg-ink-50/50 text-left">
       <tr class="text-xs uppercase tracking-wider text-ink-500">
-        <th class="px-5 py-3 font-medium">Host</th>
-        <th class="px-5 py-3 font-medium">Visitors</th>
-        <th class="px-5 py-3 font-medium">Views</th>
-        <th class="px-5 py-3 font-medium">Top path</th>
-        <th class="px-5 py-3 font-medium">Last visit</th>
+        <th class="px-5 py-3 font-medium">{{t $ "analytics.host"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "analytics.visitors"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "analytics.views"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "analytics.top_path"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "analytics.last_visit"}}</th>
       </tr>
     </thead>
     <tbody>
@@ -160,7 +160,7 @@
         <td class="px-5 py-3 text-ink-700 font-mono">{{.Visitors}}</td>
         <td class="px-5 py-3 text-ink-700 font-mono">{{.Views}}</td>
         <td class="px-5 py-3 text-ink-600 font-mono text-xs truncate max-w-[220px]">{{.TopPath}}</td>
-        <td class="px-5 py-3 font-mono text-xs text-ink-500">{{fmtRel .LastVisit}}</td>
+        <td class="px-5 py-3 font-mono text-xs text-ink-500">{{fmtRelT $ .LastVisit}}</td>
       </tr>
       {{else}}
       <tr>
@@ -168,13 +168,13 @@
           <div class="w-12 h-12 mx-auto bg-ink-100 rounded-full flex items-center justify-center mb-3">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-ink-400"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           </div>
-          <div class="text-ink-600 text-sm font-medium">No traffic yet</div>
+          <div class="text-ink-600 text-sm font-medium">{{t $ "analytics.no_traffic_yet"}}</div>
           <p class="text-xs text-ink-500 mt-1 max-w-sm mx-auto">
-          {{if .IsAdmin}}{{if .AnalyticsEnabled}}Waiting for Caddy to ship its first access log entry. Make sure your Caddy container can resolve the ingest target.{{else}}Enable access log forwarding in <a href="/settings/analytics" class="underline">Settings → Analytics</a>.{{end}}{{else}}No traffic has been recorded for the hosts you own yet.{{end}}
+          {{if .IsAdmin}}{{if .AnalyticsEnabled}}{{t $ "analytics.empty.waiting"}}{{else}}{{t $ "analytics.enable_access_log_forwarding_in"}} <a href="/settings/analytics" class="underline">{{t $ "analytics.settings_analytics"}}</a>.{{end}}{{else}}{{t $ "analytics.empty.owned"}}{{end}}
           </p>
           {{/* v2.37.0: with one node in scope, say where it ships its logs and why that may fail */}}
           {{with .ScopeIngest}}{{if $.IsAdmin}}
-          <p class="text-xs text-ink-500 mt-2 max-w-md mx-auto">{{.ServerName}} sends its logs to <code class="font-mono text-ink-700">{{.Target}}</code>{{if .Warning}} — <span class="text-amber-700">{{.Warning}}</span> <a href="/servers/{{.ServerID}}/edit" class="underline">Set its ingest target.</a>{{else}}.{{end}}</p>
+          <p class="text-xs text-ink-500 mt-2 max-w-md mx-auto">{{.ServerName}} {{t $ "analytics.sends_its_logs_to"}} <code class="font-mono text-ink-700">{{.Target}}</code>{{if .Warning}} — <span class="text-amber-700">{{.Warning}}</span> <a href="/servers/{{.ServerID}}/edit" class="underline">{{t $ "analytics.set_its_ingest_target"}}</a>{{else}}.{{end}}</p>
           {{end}}{{end}}
         </td>
       </tr>
@@ -187,25 +187,25 @@
 {{if and .IsAdmin .IngestStats}}
 <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
   <div class="flex items-baseline justify-between mb-3">
-    <div class="text-sm font-medium text-ink-800">Ingest pipeline</div>
+    <div class="text-sm font-medium text-ink-800">{{t $ "analytics.ingest_pipeline"}}</div>
     <div>
       {{if .IngestStats.Healthy}}
       <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>receiving events
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>{{t $ "analytics.receiving_events"}}
       </span>
       {{else}}
       <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-600">
-        <span class="w-1.5 h-1.5 rounded-full bg-ink-400"></span>idle
+        <span class="w-1.5 h-1.5 rounded-full bg-ink-400"></span>{{t $ "analytics.idle"}}
       </span>
       {{end}}
     </div>
   </div>
   <dl class="grid grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
-    <div><dt class="text-xs text-ink-500">Connections</dt><dd class="font-mono text-ink-800">{{.IngestStats.Connections}}</dd></div>
-    <div><dt class="text-xs text-ink-500">Events</dt><dd class="font-mono text-ink-800">{{.IngestStats.Events}}</dd></div>
-    <div><dt class="text-xs text-ink-500">Excluded</dt><dd class="font-mono text-ink-800">{{.IngestStats.Excluded}}</dd></div>
-    <div><dt class="text-xs text-ink-500">Errors</dt><dd class="font-mono text-ink-800">{{.IngestStats.Errors}}</dd></div>
-    <div><dt class="text-xs text-ink-500">Last event</dt><dd class="font-mono text-ink-800 text-xs">{{if gt .IngestStats.Events 0}}{{fmtRel .IngestStats.LastEvent}}{{else}}never{{end}}</dd></div>
+    <div><dt class="text-xs text-ink-500">{{t $ "analytics.connections"}}</dt><dd class="font-mono text-ink-800">{{.IngestStats.Connections}}</dd></div>
+    <div><dt class="text-xs text-ink-500">{{t $ "analytics.events"}}</dt><dd class="font-mono text-ink-800">{{.IngestStats.Events}}</dd></div>
+    <div><dt class="text-xs text-ink-500">{{t $ "analytics.excluded"}}</dt><dd class="font-mono text-ink-800">{{.IngestStats.Excluded}}</dd></div>
+    <div><dt class="text-xs text-ink-500">{{t $ "analytics.errors"}}</dt><dd class="font-mono text-ink-800">{{.IngestStats.Errors}}</dd></div>
+    <div><dt class="text-xs text-ink-500">{{t $ "analytics.last_event"}}</dt><dd class="font-mono text-ink-800 text-xs">{{if gt .IngestStats.Events 0}}{{fmtRelT $ .IngestStats.LastEvent}}{{else}}{{t $ "analytics.never"}}{{end}}</dd></div>
   </dl>
 </div>
 {{end}}

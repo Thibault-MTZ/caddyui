@@ -1,14 +1,14 @@
-{{define "title"}}Middleware profiles · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.middleware_profiles.middleware_profiles_caddyui_a916d301"}}{{end}}
 {{define "content"}}
 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-8 gap-4 sm:gap-6">
   <div>
-    <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Middleware profiles</h1>
+    <h1 class="text-2xl font-semibold tracking-tight text-ink-900">{{t $ "page.middleware_profiles.middleware_profiles_1a62994b"}}</h1>
     <p class="text-sm text-ink-500 mt-1 max-w-2xl">
-      Reusable bundles of HTTP policy — <strong>security headers</strong>, <strong>forward auth</strong> (for example Authentik or Authelia), <strong>IP restrictions</strong> and <strong>extra headers</strong> — configured once and picked on any number of proxy hosts. Editing a profile re-syncs every server that has a host using it. A value set on a host itself wins; empty host fields inherit the profile.
+      {{t $ "page.middleware_profiles.reusable_bundles_of_http_policy_62e196ee"}} <strong>{{t $ "page.middleware_profiles.security_headers_8c5a42e6"}}</strong>, <strong>{{t $ "page.middleware_profiles.forward_auth_9975e5a0"}}</strong> {{t $ "page.middleware_profiles.for_example_authentik_or_authelia_9619aee5"}} <strong>{{t $ "page.middleware_profiles.ip_restrictions_ec05e832"}}</strong> {{t $ "page.middleware_profiles.and_6201111b"}} <strong>{{t $ "page.middleware_profiles.extra_headers_127de45f"}}</strong> {{t $ "page.middleware_profiles.configured_once_and_picked_on_any_number_of_prox_d91f66e9"}}
     </p>
   </div>
   <div class="flex gap-2 w-full sm:w-auto sm:shrink-0">
-    <a href="/middleware-profiles/new" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition">New profile</a>
+    <a href="/middleware-profiles/new" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition">{{t $ "page.middleware_profiles.new_profile_fcf4f3f4"}}</a>
   </div>
 </div>
 
@@ -24,10 +24,10 @@
   <table class="w-full text-sm">
     <thead>
       <tr class="text-left text-xs uppercase tracking-wider text-ink-500 border-b border-ink-100">
-        <th class="px-4 py-3 font-medium">Name</th>
-        <th class="px-4 py-3 font-medium">Includes</th>
-        <th class="px-4 py-3 font-medium">Hosts</th>
-        <th class="px-4 py-3 font-medium text-right">Actions</th>
+        <th class="px-4 py-3 font-medium">{{t $ "page.middleware_profiles.name_dcd1d522"}}</th>
+        <th class="px-4 py-3 font-medium">{{t $ "page.middleware_profiles.includes_df498282"}}</th>
+        <th class="px-4 py-3 font-medium">{{t $ "page.middleware_profiles.hosts_bba9af13"}}</th>
+        <th class="px-4 py-3 font-medium text-right">{{t $ "page.middleware_profiles.actions_ff8059dc"}}</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-ink-100">
@@ -39,20 +39,20 @@
         </td>
         <td class="px-4 py-3">
           <div class="flex flex-wrap gap-1.5">
-            {{if .SecurityHeaders}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5">security headers</span>{{end}}
-            {{if .ForwardAuthURL}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5">forward auth</span>{{end}}
-            {{if .AccessList}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5">allowlist</span>{{end}}
-            {{if .IPBlocklist}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5">blocklist</span>{{end}}
-            {{if .WAFMode}}<span class="text-[10px] uppercase tracking-wide rounded {{if eq .WAFMode "block"}}bg-red-50 text-red-700{{else}}bg-amber-50 text-amber-800{{end}} px-1.5 py-0.5">WAF {{.WAFMode}}</span>{{end}}
-            {{if or .CustomReqHeaders .CustomRespHeaders}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5">headers</span>{{end}}
+            {{if .SecurityHeaders}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5">{{t $ "page.middleware_profiles.security_headers_8c5a42e6"}}</span>{{end}}
+            {{if .ForwardAuthURL}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5">{{t $ "page.middleware_profiles.forward_auth_9975e5a0"}}</span>{{end}}
+            {{if .AccessList}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5">{{t $ "page.middleware_profiles.allowlist_bcd47510"}}</span>{{end}}
+            {{if .IPBlocklist}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5">{{t $ "page.middleware_profiles.blocklist_8e7f7b69"}}</span>{{end}}
+            {{if .WAFMode}}<span class="text-[10px] uppercase tracking-wide rounded {{if eq .WAFMode "block"}}bg-red-50 text-red-700{{else}}bg-amber-50 text-amber-800{{end}} px-1.5 py-0.5">{{t $ "page.middleware_profiles.waf_41f4e541"}} {{.WAFMode}}</span>{{end}}
+            {{if or .CustomReqHeaders .CustomRespHeaders}}<span class="text-[10px] uppercase tracking-wide rounded bg-brand-50 text-brand-700 px-1.5 py-0.5">{{t $ "page.middleware_profiles.headers_378f37b1"}}</span>{{end}}
           </div>
         </td>
         <td class="px-4 py-3 text-ink-700">{{.HostCount}}</td>
         <td class="px-4 py-3">
           <div class="flex justify-end gap-3">
-            <a href="/middleware-profiles/{{.ID}}/edit" class="text-brand-600 hover:text-brand-800 font-medium">Edit</a>
-            <form method="post" action="/middleware-profiles/{{.ID}}/delete" onsubmit="return confirm('Delete this profile? It can only be deleted when no host uses it.')">
-              <button type="submit" class="text-red-600 hover:text-red-800 font-medium">Delete</button>
+            <a href="/middleware-profiles/{{.ID}}/edit" class="text-brand-600 hover:text-brand-800 font-medium">{{t $ "page.middleware_profiles.edit_464c4ffd"}}</a>
+            <form method="post" action="/middleware-profiles/{{.ID}}/delete" onsubmit="return confirm(caddyuiT('js.middleware_profiles.delete_this_profile_it_can_only_be_deleted_when_n_ce945b91'))">
+              <button type="submit" class="text-red-600 hover:text-red-800 font-medium">{{t $ "page.middleware_profiles.delete_e2d0a549"}}</button>
             </form>
           </div>
         </td>
@@ -63,9 +63,9 @@
 </div>
 {{else}}
 <div class="bg-white border border-ink-200 rounded-xl shadow-card p-10 text-center">
-  <div class="text-ink-800 font-medium">No middleware profiles yet</div>
-  <p class="text-sm text-ink-500 mt-1 max-w-xl mx-auto">Create one — for example an <em>Internal SSO</em> profile with security headers and your Authentik forward-auth endpoint — then pick it on each proxy host.</p>
-  <a href="/middleware-profiles/new" class="inline-flex items-center gap-1.5 mt-5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition">New profile</a>
+  <div class="text-ink-800 font-medium">{{t $ "page.middleware_profiles.no_middleware_profiles_yet_e21e157c"}}</div>
+  <p class="text-sm text-ink-500 mt-1 max-w-xl mx-auto">{{t $ "page.middleware_profiles.create_one_for_example_an_17462c0d"}} <em>{{t $ "page.middleware_profiles.internal_sso_6c9968d5"}}</em> {{t $ "page.middleware_profiles.profile_with_security_headers_and_your_authentik_529a979d"}}</p>
+  <a href="/middleware-profiles/new" class="inline-flex items-center gap-1.5 mt-5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition">{{t $ "page.middleware_profiles.new_profile_fcf4f3f4"}}</a>
 </div>
 {{end}}
 {{end}}

@@ -1,20 +1,20 @@
-{{define "title"}}API Reference · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.api_docs.api_reference_caddyui_7ce642e4"}}{{end}}
 {{define "content"}}
 <div class="mb-8">
-  <h1 class="text-2xl font-semibold tracking-tight text-ink-900">REST API Reference</h1>
+  <h1 class="text-2xl font-semibold tracking-tight text-ink-900">{{t $ "page.api_docs.rest_api_reference_26a5af61"}}</h1>
   <p class="text-sm text-ink-500 mt-1 max-w-2xl">
-    CaddyUI exposes a versioned REST API under <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">/api/v1</code>. All endpoints return JSON.
+    {{t $ "page.api_docs.caddyui_exposes_a_versioned_rest_api_under_ce0ec744"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">/api/v1</code>{{t $ "page.api_docs.all_endpoints_return_json_b0059cf1"}}
   </p>
 </div>
 
 {{/* ── Table of contents ── */}}
 <nav class="bg-white border border-ink-200 rounded-xl shadow-card p-5 mb-8 max-w-3xl">
-  <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-3">On this page</div>
+  <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-3">{{t $ "page.api_docs.on_this_page_b5658fc8"}}</div>
   <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
-    <li><a href="#authentication" class="text-brand-600 hover:text-brand-700 hover:underline">Authentication</a></li>
-    <li><a href="#servers" class="text-brand-600 hover:text-brand-700 hover:underline">Caddy Fleet</a></li>
-    <li><a href="#proxy-hosts" class="text-brand-600 hover:text-brand-700 hover:underline">Proxy Hosts</a></li>
-    <li><a href="#redirection-hosts" class="text-brand-600 hover:text-brand-700 hover:underline">Redirection Hosts</a></li>
+    <li><a href="#authentication" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.api_docs.authentication_66880d2d"}}</a></li>
+    <li><a href="#servers" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.api_docs.caddy_fleet_a0835b49"}}</a></li>
+    <li><a href="#proxy-hosts" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.api_docs.proxy_hosts_d98d2003"}}</a></li>
+    <li><a href="#redirection-hosts" class="text-brand-600 hover:text-brand-700 hover:underline">{{t $ "page.api_docs.redirection_hosts_2d37db00"}}</a></li>
   </ul>
 </nav>
 
@@ -26,24 +26,24 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </span>
-    Authentication
+    {{t $ "page.api_docs.authentication_66880d2d"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 text-sm text-ink-700 leading-relaxed space-y-3">
-    <p>All endpoints require authentication via either a session cookie or an <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">Authorization: Bearer &lt;token&gt;</code> header. API tokens can be created on the <a href="/api-tokens" class="text-brand-600 hover:text-brand-700">API Tokens</a> page (sidebar → API Tokens).</p>
+    <p>{{t $ "page.api_docs.all_endpoints_require_authentication_via_either_a_a6ca01cb"}} <code class="px-1 py-0.5 bg-ink-100 rounded font-mono text-xs">Authorization: Bearer &lt;token&gt;</code> {{t $ "page.api_docs.header_api_tokens_can_be_created_on_the_98f5be18"}} <a href="/api-tokens" class="text-brand-600 hover:text-brand-700">{{t $ "page.api_docs.api_tokens_674d6510"}}</a> {{t $ "page.api_docs.page_sidebar_api_tokens_aafde4d2"}}</p>
     <div class="bg-ink-50 border border-ink-200 rounded-lg px-4 py-3">
-      <p class="text-xs font-medium text-ink-800 mb-2">Example — Bearer token header</p>
+      <p class="text-xs font-medium text-ink-800 mb-2">{{t $ "page.api_docs.example_bearer_token_header_9fc2fc12"}}</p>
       <pre class="font-mono text-xs text-ink-700 overflow-x-auto">Authorization: Bearer caddyui_tok_abc123…</pre>
     </div>
     <div class="bg-ink-50 border border-ink-200 rounded-lg px-4 py-3">
-      <p class="text-xs font-medium text-ink-800 mb-2">Token scopes</p>
+      <p class="text-xs font-medium text-ink-800 mb-2">{{t $ "page.api_docs.token_scopes_85ce1a09"}}</p>
       <ul class="list-disc pl-5 text-xs text-ink-600 space-y-1">
-        <li><strong>Read-only</strong> allows <code class="font-mono">GET</code> and <code class="font-mono">HEAD</code> requests only.</li>
-        <li><strong>Proxy write</strong> allows writes to <code class="font-mono">/api/v1/proxy-hosts</code> and reads elsewhere.</li>
-        <li><strong>Full access</strong> allows all API writes that the token owner's user account is allowed to perform.</li>
+        <li><strong>{{t $ "page.api_docs.read_only_72bb9089"}}</strong> {{t $ "page.api_docs.allows_77f6a166"}} <code class="font-mono">GET</code> {{t $ "page.api_docs.and_6201111b"}} <code class="font-mono">HEAD</code> {{t $ "page.api_docs.requests_only_1575905b"}}</li>
+        <li><strong>{{t $ "page.api_docs.proxy_write_ac744d71"}}</strong> {{t $ "page.api_docs.allows_writes_to_4f959d4b"}} <code class="font-mono">/api/v1/proxy-hosts</code> {{t $ "page.api_docs.and_reads_elsewhere_49b0ce57"}}</li>
+        <li><strong>{{t $ "page.api_docs.full_access_f19611c6"}}</strong> {{t $ "page.api_docs.allows_all_api_writes_that_the_token_owner_s_use_52325572"}}</li>
       </ul>
-      <p class="text-xs text-ink-500 mt-3">For agent or MCP automation, create a dedicated CaddyUI user and use the narrowest token that matches the workflow. Community integrations that manage redirections, raw routes, or certificates require a full-access token from an appropriately limited user.</p>
+      <p class="text-xs text-ink-500 mt-3">{{t $ "page.api_docs.for_agent_or_mcp_automation_create_a_dedicated_c_695e1e01"}}</p>
     </div>
-    <p class="text-xs text-ink-500">Requests without a valid credential receive <code class="font-mono">401 Unauthorized</code>.</p>
+    <p class="text-xs text-ink-500">{{t $ "page.api_docs.requests_without_a_valid_credential_receive_11f5ffc6"}} <code class="font-mono">401 Unauthorized</code>.</p>
   </div>
 </section>
 
@@ -53,17 +53,17 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><path d="M7 7h.01M7 17h.01"/></svg>
     </span>
-    Caddy Fleet
+    {{t $ "page.api_docs.caddy_fleet_a0835b49"}}
   </h2>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 space-y-3">
     <div class="flex items-center gap-2">
       <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-brand-100 text-brand-700 font-mono">GET</span>
       <code class="font-mono text-sm text-ink-800">/api/v1/servers</code>
     </div>
-    <p class="text-sm text-ink-600">List every configured Caddy environment. The endpoint is read-only and available to every authenticated role.</p>
-    <p class="text-xs text-ink-500">The response never includes admin usernames, passwords, or configured public IPs.</p>
+    <p class="text-sm text-ink-600">{{t $ "page.api_docs.list_every_configured_caddy_environment_the_endp_a107d7ea"}}</p>
+    <p class="text-xs text-ink-500">{{t $ "page.api_docs.the_response_never_includes_admin_usernames_pass_84c5e801"}}</p>
     <div>
-      <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Response</p>
+      <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.response_9061383b"}}</p>
       <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">[
   {
     "id": 9,
@@ -86,7 +86,7 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </span>
-    Proxy Hosts
+    {{t $ "page.api_docs.proxy_hosts_d98d2003"}}
   </h2>
 
   {{/* List */}}
@@ -97,9 +97,9 @@
         <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-brand-100 text-brand-700 font-mono">GET</span>
         <code class="font-mono text-sm text-ink-800">/api/v1/proxy-hosts</code>
       </div>
-      <p class="text-sm text-ink-600">List all proxy hosts for the current server.</p>
+      <p class="text-sm text-ink-600">{{t $ "page.api_docs.list_all_proxy_hosts_for_the_current_server_49b324f1"}}</p>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Response</p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.response_9061383b"}}</p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">[
   {
     "id": 1,
@@ -130,9 +130,9 @@
         <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-brand-100 text-brand-700 font-mono">GET</span>
         <code class="font-mono text-sm text-ink-800">/api/v1/proxy-hosts/{id}</code>
       </div>
-      <p class="text-sm text-ink-600">Get a single proxy host by its numeric ID.</p>
+      <p class="text-sm text-ink-600">{{t $ "page.api_docs.get_a_single_proxy_host_by_its_numeric_id_f1a7f8a8"}}</p>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Response</p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.response_9061383b"}}</p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">{
   "id": 1,
   "domains": "app.example.com",
@@ -161,9 +161,9 @@
         <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-700 font-mono">POST</span>
         <code class="font-mono text-sm text-ink-800">/api/v1/proxy-hosts</code>
       </div>
-      <p class="text-sm text-ink-600">Create a new proxy host. Returns the created object with its assigned <code class="font-mono text-xs">id</code>.</p>
+      <p class="text-sm text-ink-600">{{t $ "page.api_docs.create_a_new_proxy_host_returns_the_created_obje_255b2581"}} <code class="font-mono text-xs">id</code>.</p>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Request body</p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.request_body_a9b31e37"}}</p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">{
   "domains": "app.example.com",
   "forward_scheme": "http",
@@ -185,7 +185,7 @@
 }</pre>
       </div>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Response — <span class="font-mono normal-case">201 Created</span></p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.response_de8acf5b"}} <span class="font-mono normal-case">{{t $ "page.api_docs.201_created_298b1a55"}}</span></p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">{ "id": 7, "domains": "app.example.com", … }</pre>
       </div>
     </div>
@@ -195,16 +195,16 @@
         <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-700 font-mono">PUT</span>
         <code class="font-mono text-sm text-ink-800">/api/v1/proxy-hosts/{id}</code>
       </div>
-      <p class="text-sm text-ink-600">Replace a proxy host's configuration. Send only the fields you wish to update; omitted fields retain their current values.</p>
+      <p class="text-sm text-ink-600">{{t $ "page.api_docs.replace_a_proxy_host_s_configuration_send_only_t_2d152cf7"}}</p>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Request body</p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.request_body_a9b31e37"}}</p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">{
   "forward_host": "192.168.1.20",
   "forward_port": 8080
 }</pre>
       </div>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Response — <span class="font-mono normal-case">200 OK</span></p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.response_de8acf5b"}} <span class="font-mono normal-case">{{t $ "page.api_docs.200_ok_f9bafc82"}}</span></p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">{ "id": 7, "forward_host": "192.168.1.20", "forward_port": 8080, … }</pre>
       </div>
     </div>
@@ -214,9 +214,9 @@
         <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-700 font-mono">DELETE</span>
         <code class="font-mono text-sm text-ink-800">/api/v1/proxy-hosts/{id}</code>
       </div>
-      <p class="text-sm text-ink-600">Delete a proxy host. The corresponding Caddy route is removed immediately.</p>
+      <p class="text-sm text-ink-600">{{t $ "page.api_docs.delete_a_proxy_host_the_corresponding_caddy_rout_7cf49fb4"}}</p>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Response</p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.response_9061383b"}}</p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">204 No Content</pre>
       </div>
     </div>
@@ -226,9 +226,9 @@
         <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-700 font-mono">POST</span>
         <code class="font-mono text-sm text-ink-800">/api/v1/proxy-hosts/{id}/toggle</code>
       </div>
-      <p class="text-sm text-ink-600">Toggle a proxy host between enabled and disabled. The route is added to or removed from Caddy accordingly.</p>
+      <p class="text-sm text-ink-600">{{t $ "page.api_docs.toggle_a_proxy_host_between_enabled_and_disabled_b611e7e3"}}</p>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Response</p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.response_9061383b"}}</p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">{ "id": 7, "enabled": false, … }</pre>
       </div>
     </div>
@@ -238,9 +238,9 @@
         <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-700 font-mono">POST</span>
         <code class="font-mono text-sm text-ink-800">/api/v1/proxy-hosts/{id}/maintenance</code>
       </div>
-      <p class="text-sm text-ink-600">Toggle maintenance mode on a proxy host. When active, all requests to the domain receive a branded maintenance page instead of being proxied upstream.</p>
+      <p class="text-sm text-ink-600">{{t $ "page.api_docs.toggle_maintenance_mode_on_a_proxy_host_when_act_f0b2cbcd"}}</p>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Response</p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.response_9061383b"}}</p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">{ "id": 7, "maintenance_mode": true, … }</pre>
       </div>
     </div>
@@ -254,7 +254,7 @@
     <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-50 text-brand-600">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
     </span>
-    Redirection Hosts
+    {{t $ "page.api_docs.redirection_hosts_2d37db00"}}
   </h2>
 
   <div class="bg-white border border-ink-200 rounded-xl shadow-card divide-y divide-ink-100">
@@ -264,9 +264,9 @@
         <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-brand-100 text-brand-700 font-mono">GET</span>
         <code class="font-mono text-sm text-ink-800">/api/v1/redirection-hosts</code>
       </div>
-      <p class="text-sm text-ink-600">List all redirection hosts for the current server.</p>
+      <p class="text-sm text-ink-600">{{t $ "page.api_docs.list_all_redirection_hosts_for_the_current_serve_23f27aae"}}</p>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Response</p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.response_9061383b"}}</p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">[
   {
     "id": 1,
@@ -291,9 +291,9 @@
         <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-brand-100 text-brand-700 font-mono">GET</span>
         <code class="font-mono text-sm text-ink-800">/api/v1/redirection-hosts/{id}</code>
       </div>
-      <p class="text-sm text-ink-600">Get a single redirection host by its numeric ID.</p>
+      <p class="text-sm text-ink-600">{{t $ "page.api_docs.get_a_single_redirection_host_by_its_numeric_id_48722c34"}}</p>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Response</p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.response_9061383b"}}</p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">{
   "id": 1,
   "domains": "old.example.com",
@@ -316,9 +316,9 @@
         <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-700 font-mono">POST</span>
         <code class="font-mono text-sm text-ink-800">/api/v1/redirection-hosts</code>
       </div>
-      <p class="text-sm text-ink-600">Create a new redirection host. Returns the created object with its assigned <code class="font-mono text-xs">id</code>.</p>
+      <p class="text-sm text-ink-600">{{t $ "page.api_docs.create_a_new_redirection_host_returns_the_create_03b3147b"}} <code class="font-mono text-xs">id</code>.</p>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Request body</p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.request_body_a9b31e37"}}</p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">{
   "domains": "old.example.com",
   "forward_scheme": "https",
@@ -330,7 +330,7 @@
 }</pre>
       </div>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Response — <span class="font-mono normal-case">201 Created</span></p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.response_de8acf5b"}} <span class="font-mono normal-case">{{t $ "page.api_docs.201_created_298b1a55"}}</span></p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">{ "id": 3, "domains": "old.example.com", … }</pre>
       </div>
     </div>
@@ -340,16 +340,16 @@
         <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-700 font-mono">PUT</span>
         <code class="font-mono text-sm text-ink-800">/api/v1/redirection-hosts/{id}</code>
       </div>
-      <p class="text-sm text-ink-600">Update a redirection host's configuration.</p>
+      <p class="text-sm text-ink-600">{{t $ "page.api_docs.update_a_redirection_host_s_configuration_a717cbb0"}}</p>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Request body</p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.request_body_a9b31e37"}}</p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">{
   "forward_http_code": 308,
   "preserve_path": false
 }</pre>
       </div>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Response — <span class="font-mono normal-case">200 OK</span></p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.response_de8acf5b"}} <span class="font-mono normal-case">{{t $ "page.api_docs.200_ok_f9bafc82"}}</span></p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">{ "id": 3, "forward_http_code": 308, "preserve_path": false, … }</pre>
       </div>
     </div>
@@ -359,9 +359,9 @@
         <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-700 font-mono">DELETE</span>
         <code class="font-mono text-sm text-ink-800">/api/v1/redirection-hosts/{id}</code>
       </div>
-      <p class="text-sm text-ink-600">Delete a redirection host. The corresponding Caddy route is removed immediately.</p>
+      <p class="text-sm text-ink-600">{{t $ "page.api_docs.delete_a_redirection_host_the_corresponding_cadd_d52caf7f"}}</p>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Response</p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.response_9061383b"}}</p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">204 No Content</pre>
       </div>
     </div>
@@ -371,9 +371,9 @@
         <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-700 font-mono">POST</span>
         <code class="font-mono text-sm text-ink-800">/api/v1/redirection-hosts/{id}/toggle</code>
       </div>
-      <p class="text-sm text-ink-600">Toggle a redirection host between enabled and disabled.</p>
+      <p class="text-sm text-ink-600">{{t $ "page.api_docs.toggle_a_redirection_host_between_enabled_and_di_f42373ec"}}</p>
       <div>
-        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">Response</p>
+        <p class="text-xs font-medium text-ink-500 uppercase tracking-wider mb-1">{{t $ "page.api_docs.response_9061383b"}}</p>
         <pre class="bg-ink-50 border border-ink-200 rounded-lg p-3 font-mono text-xs text-ink-800 overflow-x-auto">{ "id": 3, "enabled": false, … }</pre>
       </div>
     </div>

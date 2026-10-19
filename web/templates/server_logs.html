@@ -1,35 +1,35 @@
-{{define "title"}}Server Logs · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.server_logs.server_logs_caddyui_1cade6df"}}{{end}}
 {{define "content"}}
 <div class="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4 mb-6">
   <div>
-    <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Caddy server logs</h1>
+    <h1 class="text-2xl font-semibold tracking-tight text-ink-900">{{t $ "page.server_logs.caddy_server_logs_460a7021"}}</h1>
     <p class="text-sm text-ink-500 mt-1 max-w-3xl">
-      Stream structured runtime logs from a managed Caddy node. Full capture is temporary, stays in memory, and stops automatically after {{.CaptureTTLMinutes}} minutes. Caddy's normal container or journal output continues unchanged.
+      {{t $ "page.server_logs.stream_structured_runtime_logs_from_a_managed_ca_6975b9cd"}} {{.CaptureTTLMinutes}} {{t $ "page.server_logs.minutes_caddy_s_normal_container_or_journal_outp_9defae8c"}}
     </p>
   </div>
   <div class="flex items-center gap-2 flex-wrap">
-    <span id="capture-status" class="ui-status ui-status--neutral">Checking…</span>
-    <span id="stream-status" class="ui-status ui-status--neutral">Stream connecting…</span>
-    <button id="refresh-logs" type="button" class="ui-button ui-button--quiet">Refresh / reconnect</button>
-    <button id="clear-logs" type="button" class="ui-button ui-button--quiet" title="Empties the table and discards CaddyUI's buffered runtime log entries for this server, so they don't come back on the next load. Nothing on disk is affected.">Clear logs</button>
+    <span id="capture-status" class="ui-status ui-status--neutral">{{t $ "page.server_logs.checking_ec963ffc"}}</span>
+    <span id="stream-status" class="ui-status ui-status--neutral">{{t $ "page.server_logs.stream_connecting_756e93b2"}}</span>
+    <button id="refresh-logs" type="button" class="ui-button ui-button--quiet">{{t $ "page.server_logs.refresh_reconnect_cf24ffd3"}}</button>
+    <button id="clear-logs" type="button" class="ui-button ui-button--quiet" title="{{t $ "page.server_logs.title.empties_the_table_and_discards_caddyui_s_buffere_a65305ee"}}">{{t $ "page.server_logs.clear_logs_d3a8a299"}}</button>
   </div>
 </div>
 
 {{if not .HubAvailable}}
 <div class="rounded-xl border border-red-200 bg-red-50 px-5 py-4 mb-6 text-sm text-red-900">
-  Caddy's log ingest listener is unavailable. Check <code class="font-mono">CADDYUI_INGEST_LISTEN</code> and restart CaddyUI before enabling capture.
+  {{t $ "page.server_logs.caddy_s_log_ingest_listener_is_unavailable_check_17e1eadc"}} <code class="font-mono">CADDYUI_INGEST_LISTEN</code> {{t $ "page.server_logs.and_restart_caddyui_before_enabling_capture_fabe7dc0"}}
 </div>
 {{end}}
 {{if not .Servers}}
 <div class="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 mb-6 text-sm text-amber-900">
-  Add a managed Caddy server before starting runtime log capture.
+  {{t $ "page.server_logs.add_a_managed_caddy_server_before_starting_runti_747932ac"}}
 </div>
 {{end}}
 
 <div class="ui-panel p-4 mb-4">
   <div class="flex flex-wrap items-end gap-3">
     <label class="block min-w-56 flex-1 max-w-md">
-      <span class="block text-xs font-medium text-ink-600 mb-1">Caddy server</span>
+      <span class="block text-xs font-medium text-ink-600 mb-1">{{t $ "page.server_logs.caddy_server_141d6239"}}</span>
       <select id="log-server" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none">
         {{range .Servers}}
         <option value="{{.ID}}" {{if eq $.SelectedServerID .ID}}selected{{end}}>{{.Name}} · {{.AdminURL}}</option>
@@ -37,48 +37,48 @@
       </select>
     </label>
     <label class="block">
-      <span class="block text-xs font-medium text-ink-600 mb-1">Minimum level</span>
+      <span class="block text-xs font-medium text-ink-600 mb-1">{{t $ "page.server_logs.minimum_level_b7bfe49a"}}</span>
       <select id="log-level" class="rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none">
-        <option value="INFO">Info</option>
-        <option value="DEBUG">Debug</option>
-        <option value="WARN">Warning</option>
-        <option value="ERROR">Error</option>
+        <option value="INFO">{{t $ "page.server_logs.info_170322a3"}}</option>
+        <option value="DEBUG">{{t $ "page.server_logs.debug_1a03bd2f"}}</option>
+        <option value="WARN">{{t $ "page.server_logs.warning_e981ddae"}}</option>
+        <option value="ERROR">{{t $ "page.server_logs.error_54a0e8c1"}}</option>
       </select>
     </label>
-    <button id="enable-capture" type="button" class="ui-button ui-button--primary" {{if or (not .HubAvailable) (not .Servers)}}disabled{{end}}>Start full capture</button>
-    <button id="disable-capture" type="button" class="ui-button ui-button--secondary" {{if or (not .HubAvailable) (not .Servers)}}disabled{{end}}>Stop full capture</button>
+    <button id="enable-capture" type="button" class="ui-button ui-button--primary" {{if or (not .HubAvailable) (not .Servers)}}disabled{{end}}>{{t $ "page.server_logs.start_full_capture_69cc2bef"}}</button>
+    <button id="disable-capture" type="button" class="ui-button ui-button--secondary" {{if or (not .HubAvailable) (not .Servers)}}disabled{{end}}>{{t $ "page.server_logs.stop_full_capture_ea5abd21"}}</button>
   </div>
-  <p id="capture-detail" class="text-xs text-ink-500 mt-3">Certificate issuance and renewal events remain monitored even when full capture is off.</p>
+  <p id="capture-detail" class="text-xs text-ink-500 mt-3">{{t $ "page.server_logs.certificate_issuance_and_renewal_events_remain_m_88e10413"}}</p>
 </div>
 
 <div class="flex flex-wrap items-center gap-3 mb-3">
-  <input id="log-filter" type="search" placeholder="Filter logger, message, or fields…" autocomplete="off"
+  <input id="log-filter" type="search" placeholder="{{t $ "page.server_logs.placeholder.filter_logger_message_or_fields_04a22930"}}" autocomplete="off"
     class="min-w-64 flex-1 max-w-xl rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none">
   <select id="visible-level" class="rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white">
-    <option value="">All levels</option>
-    <option value="DEBUG">Debug</option>
-    <option value="INFO">Info</option>
-    <option value="WARN">Warning</option>
-    <option value="ERROR">Error</option>
+    <option value="">{{t $ "page.server_logs.all_levels_d9c85efd"}}</option>
+    <option value="DEBUG">{{t $ "page.server_logs.debug_1a03bd2f"}}</option>
+    <option value="INFO">{{t $ "page.server_logs.info_170322a3"}}</option>
+    <option value="WARN">{{t $ "page.server_logs.warning_e981ddae"}}</option>
+    <option value="ERROR">{{t $ "page.server_logs.error_54a0e8c1"}}</option>
   </select>
-  <span id="log-count" class="text-xs text-ink-500 ml-auto">0 entries</span>
+  <span id="log-count" class="text-xs text-ink-500 ml-auto">{{t $ "page.server_logs.0_entries_8ffb3861"}}</span>
 </div>
 
 <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-x-auto">
   <table class="w-full text-sm min-w-[980px]">
     <thead class="bg-ink-50/50 text-left">
       <tr class="text-xs uppercase tracking-wider text-ink-500">
-        <th class="px-4 py-3 font-medium"><button type="button" data-log-sort="0" class="inline-flex items-center gap-1 hover:text-ink-800">Time <span aria-hidden="true">↕</span></button></th>
-        <th class="px-4 py-3 font-medium"><button type="button" data-log-sort="1" class="inline-flex items-center gap-1 hover:text-ink-800">Server <span aria-hidden="true">↕</span></button></th>
-        <th class="px-4 py-3 font-medium"><button type="button" data-log-sort="2" class="inline-flex items-center gap-1 hover:text-ink-800">Level <span aria-hidden="true">↕</span></button></th>
-        <th class="px-4 py-3 font-medium"><button type="button" data-log-sort="3" class="inline-flex items-center gap-1 hover:text-ink-800">Logger <span aria-hidden="true">↕</span></button></th>
-        <th class="px-4 py-3 font-medium"><button type="button" data-log-sort="4" class="inline-flex items-center gap-1 hover:text-ink-800">Message <span aria-hidden="true">↕</span></button></th>
-        <th class="px-4 py-3 font-medium"><button type="button" data-log-sort="5" class="inline-flex items-center gap-1 hover:text-ink-800">Fields <span aria-hidden="true">↕</span></button></th>
+        <th class="px-4 py-3 font-medium"><button type="button" data-log-sort="0" class="inline-flex items-center gap-1 hover:text-ink-800">{{t $ "page.server_logs.time_33b93476"}} <span aria-hidden="true">↕</span></button></th>
+        <th class="px-4 py-3 font-medium"><button type="button" data-log-sort="1" class="inline-flex items-center gap-1 hover:text-ink-800">{{t $ "page.server_logs.server_aef7de28"}} <span aria-hidden="true">↕</span></button></th>
+        <th class="px-4 py-3 font-medium"><button type="button" data-log-sort="2" class="inline-flex items-center gap-1 hover:text-ink-800">{{t $ "page.server_logs.level_1709305c"}} <span aria-hidden="true">↕</span></button></th>
+        <th class="px-4 py-3 font-medium"><button type="button" data-log-sort="3" class="inline-flex items-center gap-1 hover:text-ink-800">{{t $ "page.server_logs.logger_e8b56fe9"}} <span aria-hidden="true">↕</span></button></th>
+        <th class="px-4 py-3 font-medium"><button type="button" data-log-sort="4" class="inline-flex items-center gap-1 hover:text-ink-800">{{t $ "page.server_logs.message_2f77668a"}} <span aria-hidden="true">↕</span></button></th>
+        <th class="px-4 py-3 font-medium"><button type="button" data-log-sort="5" class="inline-flex items-center gap-1 hover:text-ink-800">{{t $ "page.server_logs.fields_616f48c1"}} <span aria-hidden="true">↕</span></button></th>
       </tr>
     </thead>
     <tbody id="server-log-body" class="divide-y divide-ink-100 font-mono text-xs"></tbody>
   </table>
-  <div id="server-log-empty" class="py-16 text-center text-sm text-ink-400">Waiting for structured log entries…</div>
+  <div id="server-log-empty" class="py-16 text-center text-sm text-ink-400">{{t $ "page.server_logs.waiting_for_structured_log_entries_155cbabb"}}</div>
 </div>
 
 <script>
@@ -118,15 +118,15 @@
     fetch('/api/server-logs/status', {headers: {'Accept': 'application/json'}})
       .then(function(response) { return response.json().then(function(data) { return {ok: response.ok, data: data}; }); })
       .then(function(result) {
-        if (!result.ok || !result.data.available) throw new Error(result.data.error || 'Log ingest unavailable');
+        if (!result.ok || !result.data.available) throw new Error(result.data.error || caddyuiT('js.server_logs.log_ingest_unavailable_366be83d'));
         captures = result.data.captures || [];
         var active = captures.find(function(item) { return item.server_id === selectedID(); });
         if (active) {
-          setStatus('Full capture active', 'active');
-          detail.textContent = active.level + ' and above · automatically stops ' + new Date(active.expires_at).toLocaleString();
+          setStatus(caddyuiT('js.server_logs.full_capture_active_903cb43c'), 'active');
+          detail.textContent = active.level + caddyuiT('js.server_logs.and_above_automatically_stops_8971b92c') + new Date(active.expires_at).toLocaleString();
         } else {
-          setStatus('Certificate events only', 'neutral');
-          detail.textContent = 'Certificate issuance and renewal events remain monitored even when full capture is off.';
+          setStatus(caddyuiT('js.server_logs.certificate_events_only_cdd6ab7c'), 'neutral');
+          detail.textContent = caddyuiT('js.server_logs.certificate_issuance_and_renewal_events_remain_m_88e10413');
         }
       })
       .catch(function(error) { setStatus(error.message, 'error'); });
@@ -139,7 +139,7 @@
     enable.disabled = true;
     disable.disabled = true;
     return fetch(url, {method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'}, body: form.toString()})
-      .then(function(response) { return response.json().then(function(data) { if (!response.ok) throw new Error(data.error || 'Request failed'); return data; }); })
+      .then(function(response) { return response.json().then(function(data) { if (!response.ok) throw new Error(data.error || caddyuiT('js.server_logs.request_failed_cfce761b')); return data; }); })
       .then(function(data) { refreshStatus(); return data; })
       .catch(function(error) { setStatus(error.message, 'error'); throw error; })
       .finally(function() { enable.disabled = false; disable.disabled = false; });
@@ -217,11 +217,11 @@
     row.dataset.search = ((entry.logger || '') + ' ' + (entry.message || '') + ' ' + fieldText).toLowerCase();
     row.className = 'hover:bg-ink-50/60 transition';
     addCell(row, formatWhen(entry.ts), 'px-4 py-2.5 align-top whitespace-nowrap text-ink-500', Date.parse(entry.ts));
-    addCell(row, entry.server_name || ('Server ' + entry.server_id), 'px-4 py-2.5 align-top whitespace-nowrap text-ink-700');
+    addCell(row, entry.server_name || (caddyuiT('js.server_logs.server_194890a3') + entry.server_id), 'px-4 py-2.5 align-top whitespace-nowrap text-ink-700');
     var levelCell = addCell(row, '', 'px-4 py-2.5 align-top');
     var levelBadge = document.createElement('span');
     levelBadge.className = 'inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium ' + levelClass(entry.level);
-    levelBadge.textContent = entry.level || 'INFO';
+    levelBadge.textContent = entry.level || caddyuiT('js.server_logs.info_cda14d0b');
     levelCell.appendChild(levelBadge);
     addCell(row, entry.logger, 'px-4 py-2.5 align-top text-ink-500 whitespace-nowrap');
     addCell(row, entry.message, 'px-4 py-2.5 align-top text-ink-800 min-w-72');
@@ -241,16 +241,16 @@
 
   function updateCount() {
     var total = body.children.length;
-    count.textContent = total + (total === 1 ? ' entry' : ' entries');
+    count.textContent = total + (total === 1 ? caddyuiT('js.server_logs.entry_19a63956') : caddyuiT('js.server_logs.entries_3b3d53ef'));
     empty.style.display = total ? 'none' : '';
   }
 
   function connect() {
     if (!server || !server.value) return;
     if (source) source.close();
-    setStreamStatus('Stream connecting…', 'neutral');
+    setStreamStatus(caddyuiT('js.server_logs.stream_connecting_756e93b2'), 'neutral');
     source = new EventSource('/api/server-logs/stream?server=' + encodeURIComponent(server.value) + '&since=' + cursor);
-    source.onopen = function() { setStreamStatus('Stream live', 'active'); };
+    source.onopen = function() { setStreamStatus(caddyuiT('js.server_logs.stream_live_c3676614'), 'active'); };
     source.onmessage = function(event) {
       var entries;
       try { entries = JSON.parse(event.data); } catch (_) { return; }
@@ -258,7 +258,7 @@
       entries.forEach(function(entry) { if (entry.id > cursor) cursor = entry.id; addEntry(entry); });
       updateCount();
     };
-    source.onerror = function() { setStreamStatus('Stream reconnecting…', 'error'); };
+    source.onerror = function() { setStreamStatus(caddyuiT('js.server_logs.stream_reconnecting_160668fa'), 'error'); };
   }
 
   if (server) server.addEventListener('change', function() {
@@ -284,10 +284,10 @@
     form.set('server_id', String(selectedID()));
     button.disabled = true;
     fetch('/api/server-logs/clear', {method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'}, body: form.toString()})
-      .then(function(response) { return response.json().then(function(data) { if (!response.ok) throw new Error(data.error || 'Clear failed'); return data; }); })
+      .then(function(response) { return response.json().then(function(data) { if (!response.ok) throw new Error(data.error || caddyuiT('js.server_logs.clear_failed_0ddb9f10')); return data; }); })
       .then(function(data) {
         var n = data.cleared || 0;
-        setStreamStatus('Cleared ' + n + (n === 1 ? ' buffered entry' : ' buffered entries'), 'active');
+        setStreamStatus(caddyuiT('js.server_logs.cleared_7e913d5b') + n + (n === 1 ? caddyuiT('js.server_logs.buffered_entry_cddacbf5') : caddyuiT('js.server_logs.buffered_entries_b2ce8722')), 'active');
       })
       .catch(function(error) { setStreamStatus(error.message, 'error'); })
       .finally(function() { button.disabled = false; });

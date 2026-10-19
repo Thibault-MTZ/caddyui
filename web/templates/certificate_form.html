@@ -1,11 +1,11 @@
-{{define "title"}}{{if .Cert.ID}}Edit{{else}}New{{end}} Certificate · CaddyUI{{end}}
+{{define "title"}}{{if .Cert.ID}}{{t $ "page.certificate_form.title_edit"}}{{else}}{{t $ "page.certificate_form.title_new"}}{{end}}{{end}}
 {{define "content"}}
 <div class="mb-8">
   <a href="/certificates" class="text-xs text-ink-500 hover:text-ink-900 transition inline-flex items-center gap-1">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="15 18 9 12 15 6"/></svg>
-    Back to certificates
+    {{t $ "page.certificate_form.back_to_certificates_8a68ddba"}}
   </a>
-  <h1 class="text-2xl font-semibold tracking-tight text-ink-900 mt-2">{{if .Cert.ID}}Edit Certificate{{else}}New Certificate{{end}}</h1>
+  <h1 class="text-2xl font-semibold tracking-tight text-ink-900 mt-2">{{if .Cert.ID}}{{t $ "page.certificate_form.edit_certificate_9b1a966f"}}{{else}}{{t $ "page.certificate_form.new_certificate_a5b32695"}}{{end}}</h1>
 </div>
 
 {{if .Error}}
@@ -14,64 +14,63 @@
 
 <form method="post" action="{{if .Cert.ID}}/certificates/{{.Cert.ID}}{{else}}/certificates{{end}}" class="bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-5 max-w-3xl">
   <div class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
-    <strong>Want a wildcard certificate?</strong>
-    Choose <strong>Managed ACME (DNS-01)</strong> below, enter names such as
-    <code class="font-mono">*.example.com</code>, and select saved DNS credentials.
-    Caddy obtains and renews it automatically; you do not paste or download the private key.
+    <strong>{{t $ "page.certificate_form.want_a_wildcard_certificate_1771a39e"}}</strong>
+    {{t $ "page.certificate_form.choose_c7f93783"}} <strong>{{t $ "page.certificate_form.managed_acme_dns_01_3da511f7"}}</strong> {{t $ "page.certificate_form.below_enter_names_such_as_3fe38e53"}}
+    <code class="font-mono">*.example.com</code>{{t $ "page.certificate_form.and_select_saved_dns_credentials_caddy_obtains_a_71b865c3"}}
   </div>
   <div>
-    <label class="block text-sm font-medium text-ink-800 mb-1.5">Name</label>
+    <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.certificate_form.name_dcd1d522"}}</label>
     <input name="name" value="{{.Cert.Name}}" required placeholder="wildcard-example-com" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-    <p class="text-xs text-ink-500 mt-1.5">Internal label only.</p>
+    <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.certificate_form.internal_label_only_3400ec61"}}</p>
   </div>
 
   <div>
-    <label class="block text-sm font-medium text-ink-800 mb-1.5">Domains <span class="text-ink-400 font-normal">(comma separated)</span></label>
+    <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.certificate_form.domains_ced67718"}} <span class="text-ink-400 font-normal">{{t $ "page.certificate_form.comma_separated_6953571c"}}</span></label>
     <input name="domains" value="{{.Cert.Domains}}" required placeholder="example.com, *.example.com" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-    <p class="text-xs text-ink-500 mt-1.5">Hostnames this certificate covers. Wildcards must begin with <code class="font-mono">*.</code> and require Managed ACME / DNS-01.</p>
+    <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.certificate_form.hostnames_this_certificate_covers_wildcards_must_ad2f4f63"}} <code class="font-mono">*.</code> {{t $ "page.certificate_form.and_require_managed_acme_dns_01_6ed4d6b0"}}</p>
   </div>
 
   <div class="pt-2">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-3">Source</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-3">{{t $ "page.certificate_form.source_0e570ca6"}}</div>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
       <label class="flex items-center gap-2.5 p-3 rounded-lg border border-ink-200 text-sm text-ink-700 cursor-pointer hover:border-ink-300 hover:bg-ink-50 transition has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 has-[:checked]:text-brand-700">
         <input type="radio" name="source" value="pem" {{if eq .Cert.Source "pem"}}checked{{end}} class="text-brand-600 focus:ring-brand-500" onchange="setCertSource('pem')" />
-        Paste PEM
+        {{t $ "page.certificate_form.paste_pem_656449da"}}
       </label>
       <label class="flex items-center gap-2.5 p-3 rounded-lg border border-ink-200 text-sm text-ink-700 cursor-pointer hover:border-ink-300 hover:bg-ink-50 transition has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 has-[:checked]:text-brand-700">
         <input type="radio" name="source" value="path" {{if eq .Cert.Source "path"}}checked{{end}} class="text-brand-600 focus:ring-brand-500" onchange="setCertSource('path')" />
-        File path on Caddy host
+        {{t $ "page.certificate_form.file_path_on_caddy_host_e45b3186"}}
       </label>
       <label class="flex items-center gap-2.5 p-3 rounded-lg border border-ink-200 text-sm text-ink-700 cursor-pointer hover:border-ink-300 hover:bg-ink-50 transition has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 has-[:checked]:text-brand-700">
         <input type="radio" name="source" value="managed" {{if eq .Cert.Source "managed"}}checked{{end}} class="text-brand-600 focus:ring-brand-500" onchange="setCertSource('managed')" />
-        Managed ACME (DNS-01)
+        {{t $ "page.certificate_form.managed_acme_dns_01_3da511f7"}}
       </label>
     </div>
   </div>
 
   <div id="src-pem" class="{{if ne .Cert.Source "pem"}}hidden{{end}} space-y-4 pt-2">
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Certificate PEM</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.certificate_form.certificate_pem_85627425"}}</label>
       <textarea name="cert_pem" rows="10" spellcheck="false" placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----" class="w-full rounded-lg border border-ink-200 px-3 py-2 font-mono text-xs bg-ink-50 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{.Cert.CertPEM}}</textarea>
-      <p class="text-xs text-ink-500 mt-1.5">Include the full chain if you have one (concatenate leaf + intermediates).</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.certificate_form.include_the_full_chain_if_you_have_one_concatena_8bc246fd"}}</p>
     </div>
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Private key PEM</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.certificate_form.private_key_pem_7251cfc3"}}</label>
       <textarea name="key_pem" rows="8" spellcheck="false" placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----" class="w-full rounded-lg border border-ink-200 px-3 py-2 font-mono text-xs bg-ink-50 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{.Cert.KeyPEM}}</textarea>
-      <p class="text-xs text-amber-700 mt-1.5">⚠ Stored in CaddyUI's SQLite DB. Back up and secure that file accordingly.</p>
+      <p class="text-xs text-amber-700 mt-1.5">{{t $ "page.certificate_form.stored_in_caddyui_s_sqlite_db_back_up_and_secure_4501a557"}}</p>
     </div>
   </div>
 
   <div id="src-path" class="{{if ne .Cert.Source "path"}}hidden{{end}} space-y-4 pt-2">
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Certificate file path <span class="text-ink-400 font-normal">(inside the Caddy container)</span></label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.certificate_form.certificate_file_path_3eea4c91"}} <span class="text-ink-400 font-normal">{{t $ "page.certificate_form.inside_the_caddy_container_55e0d732"}}</span></label>
       <input name="cert_path" value="{{.Cert.CertPath}}" placeholder="/certs/example.com/fullchain.pem" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
     </div>
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">Private key file path</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.certificate_form.private_key_file_path_dfedf0da"}}</label>
       <input name="key_path" value="{{.Cert.KeyPath}}" placeholder="/certs/example.com/privkey.pem" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
-      <p class="text-xs text-ink-500 mt-1.5">Mount the directory into the Caddy container (e.g. <code class="font-mono bg-ink-100 px-1 rounded">./certs:/certs:ro</code>).</p>
-      <p class="text-xs text-ink-500 mt-1.5">Expiry and issuer come from a live TLS probe of the Caddy node (every 30 minutes and on Refresh status). To read the file itself, also mount the same directory into the CaddyUI container read-only, at the same path.</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.certificate_form.mount_the_directory_into_the_caddy_container_e_g_64e9cee2"}} <code class="font-mono bg-ink-100 px-1 rounded">./certs:/certs:ro</code>).</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.certificate_form.expiry_and_issuer_come_from_a_live_tls_probe_of_t_bbeda8af"}}</p>
     </div>
   </div>
 
@@ -80,74 +79,74 @@
     {{$provider := .Cert.DNSProvider}}
     {{$profile := .Cert.DNSProfileID}}
     <div>
-      <label class="block text-sm font-medium text-ink-800 mb-1.5">DNS credentials</label>
+      <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.certificate_form.dns_credentials_92850c4e"}}</label>
       <input type="hidden" id="managed-dns-provider" name="dns_provider" value="{{$provider}}" />
       <select id="managed-dns-profile" name="dns_profile_id" onchange="document.getElementById('managed-dns-provider').value=this.options[this.selectedIndex].dataset.provider||''"
         class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-        <option value="" data-provider="">Choose saved DNS credentials…</option>
+        <option value="" data-provider="">{{t $ "page.certificate_form.choose_saved_dns_credentials_1aac766f"}}</option>
         {{range .DNSProfiles}}
         <option value="{{.ID}}" data-provider="{{.ProviderID}}" {{if and (eq $profile "") (eq $provider .ProviderID) .Legacy}}selected{{else if eq $profile .ID}}selected{{end}}>{{.DisplayName}}</option>
         {{end}}
       </select>
-      <p class="text-xs text-ink-500 mt-1.5">Configure credentials under <a href="/settings" class="text-brand-600 hover:underline">Settings → DNS</a>. The connected Caddy build must include the matching DNS provider module.</p>
+      <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.certificate_form.configure_credentials_under_23d41187"}} <a href="/settings" class="text-brand-600 hover:underline">{{t $ "page.certificate_form.settings_dns_96b76a37"}}</a>{{t $ "page.certificate_form.the_connected_caddy_build_must_include_the_match_da66cfd8"}}</p>
     </div>
     <div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-      CaddyUI creates a certificate-only wildcard route that returns 404 when no real proxy or redirect matches it. This triggers issuance safely without forwarding traffic anywhere. Add normal proxy hosts later; Caddy will reuse the wildcard certificate.
+      {{t $ "page.certificate_form.caddyui_creates_a_certificate_only_wildcard_rout_b74c132c"}}
     </div>
     {{if .Cert.ID}}
     <div class="pt-4 border-t border-ink-100">
       <div class="flex items-center justify-between gap-3 mb-2">
-        <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Live certificate status by server</div>
-        <button type="button" id="managed-status-refresh" class="text-xs font-medium text-brand-600 hover:text-brand-700">Refresh</button>
+        <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "page.certificate_form.live_certificate_status_by_server_7304afcd"}}</div>
+        <button type="button" id="managed-status-refresh" class="text-xs font-medium text-brand-600 hover:text-brand-700">{{t $ "page.certificate_form.refresh_0e916101"}}</button>
       </div>
-      <p class="text-xs text-ink-500 mb-3">CaddyUI connects directly to each configured Caddy server with a wildcard-covered SNI name and reads the certificate it actually serves. This exposes expired certificates, failed renewals, hostname mismatches, and unreachable instances.</p>
+      <p class="text-xs text-ink-500 mb-3">{{t $ "page.certificate_form.caddyui_connects_directly_to_each_configured_cad_fcb626c1"}}</p>
       <div class="border border-ink-200 rounded-lg overflow-hidden">
-        <div id="managed-status-loading" class="px-3 py-4 text-xs text-ink-400">Checking configured servers…</div>
+        <div id="managed-status-loading" class="px-3 py-4 text-xs text-ink-400">{{t $ "page.certificate_form.checking_configured_servers_68c3d1a5"}}</div>
         <div id="managed-status-list" class="hidden divide-y divide-ink-100"></div>
       </div>
     </div>
     {{end}}
     {{else}}
     <div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-      No DNS credentials are configured. Save a supported provider under
-      <a href="/settings" class="font-medium text-brand-700 hover:underline">Settings → DNS</a>, then return here.
+      {{t $ "page.certificate_form.no_dns_credentials_are_configured_save_a_support_0d966875"}}
+      <a href="/settings" class="font-medium text-brand-700 hover:underline">{{t $ "page.certificate_form.settings_dns_96b76a37"}}</a>{{t $ "page.certificate_form.then_return_here_47a776e9"}}
     </div>
     {{end}}
     {{/* v2.42.0: export the certificate Caddy obtained to a directory. */}}
     <div id="export" class="pt-4 border-t border-ink-100 scroll-mt-20" data-certificate-export>
-      <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-2">Export to a directory</div>
-      <p class="text-xs text-ink-500 mb-3">After every issuance and renewal, copy this certificate out of Caddy's storage so another service on this host — a mail server, for example — can use it. Requires this node's Caddy data volume to be mounted into the CaddyUI container and its path set under Caddy Fleet → edit server → <strong>Data directory</strong>{{if .ExportDataDir}} (currently <code class="font-mono bg-ink-100 px-1 rounded">{{.ExportDataDir}}</code>){{else}} — <span class="text-amber-700">not set for this server yet</span>{{end}}. The export directory must be a path inside the CaddyUI container, typically a bind mount the other service also sees.</p>
+      <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-2">{{t $ "page.certificate_form.export_to_a_directory_89932ae6"}}</div>
+      <p class="text-xs text-ink-500 mb-3">{{t $ "page.certificate_form.after_every_issuance_and_renewal_copy_this_certi_2755febf"}} <strong>{{t $ "page.certificate_form.data_directory_5e6050c2"}}</strong>{{if .ExportDataDir}} {{t $ "page.certificate_form.currently_c57bcbd4"}} <code class="font-mono bg-ink-100 px-1 rounded">{{.ExportDataDir}}</code>){{else}} — <span class="text-amber-700">{{t $ "page.certificate_form.not_set_for_this_server_yet_ad40a2da"}}</span>{{end}}{{t $ "page.certificate_form.the_export_directory_must_be_a_path_inside_the_c_37035861"}}</p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div class="sm:col-span-2">
-          <label class="block text-sm font-medium text-ink-800 mb-1.5">Export directory <span class="text-ink-400 font-normal text-xs">(blank = off)</span></label>
+          <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.certificate_form.export_directory_d26e6f46"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.certificate_form.blank_off_9a46f121"}}</span></label>
           <input name="export_dir" value="{{with .Export}}{{.Dir}}{{end}}" placeholder="/exports/mail" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-ink-800 mb-1.5">Certificate file <span class="text-ink-400 font-normal text-xs">(full chain)</span></label>
+          <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.certificate_form.certificate_file_e7b44879"}} <span class="text-ink-400 font-normal text-xs">{{t $ "page.certificate_form.full_chain_444534c7"}}</span></label>
           <input name="export_cert_file" value="{{with .Export}}{{.CertFile}}{{end}}" placeholder="fullchain.pem" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-ink-800 mb-1.5">Private key file</label>
+          <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.certificate_form.private_key_file_bf9d6353"}}</label>
           <input name="export_key_file" value="{{with .Export}}{{.KeyFile}}{{end}}" placeholder="privkey.pem" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
         </div>
       </div>
       {{if .ExportStatus}}
       <div class="mt-3 rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-xs text-ink-700 space-y-1" data-certificate-export-status>
         {{if .ExportStatus.Error}}
-          <div><span class="ui-status ui-status--danger">Export failed</span> <span class="text-ink-500">{{fmtRel .ExportStatus.CheckedAt}}</span></div>
+          <div><span class="ui-status ui-status--danger">{{t $ "page.certificate_form.export_failed_e94d3ee0"}}</span> <span class="text-ink-500">{{fmtRelT $ .ExportStatus.CheckedAt}}</span></div>
           <div class="font-mono break-all text-red-700">{{.ExportStatus.Error}}</div>
         {{else}}
-          <div><span class="ui-status ui-status--success">Exported</span> <span class="text-ink-500">{{if .ExportStatus.ExportedAt}}{{fmtDateTime .ExportStatus.ExportedAt}} ({{fmtRel .ExportStatus.ExportedAt}}){{end}} · checked {{fmtRel .ExportStatus.CheckedAt}}</span></div>
+          <div><span class="ui-status ui-status--success">{{t $ "page.certificate_form.exported_391065e4"}}</span> <span class="text-ink-500">{{if .ExportStatus.ExportedAt}}{{fmtDateTime .ExportStatus.ExportedAt}} ({{fmtRelT $ .ExportStatus.ExportedAt}}){{end}} {{t $ "page.certificate_form.checked_c6e8a68b"}} {{fmtRelT $ .ExportStatus.CheckedAt}}</span></div>
         {{end}}
-        {{if .ExportStatus.SerialNumber}}<div>Serial <span class="font-mono">{{.ExportStatus.SerialNumber}}</span>{{if .ExportStatus.NotAfter}} · expires {{fmtIn .ExportStatus.NotAfter "2006-01-02"}} ({{.ExportStatus.DaysLeft}} days){{end}}</div>{{end}}
-        {{if .ExportStatus.Files}}<div>Files: <span class="font-mono break-all">{{range $i, $f := .ExportStatus.Files}}{{if $i}}, {{end}}{{$f}}{{end}}</span></div>{{end}}
-        {{if .ExportStatus.Source}}<div class="text-ink-500">From <span class="font-mono break-all">{{.ExportStatus.Source}}</span></div>{{end}}
+        {{if .ExportStatus.SerialNumber}}<div>{{t $ "page.certificate_form.serial_8ea09493"}} <span class="font-mono">{{.ExportStatus.SerialNumber}}</span>{{if .ExportStatus.NotAfter}} {{t $ "page.certificate_form.expires_1de5fe01"}} {{fmtIn .ExportStatus.NotAfter "2006-01-02"}} ({{.ExportStatus.DaysLeft}} {{t $ "page.certificate_form.days_2eecd402"}}{{end}}</div>{{end}}
+        {{if .ExportStatus.Files}}<div>{{t $ "page.certificate_form.files_e1a1abcf"}} <span class="font-mono break-all">{{range $i, $f := .ExportStatus.Files}}{{if $i}}, {{end}}{{$f}}{{end}}</span></div>{{end}}
+        {{if .ExportStatus.Source}}<div class="text-ink-500">{{t $ "page.certificate_form.from_21819769"}} <span class="font-mono break-all">{{.ExportStatus.Source}}</span></div>{{end}}
       </div>
       {{end}}
       {{if and .Cert.ID (ne .User.Role "view")}}
       <div class="mt-3 flex items-center gap-3">
-        <button type="submit" formaction="/certificates/{{.Cert.ID}}/export" formmethod="post" class="ui-button ui-button--secondary text-xs">Export now</button>
-        <span class="text-xs text-ink-400">Uses the saved export settings and always rewrites the files. Exports also run when this node reports a renewal, every 10 minutes as a safety net, and after you save.</span>
+        <button type="submit" formaction="/certificates/{{.Cert.ID}}/export" formmethod="post" class="ui-button ui-button--secondary text-xs">{{t $ "page.certificate_form.export_now_3cfece16"}}</button>
+        <span class="text-xs text-ink-400">{{t $ "page.certificate_form.uses_the_saved_export_settings_and_always_rewrit_19396e90"}}</span>
       </div>
       {{end}}
     </div>
@@ -159,11 +158,11 @@
        as PEM when CaddyUI can read them, else the paths. */}}
   {{if .OtherServers}}
   <div class="pt-4 border-t border-ink-100" data-certificate-deploy-picker>
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-2">Also configure on</div>
-    <p class="text-xs text-ink-500 mb-3">Copy this certificate to additional Caddy servers.
-      <span class="block mt-1"><strong>Managed ACME:</strong> each server obtains and renews its own certificate and private key using the same DNS credentials.</span>
-      <span class="block mt-1"><strong>PEM:</strong> the certificate and private key are stored on each selected server; save again after replacing them to push a renewal.</span>
-      <span class="block mt-1"><strong>File path:</strong> if CaddyUI can read the files, they are copied to the other servers as stored PEM; otherwise only the paths are copied and the files must exist there at the same paths.</span>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium mb-2">{{t $ "page.certificate_form.also_configure_on_5200b922"}}</div>
+    <p class="text-xs text-ink-500 mb-3">{{t $ "page.certificate_form.copy_this_certificate_to_additional_caddy_server_26382653"}}
+      <span class="block mt-1"><strong>{{t $ "page.certificate_form.managed_acme_d105053a"}}</strong> {{t $ "page.certificate_form.each_server_obtains_and_renews_its_own_certifica_a8222f06"}}</span>
+      <span class="block mt-1"><strong>PEM:</strong> {{t $ "page.certificate_form.the_certificate_and_private_key_are_stored_on_ea_944b3b63"}}</span>
+      <span class="block mt-1"><strong>{{t $ "page.certificate_form.file_path_a17b6397"}}</strong> {{t $ "page.certificate_form.if_caddyui_can_read_the_files_they_are_copied_to_ca47aa82"}}</span>
     </p>
     <div class="space-y-2" id="deploy-to-list">
       {{range .OtherServers}}
@@ -175,7 +174,7 @@
       </label>
       {{end}}
     </div>
-    <p class="text-xs text-ink-400 mt-3">Copies are independent after creation. Edit this certificate later and select a server again to add it to a newly registered server or to push a renewal.</p>
+    <p class="text-xs text-ink-400 mt-3">{{t $ "page.certificate_form.copies_are_independent_after_creation_edit_this_c_621c7fc3"}}</p>
 
     {{/* v2.55.0 (issue #115): opt-in "source push" fleet distribution — only
          relevant for a Managed ACME certificate with at least one target
@@ -183,8 +182,8 @@
     <div id="fleet-push-mode" class="hidden mt-4 pt-4 border-t border-ink-100">
       <label class="flex items-start gap-2.5 text-sm text-ink-700 cursor-pointer">
         <input type="checkbox" name="fleet_distribution_mode" value="source_push" {{if eq .Cert.FleetDistributionMode "source_push"}}checked{{end}} class="mt-0.5 rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
-        <span>Push this certificate instead of letting each server obtain its own
-          <span class="block text-xs text-ink-500 mt-0.5 font-normal">This server performs the ACME order; the server(s) checked above receive the resulting certificate and private key instead of running their own ACME order, and no longer need DNS API credentials for it. Requires this server's <strong>Data directory</strong> to be set under Caddy Fleet → edit server, so CaddyUI can read the certificate it obtains. Re-applied automatically after every renewal (within about an hour) as well as whenever you save this form — the first push may be skipped and retried later if this server hasn't completed its own ACME order yet. Turning this off, or unchecking a server above, stops future pushes to it but does not revert its existing copy or restart its own ACME — change its certificate's source there if you want it to go back to obtaining its own.</span>
+        <span>{{t $ "page.certificate_form.push_this_certificate_instead_of_letting_each_se_8d06041a"}}
+          <span class="block text-xs text-ink-500 mt-0.5 font-normal">{{t $ "page.certificate_form.this_server_performs_the_acme_order_the_server_s_d66e29e1"}} <strong>{{t $ "page.certificate_form.data_directory_5e6050c2"}}</strong> {{t $ "page.certificate_form.to_be_set_under_caddy_fleet_edit_server_so_caddy_500783b8"}}</span>
         </span>
       </label>
     </div>
@@ -193,20 +192,20 @@
 
   {{if .Users}}
   <div class="pt-4 border-t border-ink-100">
-    <label class="block text-sm font-medium text-ink-800 mb-1.5">Owner <span class="text-ink-400 font-normal">(admin only)</span></label>
+    <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.certificate_form.owner_4b1b8aa3"}} <span class="text-ink-400 font-normal">{{t $ "page.certificate_form.admin_only_14b52145"}}</span></label>
     <select name="owner_id" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-      <option value="0" {{if not .Cert.OwnerID.Valid}}selected{{end}}>Global (admin — visible to all)</option>
+      <option value="0" {{if not .Cert.OwnerID.Valid}}selected{{end}}>{{t $ "page.certificate_form.global_admin_visible_to_all_21bd8c12"}}</option>
       {{range .Users}}
       <option value="{{.ID}}" {{if and $.Cert.OwnerID.Valid (eq $.Cert.OwnerID.Int64 .ID)}}selected{{end}}>{{.Email}}{{if .Name}} — {{.Name}}{{end}}</option>
       {{end}}
     </select>
-    <p class="text-xs text-ink-500 mt-1.5">Assign this certificate to a specific customer, or keep it global for shared use.</p>
+    <p class="text-xs text-ink-500 mt-1.5">{{t $ "page.certificate_form.assign_this_certificate_to_a_specific_customer_o_d3435b66"}}</p>
   </div>
   {{end}}
 
   <div class="flex items-center gap-3 pt-4 border-t border-ink-100">
-    <button class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-5 py-2 rounded-lg shadow-sm transition">{{if .Cert.ID}}Save changes{{else}}Create{{end}}</button>
-    <a href="/certificates" class="text-sm text-ink-500 hover:text-ink-900 transition">Cancel</a>
+    <button class="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-5 py-2 rounded-lg shadow-sm transition">{{if .Cert.ID}}{{t $ "page.certificate_form.save_changes_dd0ae7a5"}}{{else}}{{t $ "page.certificate_form.create_4759498a"}}{{end}}</button>
+    <a href="/certificates" class="text-sm text-ink-500 hover:text-ink-900 transition">{{t $ "page.certificate_form.cancel_19766ed6"}}</a>
   </div>
 </form>
 <script>
@@ -239,18 +238,18 @@ updateFleetPushVisibility();
   var loading = document.getElementById('managed-status-loading');
   var refresh = document.getElementById('managed-status-refresh');
   function labelFor(row) {
-    if (row.status === 'obtaining') return 'Obtaining…';
-    if (row.status === 'renewing') return 'Renewing…';
-    if (row.status === 'retrying') return 'Retry scheduled';
-    if (row.status === 'error') return 'Issuance error';
-    if (row.status === 'revoked') return 'Revoked';
-    if (row.status === 'healthy') return row.days_left + ' days left';
-    if (row.status === 'expiring') return 'Expires in ' + row.days_left + ' days';
-    if (row.status === 'expired') return 'Expired';
-    if (row.status === 'mismatch') return 'Certificate mismatch';
-    if (row.status === 'not_configured') return 'Not configured';
-    if (row.status === 'external') return 'External / read-only';
-    return 'Unavailable';
+    if (row.status === 'obtaining') return caddyuiT('js.certificate_form.obtaining_cb602b8f');
+    if (row.status === 'renewing') return caddyuiT('js.certificate_form.renewing_81caaaa0');
+    if (row.status === 'retrying') return caddyuiT('js.certificate_form.retry_scheduled_5b6d7aa6');
+    if (row.status === 'error') return caddyuiT('js.certificate_form.issuance_error_e142337f');
+    if (row.status === 'revoked') return caddyuiT('js.certificate_form.revoked_f6f738d0');
+    if (row.status === 'healthy') return caddyuiT('js.certificate_form.days_left', {days: row.days_left});
+    if (row.status === 'expiring') return caddyuiT('js.certificate_form.expires_in_days', {days: row.days_left});
+    if (row.status === 'expired') return caddyuiT('js.certificate_form.expired_424a2551');
+    if (row.status === 'mismatch') return caddyuiT('js.certificate_form.certificate_mismatch_f41e2c84');
+    if (row.status === 'not_configured') return caddyuiT('js.certificate_form.not_configured_dd1841d2');
+    if (row.status === 'external') return caddyuiT('js.certificate_form.external_read_only_8d378dd7');
+    return caddyuiT('js.certificate_form.unavailable_ca184496');
   }
   function colorFor(status) {
     if (status === 'healthy') return 'bg-green-50 text-green-700';
@@ -268,7 +267,7 @@ updateFleetPushVisibility();
       var left = document.createElement('div');
       var name = document.createElement('div');
       name.className = 'text-sm font-medium text-ink-800';
-      name.textContent = row.server_name || ('Server ' + row.server_id);
+      name.textContent = row.server_name || (caddyuiT('js.certificate_form.server_194890a3') + row.server_id);
       left.appendChild(name);
       var detail = document.createElement('div');
       detail.className = 'text-xs text-ink-400 mt-0.5';
@@ -277,9 +276,9 @@ updateFleetPushVisibility();
       } else if (row.lifecycle_message) {
         detail.textContent = row.lifecycle_message + (row.lifecycle_at ? ' · ' + new Date(row.lifecycle_at).toLocaleString() : '');
       } else if (row.expires_at) {
-        detail.textContent = 'Expires ' + new Date(row.expires_at).toLocaleString() + (row.issuer ? ' · ' + row.issuer : '');
+        detail.textContent = caddyuiT('js.certificate_form.expires_d970e4fd') + new Date(row.expires_at).toLocaleString() + (row.issuer ? ' · ' + row.issuer : '');
       } else if (row.probe_name) {
-        detail.textContent = 'Probe SNI: ' + row.probe_name;
+        detail.textContent = caddyuiT('js.certificate_form.probe_sni_e1ebc255') + row.probe_name;
       }
       left.appendChild(detail);
       var badge = document.createElement('span');
@@ -293,12 +292,12 @@ updateFleetPushVisibility();
     list.classList.remove('hidden');
   }
   function load() {
-    loading.textContent = 'Checking configured servers…';
+    loading.textContent = caddyuiT('js.certificate_form.checking_configured_servers_68c3d1a5');
     loading.classList.remove('hidden');
     list.classList.add('hidden');
     fetch('/certificates/{{.Cert.ID}}/managed-status', {headers: {'Accept': 'application/json'}})
       .then(function(response) {
-        if (!response.ok) throw new Error('Status check failed (' + response.status + ')');
+        if (!response.ok) throw new Error(caddyuiT('js.certificate_form.status_check_failed_75eed431') + response.status + ')');
         return response.json();
       })
       .then(function(data) { render(data.servers || []); })

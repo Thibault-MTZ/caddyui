@@ -1,24 +1,21 @@
-{{define "title"}}Paste Caddyfile · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.caddyfile_import.paste_caddyfile_caddyui_6a467489"}}{{end}}
 {{define "content"}}
 <div class="mb-8">
-  <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Paste Caddyfile</h1>
+  <h1 class="text-2xl font-semibold tracking-tight text-ink-900">{{t $ "page.caddyfile_import.paste_caddyfile_32f9c3af"}}</h1>
   <p class="text-sm text-ink-500 mt-1 max-w-2xl">
-    Paste one or more site blocks. Each block goes through Caddy's
-    <code class="font-mono text-xs bg-ink-100 px-1 rounded">/adapt</code> to convert it to JSON,
-    then stored as an Advanced route. The original Caddyfile text is kept alongside the JSON so
-    the UI shows your familiar syntax.
+    {{t $ "page.caddyfile_import.paste_one_or_more_site_blocks_each_block_goes_th_bb4b8be9"}}
+    <code class="font-mono text-xs bg-ink-100 px-1 rounded">/adapt</code> {{t $ "page.caddyfile_import.to_convert_it_to_json_then_stored_as_an_advanced_ce57dece"}}
   </p>
   <p class="text-sm text-ink-500 mt-2 max-w-2xl">
-    Snippet definitions <code class="font-mono text-xs bg-ink-100 px-1 rounded">(name) { ... }</code>
-    and the global options block are skipped automatically. Snippets from the mounted Caddyfile are
-    auto-loaded — so you can <code class="font-mono text-xs bg-ink-100 px-1 rounded">import common_security_headers</code>
-    without pasting the definition.
+    {{t $ "page.caddyfile_import.snippet_definitions_fc84e987"}} <code class="font-mono text-xs bg-ink-100 px-1 rounded">(name) { ... }</code>
+    {{t $ "page.caddyfile_import.and_the_global_options_block_are_skipped_automat_0b734e57"}} <code class="font-mono text-xs bg-ink-100 px-1 rounded">import common_security_headers</code>
+    {{t $ "page.caddyfile_import.without_pasting_the_definition_0d868937"}}
   </p>
 </div>
 
 {{if .Error}}
 <div data-toast="error" class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl mb-4 max-w-4xl">
-  <div class="font-medium text-sm">Import failed</div>
+  <div class="font-medium text-sm">{{t $ "page.caddyfile_import.import_failed_0a26f41a"}}</div>
   <div class="text-xs mt-1 font-mono whitespace-pre-wrap break-all">{{.Error}}</div>
   {{if .Hint}}<div class="text-xs mt-3 text-red-900 bg-red-100 border border-red-200 rounded-lg p-2">{{.Hint}}</div>{{end}}
 </div>
@@ -28,19 +25,19 @@
 <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden mb-6 max-w-4xl">
   <div class="bg-ink-50/50 px-5 py-3 text-xs uppercase tracking-wider text-ink-600 font-medium border-b border-ink-100 flex items-center gap-3 flex-wrap">
     {{if .Created}}
-      <span>Imported {{.Created}} route{{if ne .Created 1}}s{{end}}</span>
-      {{if .CreatedProxy}}<span class="normal-case tracking-normal text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full text-[11px] font-medium">{{.CreatedProxy}} proxy{{if ne .CreatedProxy 1}} hosts{{else}} host{{end}}</span>{{end}}
-      {{if .CreatedRedir}}<span class="normal-case tracking-normal text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full text-[11px] font-medium">{{.CreatedRedir}} redirection{{if ne .CreatedRedir 1}}s{{end}}</span>{{end}}
-      {{if .CreatedRaw}}<span class="normal-case tracking-normal text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full text-[11px] font-medium">{{.CreatedRaw}} advanced</span>{{end}}
-    {{else}}No routes imported{{end}}
+      <span>{{t $ "page.caddyfile_import.imported_321f179c"}} {{.Created}} {{t $ "page.caddyfile_import.route_8a84e406"}}{{if ne .Created 1}}s{{end}}</span>
+      {{if .CreatedProxy}}<span class="normal-case tracking-normal text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full text-[11px] font-medium">{{.CreatedProxy}} {{t $ "page.caddyfile_import.proxy_1241936d"}}{{if ne .CreatedProxy 1}} {{t $ "page.caddyfile_import.hosts_4f8a2cc3"}}{{else}} {{t $ "page.caddyfile_import.host_4740ae63"}}{{end}}</span>{{end}}
+      {{if .CreatedRedir}}<span class="normal-case tracking-normal text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full text-[11px] font-medium">{{.CreatedRedir}} {{t $ "page.caddyfile_import.redirection_2564a6e0"}}{{if ne .CreatedRedir 1}}s{{end}}</span>{{end}}
+      {{if .CreatedRaw}}<span class="normal-case tracking-normal text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full text-[11px] font-medium">{{.CreatedRaw}} {{t $ "page.caddyfile_import.advanced_d21f85ea"}}</span>{{end}}
+    {{else}}{{t $ "page.caddyfile_import.no_routes_imported_11dc2208"}}{{end}}
   </div>
   <table class="w-full text-sm">
     <thead class="bg-ink-50/50 text-left">
       <tr class="text-xs uppercase tracking-wider text-ink-500">
-        <th class="px-5 py-3 font-medium">Block</th>
-        <th class="px-5 py-3 font-medium">Status</th>
-        <th class="px-5 py-3 font-medium">Imported as</th>
-        <th class="px-5 py-3 font-medium">Detail</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.caddyfile_import.block_211d0bb8"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.caddyfile_import.status_920e413c"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.caddyfile_import.imported_as_bdfbc65e"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.caddyfile_import.detail_fb5f27d5"}}</th>
       </tr>
     </thead>
     <tbody>
@@ -49,20 +46,20 @@
         <td class="px-5 py-3 font-mono text-xs text-ink-800">{{.Head}}</td>
         <td class="px-5 py-3">
           {{if eq .Status "created"}}
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700">created</span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700">{{t $ "page.caddyfile_import.created_406effb1"}}</span>
           {{else if eq .Status "skipped"}}
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">skipped</span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-500">{{t $ "page.caddyfile_import.skipped_389595a4"}}</span>
           {{else}}
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700">error</span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700">{{t $ "page.caddyfile_import.error_ca00fccf"}}</span>
           {{end}}
         </td>
         <td class="px-5 py-3 text-xs">
           {{if eq .Kind "proxy"}}
-            <a href="/proxy-hosts" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition">Proxy Host</a>
+            <a href="/proxy-hosts" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition">{{t $ "page.caddyfile_import.proxy_host_5f002bd9"}}</a>
           {{else if eq .Kind "redirect"}}
-            <a href="/redirection-hosts" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-medium bg-sky-50 text-sky-700 hover:bg-sky-100 transition">Redirection</a>
+            <a href="/redirection-hosts" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-medium bg-sky-50 text-sky-700 hover:bg-sky-100 transition">{{t $ "page.caddyfile_import.redirection_a68ed7e8"}}</a>
           {{else if eq .Kind "raw"}}
-            <a href="/raw-routes" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-medium bg-amber-50 text-amber-700 hover:bg-amber-100 transition">Advanced</a>
+            <a href="/raw-routes" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-medium bg-amber-50 text-amber-700 hover:bg-amber-100 transition">{{t $ "page.caddyfile_import.advanced_9f088dbe"}}</a>
           {{else}}
             <span class="text-ink-300">—</span>
           {{end}}
@@ -74,19 +71,18 @@
   </table>
 </div>
 <div class="mb-6">
-  <a href="/raw-routes" class="text-sm text-brand-600 hover:text-brand-700">View Advanced routes &rarr;</a>
+  <a href="/raw-routes" class="text-sm text-brand-600 hover:text-brand-700">{{t $ "page.caddyfile_import.view_advanced_routes_83a765bc"}}</a>
 </div>
 {{end}}
 
 <form method="post" action="/caddyfile-import" class="bg-white border border-ink-200 rounded-xl shadow-card p-6 space-y-5 max-w-4xl">
   <div>
-    <label class="block text-sm font-medium text-ink-800 mb-1.5">Caddyfile</label>
+    <label class="block text-sm font-medium text-ink-800 mb-1.5">{{t $ "page.caddyfile_import.caddyfile_1f38639f"}}</label>
     <textarea name="caddyfile" rows="18" required spellcheck="false"
       class="w-full rounded-lg border border-ink-200 px-3 py-2.5 font-mono text-xs bg-ink-50 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition"
       placeholder="example.com {&#10;    reverse_proxy localhost:3000&#10;}&#10;&#10;wg-health.example.com {&#10;    tls /path/fullchain.pem /path/privkey.pem&#10;    root * /srv/wg-health&#10;    rewrite * /status&#10;    file_server&#10;}">{{.Input}}</textarea>
     <p class="text-xs text-ink-500 mt-1.5">
-      Multiple site blocks are OK. Caddy validates each during adapt — blocks with typos are
-      reported and skipped, the rest import.
+      {{t $ "page.caddyfile_import.multiple_site_blocks_are_ok_caddy_validates_each_10e45b66"}}
     </p>
   </div>
   {{/* v2.10.7: auto-classify checkbox. Default ON — each pasted block is
@@ -97,17 +93,17 @@
     <label class="inline-flex items-start gap-2.5 cursor-pointer select-none">
       <input type="checkbox" name="auto_classify" value="on" checked class="mt-0.5 rounded border-ink-300 text-brand-600 focus:ring-brand-500" />
       <span class="text-sm">
-        <span class="font-medium text-ink-800">Auto-classify blocks into Proxy / Redirection / Advanced</span>
-        <span class="block text-xs text-ink-500 mt-0.5">When on (recommended), simple <code class="font-mono bg-ink-100 px-1 rounded">host { reverse_proxy ... }</code> blocks become Proxy Hosts, <code class="font-mono bg-ink-100 px-1 rounded">redir</code>-only blocks become Redirections, and exotic configs (custom matchers, layer-4, etc.) fall back to Advanced routes. Off keeps everything as Advanced.</span>
+        <span class="font-medium text-ink-800">{{t $ "page.caddyfile_import.auto_classify_blocks_into_proxy_redirection_adva_2de58e92"}}</span>
+        <span class="block text-xs text-ink-500 mt-0.5">{{t $ "page.caddyfile_import.when_on_recommended_simple_ab658926"}} <code class="font-mono bg-ink-100 px-1 rounded">host { reverse_proxy ... }</code> {{t $ "page.caddyfile_import.blocks_become_proxy_hosts_7bffa180"}} <code class="font-mono bg-ink-100 px-1 rounded">redir</code>{{t $ "page.caddyfile_import.only_blocks_become_redirections_and_exotic_confi_813c814c"}}</span>
       </span>
     </label>
   </div>
   <div class="flex items-center gap-3 pt-2 border-t border-ink-100">
     <button class="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-5 py-2 rounded-lg shadow-sm transition">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
-      Import
+      {{t $ "page.caddyfile_import.import_2cff9baa"}}
     </button>
-    <a href="/raw-routes" class="text-sm text-ink-500 hover:text-ink-900 transition">Cancel</a>
+    <a href="/raw-routes" class="text-sm text-ink-500 hover:text-ink-900 transition">{{t $ "page.caddyfile_import.cancel_19766ed6"}}</a>
   </div>
 </form>
 {{end}}

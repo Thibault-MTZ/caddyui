@@ -4,19 +4,19 @@
 <div class="p-6 space-y-4">
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Live Traffic Feed</h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Real-time access log stream — updates every 2 seconds</p>
+      <h1 class="text-xl font-semibold text-gray-900 dark:text-white">{{t $ "page.live_traffic.live_traffic_feed_50e03663"}}</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{t $ "page.live_traffic.real_time_access_log_stream_updates_every_2_seco_d5340ae0"}}</p>
     </div>
     <div class="flex items-center gap-3">
       <span id="status-dot" class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 font-medium">
         <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-        Live
+        {{t $ "page.live_traffic.live_b64ac05f"}}
       </span>
       <button id="pause-btn" class="text-sm px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-        Pause
+        {{t $ "page.live_traffic.pause_858e4ba7"}}
       </button>
-      <button id="clear-btn" title="Hides everything seen so far on this browser (for this server filter); it stays hidden after a reload. New requests keep streaming. Nothing is deleted from Analytics." class="text-sm px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-        Clear
+      <button id="clear-btn" title="{{t $ "page.live_traffic.title.hides_everything_seen_so_far_on_this_browser_for_e57898a1"}}" class="text-sm px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+        {{t $ "page.live_traffic.clear_83b12c22"}}
       </button>
     </div>
   </div>
@@ -24,19 +24,19 @@
   <!-- Filter bar -->
   <div class="flex items-center gap-3">
     <select id="filter-server" class="text-sm px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <option value="all" {{if eq .SelectedServerID 0}}selected{{end}}>All servers</option>
+      <option value="all" {{if eq .SelectedServerID 0}}selected{{end}}>{{t $ "page.live_traffic.all_servers_3205261a"}}</option>
       {{range .AllServers}}<option value="{{.ID}}" {{if eq $.SelectedServerID .ID}}selected{{end}}>{{.Name}}</option>{{end}}
     </select>
-    <input id="filter-host" type="text" placeholder="Filter by host…"
+    <input id="filter-host" type="text" placeholder="{{t $ "page.live_traffic.placeholder.filter_by_host_b79174a2"}}"
       class="text-sm px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white w-48 focus:outline-none focus:ring-2 focus:ring-blue-500">
     <select id="filter-status" class="text-sm px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <option value="">All statuses</option>
-      <option value="2">2xx</option>
-      <option value="3">3xx</option>
-      <option value="4">4xx</option>
-      <option value="5">5xx</option>
+      <option value="">{{t $ "page.live_traffic.all_statuses_8ee57323"}}</option>
+      <option value="2">{{t $ "page.live_traffic.2xx_6b25661e"}}</option>
+      <option value="3">{{t $ "page.live_traffic.3xx_0ad84065"}}</option>
+      <option value="4">{{t $ "page.live_traffic.4xx_6f61ff95"}}</option>
+      <option value="5">{{t $ "page.live_traffic.5xx_aa29d51b"}}</option>
     </select>
-    <span id="row-count" class="text-xs text-gray-500 dark:text-gray-400 ml-auto">0 rows</span>
+    <span id="row-count" class="text-xs text-gray-500 dark:text-gray-400 ml-auto">{{t $ "page.live_traffic.0_rows_14b36d7e"}}</span>
   </div>
 
   <!-- Table -->
@@ -44,15 +44,15 @@
     <table class="w-full text-sm min-w-[1080px]">
       <thead class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
         <tr class="text-left text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-          <th class="px-4 py-3 font-medium">Time</th>
-          <th class="px-4 py-3 font-medium">Server</th>
-          <th class="px-4 py-3 font-medium">Method</th>
-          <th class="px-4 py-3 font-medium">Host</th>
-          <th class="px-4 py-3 font-medium">Path</th>
-          <th class="px-4 py-3 font-medium">Status</th>
-          <th class="px-4 py-3 font-medium">Client IP</th>
-          <th class="px-4 py-3 font-medium">Duration</th>
-          <th class="px-4 py-3 font-medium">Bytes Out</th>
+          <th class="px-4 py-3 font-medium">{{t $ "page.live_traffic.time_33b93476"}}</th>
+          <th class="px-4 py-3 font-medium">{{t $ "page.live_traffic.server_aef7de28"}}</th>
+          <th class="px-4 py-3 font-medium">{{t $ "page.live_traffic.method_52a0f9b6"}}</th>
+          <th class="px-4 py-3 font-medium">{{t $ "page.live_traffic.host_4a823118"}}</th>
+          <th class="px-4 py-3 font-medium">{{t $ "page.live_traffic.path_62fa5a5b"}}</th>
+          <th class="px-4 py-3 font-medium">{{t $ "page.live_traffic.status_920e413c"}}</th>
+          <th class="px-4 py-3 font-medium">{{t $ "page.live_traffic.client_ip_eb3f1fe5"}}</th>
+          <th class="px-4 py-3 font-medium">{{t $ "page.live_traffic.duration_4fc52a3c"}}</th>
+          <th class="px-4 py-3 font-medium">{{t $ "page.live_traffic.bytes_out_f6d5f3d1"}}</th>
         </tr>
       </thead>
       <tbody id="traffic-tbody" class="divide-y divide-gray-100 dark:divide-gray-800 font-mono text-xs">
@@ -60,7 +60,7 @@
         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors event-row"
             data-id="{{.ID}}" data-host="{{.Host}}" data-status="{{.Status}}" data-server-id="{{.ServerID}}">
           <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 whitespace-nowrap">{{fmtIn .TS "2006-01-02 15:04:05"}}</td>
-          <td class="px-4 py-2.5 text-gray-600 dark:text-gray-300 whitespace-nowrap">{{if .ServerName}}{{.ServerName}}{{else if .ServerID}}Server {{.ServerID}}{{else}}Legacy / unknown{{end}}</td>
+          <td class="px-4 py-2.5 text-gray-600 dark:text-gray-300 whitespace-nowrap">{{if .ServerName}}{{.ServerName}}{{else if .ServerID}}{{t $ "page.live_traffic.server_aef7de28"}} {{.ServerID}}{{else}}{{t $ "page.live_traffic.legacy_unknown_ee3c8347"}}{{end}}</td>
           <td class="px-4 py-2.5">
             <span class="px-1.5 py-0.5 rounded font-medium text-[11px] {{if eq .Method "GET"}}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400{{else if eq .Method "POST"}}bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400{{else if eq .Method "DELETE"}}bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400{{else}}bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300{{end}}">
               {{.Method}}
@@ -72,7 +72,7 @@
             <span class="font-bold {{if lt .Status 300}}text-green-600 dark:text-green-400{{else if lt .Status 400}}text-blue-500 dark:text-blue-400{{else if lt .Status 500}}text-yellow-600 dark:text-yellow-400{{else}}text-red-600 dark:text-red-400{{end}}">{{.Status}}</span>
           </td>
           <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400">{{.ClientIP}}</td>
-          <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400">{{.DurationMs}}ms</td>
+          <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400">{{.DurationMs}}{{t $ "page.live_traffic.ms_f785c3ce"}}</td>
           <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400">{{.BytesOut}}</td>
         </tr>
         {{end}}
@@ -82,10 +82,10 @@
       <svg class="w-10 h-10 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
       </svg>
-      <p class="text-sm">No traffic yet — waiting for requests…</p>
+      <p class="text-sm">{{t $ "page.live_traffic.no_traffic_yet_waiting_for_requests_f0fb9e93"}}</p>
     </div>
   </div>
-  <p class="text-xs text-gray-400 dark:text-gray-600 text-right">Showing up to 500 most recent rows · older rows pruned automatically</p>
+  <p class="text-xs text-gray-400 dark:text-gray-600 text-right">{{t $ "page.live_traffic.showing_up_to_500_most_recent_rows_older_rows_pr_ed9d6212"}}</p>
 </div>
 
 <script>
@@ -131,7 +131,7 @@
   function updateCount() {
     const rows = tbody.querySelectorAll('tr.event-row');
     const total = rows.length;
-    countEl.textContent = total + ' row' + (total !== 1 ? 's' : '');
+    countEl.textContent = total + caddyuiT('js.live_traffic.row_98bd37a2') + (total !== 1 ? 's' : '');
     if (emptyState) emptyState.style.display = total > 0 ? 'none' : '';
   }
 
@@ -194,7 +194,7 @@
     tr.dataset.serverId = String(e.server_id || 0);
     tr.innerHTML = `
       <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 whitespace-nowrap">${fmtTime(e.ts)}</td>
-      <td class="px-4 py-2.5 text-gray-600 dark:text-gray-300 whitespace-nowrap">${esc(e.server_name || (e.server_id ? 'Server ' + e.server_id : 'Legacy / unknown'))}</td>
+      <td class="px-4 py-2.5 text-gray-600 dark:text-gray-300 whitespace-nowrap">${esc(e.server_name || (e.server_id ? caddyuiT('js.live_traffic.server_id', {id: e.server_id}) : caddyuiT('js.live_traffic.legacy_unknown')))}</td>
       <td class="px-4 py-2.5"><span class="px-1.5 py-0.5 rounded font-medium text-[11px] ${methodClass(e.method)}">${esc(e.method)}</span></td>
       <td class="px-4 py-2.5 text-gray-800 dark:text-gray-200 max-w-[180px] truncate">${esc(e.host)}</td>
       <td class="px-4 py-2.5 text-gray-600 dark:text-gray-300 max-w-[260px] truncate">${esc(e.path)}</td>
@@ -234,7 +234,7 @@
     es.onopen = () => {
       if (dot) { dot.className = 'w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse'; }
       label.className = 'inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 font-medium';
-      label.childNodes[1].textContent = ' Live';
+      label.childNodes[1].textContent = caddyuiT('js.live_traffic.live_8341e5e2');
     };
 
     es.onmessage = (ev) => {
@@ -257,7 +257,7 @@
     es.onerror = () => {
       if (dot) { dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500'; }
       label.className = 'inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 font-medium';
-      label.childNodes[1].textContent = ' Disconnected';
+      label.childNodes[1].textContent = caddyuiT('js.live_traffic.disconnected_e398bbb6');
       // Auto-reconnect is built into EventSource.
     };
   }
@@ -276,7 +276,7 @@
 
   pauseBtn.addEventListener('click', () => {
     paused = !paused;
-    pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+    pauseBtn.textContent = paused ? caddyuiT('js.live_traffic.resume_d640c742') : caddyuiT('js.live_traffic.pause_858e4ba7');
     if (!paused) connect(); // re-subscribe with current cursor
   });
 

@@ -1,9 +1,9 @@
-{{define "title"}}Sessions · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.sessions.sessions_caddyui_6ba62f7f"}}{{end}}
 {{define "content"}}
 <div class="mb-6">
-  <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Active sessions</h1>
+  <h1 class="text-2xl font-semibold tracking-tight text-ink-900">{{t $ "page.sessions.active_sessions_61ad9909"}}</h1>
   <p class="text-sm text-ink-500 mt-1">
-    {{if .IsAdmin}}All active login sessions across every user.{{else}}Your active login sessions. Revoke any you don't recognise.{{end}}
+    {{if .IsAdmin}}{{t $ "page.sessions.all_active_login_sessions_across_every_user_1af101c6"}}{{else}}{{t $ "page.sessions.your_active_login_sessions_revoke_any_you_don_t_r_95b84fbb"}}{{end}}
   </p>
 </div>
 
@@ -11,10 +11,10 @@
   <table class="w-full text-sm min-w-[540px]">
     <thead class="bg-ink-50/50 text-left">
       <tr class="text-xs uppercase tracking-wider text-ink-500">
-        {{if .IsAdmin}}<th class="px-5 py-3 font-medium">User</th>{{end}}
-        <th class="px-5 py-3 font-medium">Token (first 8)</th>
-        <th class="px-5 py-3 font-medium">Expires</th>
-        <th class="px-5 py-3 font-medium text-right">Action</th>
+        {{if .IsAdmin}}<th class="px-5 py-3 font-medium">{{t $ "page.sessions.user_b512d97e"}}</th>{{end}}
+        <th class="px-5 py-3 font-medium">{{t $ "page.sessions.token_first_8_0c44030b"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.sessions.expires_f6725f3a"}}</th>
+        <th class="px-5 py-3 font-medium text-right">{{t $ "page.sessions.action_64cff131"}}</th>
       </tr>
     </thead>
     <tbody>
@@ -23,13 +23,13 @@
         {{if $.IsAdmin}}<td class="px-5 py-3 text-xs text-ink-600">{{.UserEmail}}</td>{{end}}
         <td class="px-5 py-3 font-mono text-xs text-ink-700">
           {{truncate .Token 8}}…
-          {{if .IsCurrent}}<span class="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700">current</span>{{end}}
+          {{if .IsCurrent}}<span class="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700">{{t $ "page.sessions.current_97b05602"}}</span>{{end}}
         </td>
         <td class="px-5 py-3 text-xs text-ink-500">{{fmtDateTime .ExpiresAt}}</td>
         <td class="px-5 py-3 text-right">
           {{if not .IsCurrent}}
           <form method="post" action="/sessions/{{.Token}}/revoke">
-            <button type="submit" class="text-xs font-medium text-red-500 hover:text-red-700 transition">Revoke</button>
+            <button type="submit" class="text-xs font-medium text-red-500 hover:text-red-700 transition">{{t $ "page.sessions.revoke_87e6d00b"}}</button>
           </form>
           {{else}}
           <span class="text-xs text-ink-300">—</span>
@@ -38,7 +38,7 @@
       </tr>
       {{else}}
       <tr>
-        <td colspan="{{if .IsAdmin}}4{{else}}3{{end}}" class="px-5 py-16 text-center text-sm text-ink-400">No active sessions.</td>
+        <td colspan="{{if .IsAdmin}}4{{else}}3{{end}}" class="px-5 py-16 text-center text-sm text-ink-400">{{t $ "page.sessions.no_active_sessions_6f064eb9"}}</td>
       </tr>
       {{end}}
     </tbody>

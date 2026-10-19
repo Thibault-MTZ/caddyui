@@ -1,9 +1,9 @@
-{{define "title"}}Set up CaddyUI{{end}}
-{{define "description"}}Create the first CaddyUI administrator and begin the guided environment setup.{{end}}
+{{define "title"}}{{t $ "page.setup.set_up_caddyui_ed715b81"}}{{end}}
+{{define "description"}}{{t $ "page.setup.create_the_first_caddyui_administrator_and_begin_438c53b1"}}{{end}}
 {{define "content"}}
 <div class="setup-wizard">
   <aside class="setup-wizard__story">
-    <a href="/setup" class="setup-wizard__brand" aria-label="CaddyUI setup">
+    <a href="/setup" class="setup-wizard__brand" aria-label="{{t $ "page.setup.aria-label.caddyui_setup_15032517"}}">
       <span class="setup-wizard__mark">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7l8-4 8 4v10l-8 4-8-4V7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M4 7l8 4 8-4M12 11v10" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
       </span>
@@ -11,29 +11,29 @@
     </a>
 
     <div class="setup-wizard__intro">
-      <span class="setup-wizard__eyebrow">Enterprise setup</span>
-      <h1>Build a reliable Caddy control plane.</h1>
-      <p>Start with administrator identity, then verify Caddy, secure access, configure automation, and publish the first service.</p>
+      <span class="setup-wizard__eyebrow">{{t $ "page.setup.enterprise_setup_1b78ce5c"}}</span>
+      <h1>{{t $ "page.setup.build_a_reliable_caddy_control_plane_6fe51d47"}}</h1>
+      <p>{{t $ "page.setup.start_with_administrator_identity_then_verify_ca_c79b44ee"}}</p>
     </div>
 
-    <ol class="setup-wizard__steps" aria-label="Setup journey">
+    <ol class="setup-wizard__steps" aria-label="{{t $ "page.setup.aria-label.setup_journey_bfbd8f2c"}}">
       <li class="is-current" aria-current="step">
-        <span>1</span><div><strong>Administrator</strong><small>Create the control-plane owner</small></div>
+        <span>1</span><div><strong>{{t $ "page.setup.administrator_e7d3e769"}}</strong><small>{{t $ "page.setup.create_the_control_plane_owner_396dd6ba"}}</small></div>
       </li>
       <li>
-        <span>2</span><div><strong>Caddy connection</strong><small>Verify the active environment</small></div>
+        <span>2</span><div><strong>{{t $ "page.setup.caddy_connection_c487217f"}}</strong><small>{{t $ "page.setup.verify_the_active_environment_e0dafc29"}}</small></div>
       </li>
       <li>
-        <span>3</span><div><strong>Security &amp; automation</strong><small>Enable TOTP and optional DNS</small></div>
+        <span>3</span><div><strong>{{t $ "page.setup.security_automation_c1846aab"}}</strong><small>{{t $ "page.setup.enable_totp_and_optional_dns_2503cd44"}}</small></div>
       </li>
       <li>
-        <span>4</span><div><strong>Publish service</strong><small>Validate, review, and deploy</small></div>
+        <span>4</span><div><strong>{{t $ "page.setup.publish_service_b3197ea9"}}</strong><small>{{t $ "page.setup.validate_review_and_deploy_a5eddee1"}}</small></div>
       </li>
     </ol>
 
     <p class="setup-wizard__assurance">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
-      Setup state is derived from your real configuration. You can return to the readiness guide at any time.
+      {{t $ "page.setup.setup_state_is_derived_from_your_real_configurat_65960508"}}
     </p>
   </aside>
 
@@ -46,9 +46,9 @@
         <span>CaddyUI</span>
       </div>
       <div class="setup-wizard__form-heading">
-        <span>Step 1 of 4</span>
-        <h2>Create the first administrator</h2>
-        <p>This account owns settings, Caddy connections, access policy, and the initial deployment workflow.</p>
+        <span>{{t $ "page.setup.step_1_of_4_6f4ab046"}}</span>
+        <h2>{{t $ "page.setup.create_the_first_administrator_96e1dd14"}}</h2>
+        <p>{{t $ "page.setup.this_account_owns_settings_caddy_connections_acc_c5ec46be"}}</p>
       </div>
 
       {{if .Error}}
@@ -57,35 +57,35 @@
 
       <form method="post" action="/setup" class="setup-wizard__form">
         <div class="setup-field">
-          <label for="setup-name">Full name <span>Optional</span></label>
+          <label for="setup-name">{{t $ "page.setup.full_name_f13a64ba"}} <span>{{t $ "page.setup.optional_59be7133"}}</span></label>
           <input id="setup-name" name="name" autocomplete="name" placeholder="Richard Applegate" />
-          <small>Shown in account and audit context.</small>
+          <small>{{t $ "page.setup.shown_in_account_and_audit_context_8bd2c27d"}}</small>
         </div>
         <div class="setup-field">
-          <label for="setup-email">Administrator email</label>
+          <label for="setup-email">{{t $ "page.setup.administrator_email_1192b67b"}}</label>
           <input id="setup-email" name="email" type="email" autocomplete="email" required placeholder="admin@example.com" />
         </div>
         <div class="setup-field-grid">
           <div class="setup-field">
-            <label for="setup-password">Password</label>
+            <label for="setup-password">{{t $ "page.setup.password_e7cf3ef4"}}</label>
             <input id="setup-password" name="password" type="password" autocomplete="new-password" required minlength="8" />
           </div>
           <div class="setup-field">
-            <label for="setup-password-confirm">Confirm password</label>
+            <label for="setup-password-confirm">{{t $ "page.setup.confirm_password_5ac265f3"}}</label>
             <input id="setup-password-confirm" name="password_confirm" type="password" autocomplete="new-password" required minlength="8" />
           </div>
         </div>
         <div class="setup-password-note">
           <span aria-hidden="true">i</span>
-          <p>Use at least 8 characters. The readiness guide will offer TOTP two-factor authentication immediately after account creation.</p>
+          <p>{{t $ "page.setup.use_at_least_8_characters_the_readiness_guide_wi_dc518cbc"}}</p>
         </div>
         <button class="setup-wizard__submit">
-          Create administrator and continue
+          {{t $ "page.setup.create_administrator_and_continue_411d0cb5"}}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </button>
       </form>
 
-      <p class="setup-wizard__footer">CaddyUI stores the password as a one-way hash. There is no default administrator credential.</p>
+      <p class="setup-wizard__footer">{{t $ "page.setup.caddyui_stores_the_password_as_a_one_way_hash_th_15bed615"}}</p>
     </div>
   </main>
 </div>

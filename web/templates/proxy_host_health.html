@@ -1,16 +1,16 @@
-{{define "title"}}Health: {{index (.Host.DomainList) 0}} · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.proxy_host_health.health_ac2be4a4"}} {{index (.Host.DomainList) 0}} {{t $ "page.proxy_host_health.caddyui_a80cd555"}}{{end}}
 {{define "content"}}
 <div class="mb-6 flex items-center gap-2">
   <a href="/proxy-hosts" class="inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-800 transition">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><polyline points="15 18 9 12 15 6"/></svg>
-    Proxy Hosts
+    {{t $ "page.proxy_host_health.proxy_hosts_d98d2003"}}
   </a>
 </div>
 
 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-6 gap-3">
   <div>
     <h1 class="text-2xl font-semibold tracking-tight text-ink-900 font-mono">{{index (.Host.DomainList) 0}}</h1>
-    <p class="text-sm text-ink-500 mt-1">Public health check history — last 50 checks, up to 24 h of data.</p>
+    <p class="text-sm text-ink-500 mt-1">{{t $ "page.proxy_host_health.public_health_check_history_last_50_checks_up_to_317908b2"}}</p>
   </div>
   {{/* Current status badge — use most recent check if available.
        v2.35.0 (issue #39 follow-up): MonitorMode "off" takes priority over
@@ -19,25 +19,25 @@
   {{if eq .Host.MonitorMode "off"}}
     <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-ink-100 border border-ink-200 text-ink-600 shrink-0">
       <span class="w-2 h-2 rounded-full bg-ink-400"></span>
-      Monitoring off
+      {{t $ "page.proxy_host_health.monitoring_off_d152fbe6"}}
     </span>
   {{else if .Checks}}
     {{$latest := index .Checks 0}}
     {{if $latest.OK}}
       <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-green-50 border border-green-200 text-green-800 shrink-0">
         <span class="w-2 h-2 rounded-full bg-green-500"></span>
-        Up &mdash; {{$latest.StatusCode}} in {{$latest.LatencyMs}}ms
+        {{t $ "page.proxy_host_health.up_ef6c3b52"}} {{$latest.StatusCode}} {{t $ "page.proxy_host_health.in_58296753"}} {{$latest.LatencyMs}}{{t $ "page.proxy_host_health.ms_f785c3ce"}}
       </span>
     {{else}}
       <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-red-50 border border-red-200 text-red-800 shrink-0">
         <span class="w-2 h-2 rounded-full bg-red-500"></span>
-        Down{{if $latest.ErrorMsg}} &mdash; {{$latest.ErrorMsg}}{{end}}
+        {{t $ "page.proxy_host_health.down_b86d11af"}}{{if $latest.ErrorMsg}} &mdash; {{$latest.ErrorMsg}}{{end}}
       </span>
     {{end}}
   {{else}}
     <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-ink-100 border border-ink-200 text-ink-600 shrink-0">
       <span class="w-2 h-2 rounded-full bg-ink-400"></span>
-      No data yet
+      {{t $ "page.proxy_host_health.no_data_yet_e2e18a76"}}
     </span>
   {{end}}
 </div>
@@ -51,7 +51,7 @@
 {{if eq .Host.MonitorMode "off"}}
 <div class="mb-6 rounded-lg border border-ink-200 bg-ink-50 px-4 py-3 text-sm text-ink-700 flex items-start gap-2">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 mt-0.5 shrink-0 text-ink-400"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-  <span>Monitoring is off for this host — no new checks are being recorded. The history below is frozen from before it was turned off. <a href="/proxy-hosts/{{.Host.ID}}/edit" class="text-brand-600 hover:underline">Change this in the host's settings.</a></span>
+  <span>{{t $ "page.proxy_host_health.monitoring_is_off_for_this_host_no_new_checks_ar_d4a61fb5"}} <a href="/proxy-hosts/{{.Host.ID}}/edit" class="text-brand-600 hover:underline">{{t $ "page.proxy_host_health.change_this_in_the_host_s_settings_a949b6e6"}}</a></span>
 </div>
 {{end}}
 
@@ -61,12 +61,12 @@
 <div class="bg-white border border-ink-200 rounded-xl shadow-card px-5 py-4 mb-6">
   <div class="flex items-start justify-between gap-3 mb-2">
     <div>
-      <div class="text-sm font-semibold text-ink-900">Expectations</div>
-      <div class="text-xs text-ink-500">Checks that run after every config sync{{if .ExpectationResults}} — last run {{fmtRel (index .ExpectationResults 0).CheckedAt}}{{end}}.</div>
+      <div class="text-sm font-semibold text-ink-900">{{t $ "page.proxy_host_health.expectations_bf2b6adc"}}</div>
+      <div class="text-xs text-ink-500">{{t $ "page.proxy_host_health.checks_that_run_after_every_config_sync_cd1e0d47"}}{{if .ExpectationResults}} {{t $ "page.proxy_host_health.last_run_553dddca"}} {{fmtRelT $ (index .ExpectationResults 0).CheckedAt}}{{end}}.</div>
     </div>
     {{if .Expectations}}
     <form method="post" action="/proxy-hosts/{{.Host.ID}}/expectations/run">
-      <button type="submit" class="text-xs px-3 py-1.5 border border-ink-200 rounded-lg hover:bg-ink-50 transition">Run now</button>
+      <button type="submit" class="text-xs px-3 py-1.5 border border-ink-200 rounded-lg hover:bg-ink-50 transition">{{t $ "page.proxy_host_health.run_now_09913977"}}</button>
     </form>
     {{end}}
   </div>
@@ -74,17 +74,17 @@
   <ul class="divide-y divide-ink-100">
     {{range .ExpectationResults}}
     <li class="py-2 flex items-start gap-2">
-      {{if .OK}}<span class="ui-status ui-status--success shrink-0">pass</span>{{else}}<span class="ui-status ui-status--danger shrink-0">fail</span>{{end}}
+      {{if .OK}}<span class="ui-status ui-status--success shrink-0">{{t $ "page.proxy_host_health.pass_d74ff0ee"}}</span>{{else}}<span class="ui-status ui-status--danger shrink-0">{{t $ "page.proxy_host_health.fail_51280dab"}}</span>{{end}}
       <span class="font-mono text-xs text-ink-700 break-all">{{.Summary}}</span>
     </li>
     {{end}}
   </ul>
   {{else if .Expectations}}
   <ul class="divide-y divide-ink-100">
-    {{range .Expectations}}<li class="py-2 font-mono text-xs text-ink-500">{{.Describe}} — not run yet</li>{{end}}
+    {{range .Expectations}}<li class="py-2 font-mono text-xs text-ink-500">{{.Describe}} {{t $ "page.proxy_host_health.not_run_yet_e9f90a76"}}</li>{{end}}
   </ul>
   {{else}}
-  <p class="text-xs text-ink-400">None defined — add some in the host's <a href="/proxy-hosts/{{.Host.ID}}/edit#ph-expectations" class="text-brand-600 hover:underline">Expectations</a> section.</p>
+  <p class="text-xs text-ink-400">{{t $ "page.proxy_host_health.none_defined_add_some_in_the_host_s_a59e4c36"}} <a href="/proxy-hosts/{{.Host.ID}}/edit#ph-expectations" class="text-brand-600 hover:underline">{{t $ "page.proxy_host_health.expectations_bf2b6adc"}}</a> {{t $ "page.proxy_host_health.section_1e54a9f6"}}</p>
   {{end}}
 </div>
 
@@ -94,12 +94,12 @@
     <div class="text-2xl font-semibold {{if ge .Uptime 99.0}}text-green-600{{else if ge .Uptime 90.0}}text-amber-600{{else}}text-red-600{{end}}">
       {{printf "%.1f" .Uptime}}%
     </div>
-    <div class="text-xs text-ink-500 mt-0.5">Uptime — last 24 h</div>
+    <div class="text-xs text-ink-500 mt-0.5">{{t $ "page.proxy_host_health.uptime_last_24_h_6a7809b6"}}</div>
   </div>
   <div class="text-ink-300 text-lg">|</div>
   <div>
     <div class="text-2xl font-semibold text-ink-800">{{.Total}}</div>
-    <div class="text-xs text-ink-500 mt-0.5">Checks in window</div>
+    <div class="text-xs text-ink-500 mt-0.5">{{t $ "page.proxy_host_health.checks_in_window_38f0e038"}}</div>
   </div>
   <div class="text-ink-300 text-lg">|</div>
   <div>
@@ -107,8 +107,8 @@
          set a longer interval (floored to a multiple of this checker's own
          5-minute tick — see the Monitoring section on the edit form).
          CadenceLabel is computed server-side in getProxyHostHealth. */}}
-    <div class="text-sm text-ink-600">Checked {{.CadenceLabel}} &middot; up to 288 results stored</div>
-    <div class="text-xs text-ink-400 mt-0.5">401 and 403 count as up (upstream is responding)</div>
+    <div class="text-sm text-ink-600">{{t $ "page.proxy_host_health.checked_0efd92a3"}} {{.CadenceLabel}} {{t $ "page.proxy_host_health.up_to_288_results_stored_37e00fce"}}</div>
+    <div class="text-xs text-ink-400 mt-0.5">{{t $ "page.proxy_host_health.401_and_403_count_as_up_upstream_is_responding_2840cdbd"}}</div>
   </div>
 </div>
 
@@ -118,32 +118,32 @@
   <table class="w-full text-sm">
     <thead class="bg-ink-100 text-left">
       <tr class="text-xs uppercase tracking-wider text-ink-500">
-        <th class="px-5 py-3 font-medium">Time</th>
-        <th class="px-5 py-3 font-medium">Status</th>
-        <th class="px-5 py-3 font-medium">HTTP Code</th>
-        <th class="px-5 py-3 font-medium">Latency</th>
-        <th class="px-5 py-3 font-medium">Detail</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.proxy_host_health.time_33b93476"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.proxy_host_health.status_920e413c"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.proxy_host_health.http_code_31761865"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.proxy_host_health.latency_e0e7d293"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.proxy_host_health.detail_fb5f27d5"}}</th>
       </tr>
     </thead>
     <tbody>
       {{range .Checks}}
       <tr class="border-t border-ink-100 hover:bg-ink-50 transition">
-        <td class="px-5 py-2.5 text-ink-600 whitespace-nowrap">{{fmtRel .CheckedAt}}</td>
+        <td class="px-5 py-2.5 text-ink-600 whitespace-nowrap">{{fmtRelT $ .CheckedAt}}</td>
         <td class="px-5 py-2.5">
           {{if .OK}}
             <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
-              <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>Up
+              <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>{{t $ "page.proxy_host_health.up_55490a4b"}}
             </span>
           {{else}}
             <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700">
-              <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>Down
+              <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>{{t $ "page.proxy_host_health.down_b86d11af"}}
             </span>
           {{end}}
         </td>
         <td class="px-5 py-2.5 font-mono text-xs text-ink-600">
           {{if .StatusCode}}{{.StatusCode}}{{else}}&mdash;{{end}}
         </td>
-        <td class="px-5 py-2.5 font-mono text-xs text-ink-600">{{.LatencyMs}}ms</td>
+        <td class="px-5 py-2.5 font-mono text-xs text-ink-600">{{.LatencyMs}}{{t $ "page.proxy_host_health.ms_f785c3ce"}}</td>
         <td class="px-5 py-2.5 text-xs text-ink-500 max-w-xs truncate">
           {{if .ErrorMsg}}{{.ErrorMsg}}{{else}}&mdash;{{end}}
         </td>
@@ -157,8 +157,8 @@
   <div class="w-12 h-12 mx-auto bg-ink-100 rounded-full flex items-center justify-center mb-3">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-ink-400"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
   </div>
-  <div class="text-ink-600 text-sm font-medium">No health checks yet</div>
-  <div class="text-ink-400 text-xs mt-1">The first check runs 30 seconds after startup, then every 5 minutes.</div>
+  <div class="text-ink-600 text-sm font-medium">{{t $ "page.proxy_host_health.no_health_checks_yet_f4e414aa"}}</div>
+  <div class="text-ink-400 text-xs mt-1">{{t $ "page.proxy_host_health.the_first_check_runs_30_seconds_after_startup_th_e8140af1"}}</div>
 </div>
 {{end}}
 {{end}}

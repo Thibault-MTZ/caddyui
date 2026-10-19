@@ -43,6 +43,10 @@ func translations() *i18n.Bundle {
 // placeholders, {{t $ "x.count" "count" 3}}. The first argument is the page's
 // root data (which carries "Lang") or a locale code; anything else means English.
 func tFunc(ctx any, key string, args ...any) string {
+	return translations().T(translationLanguage(ctx), key, args...)
+}
+
+func translationLanguage(ctx any) string {
 	lang := i18n.Default
 	switch v := ctx.(type) {
 	case map[string]any:
@@ -54,7 +58,7 @@ func tFunc(ctx any, key string, args ...any) string {
 			lang = v
 		}
 	}
-	return translations().T(lang, key, args...)
+	return lang
 }
 
 // requestLocale picks the language for a request: the signed-in user's own

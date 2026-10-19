@@ -144,7 +144,7 @@ function caddyuiDelayFetch(ms, fn) {
   var STALE_MS = 60000;
   var selected = 0;
   var visible = [];
-  var TYPE_LABEL = { proxy: 'Proxy', redirect: 'Redirect', raw: 'Advanced', cert: 'Cert' };
+  var TYPE_LABEL = { proxy: caddyuiT('js.search.type_proxy'), redirect: caddyuiT('js.search.type_redirect'), raw: caddyuiT('js.search.type_raw'), cert: caddyuiT('js.search.type_cert') };
   var TYPE_COLOR = {
     proxy: 'bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300',
     redirect: 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300',
@@ -180,7 +180,7 @@ function caddyuiDelayFetch(ms, fn) {
   });
   function render(q) {
     if (!data) {
-      results.innerHTML = '<div class="px-3 py-6 text-center text-sm text-ink-400 dark:text-slate-500">Loading…</div>';
+      results.innerHTML = '<div class="px-3 py-6 text-center text-sm text-ink-400 dark:text-slate-500">' + escapeHTML(caddyuiT('js.search.loading')) + '</div>';
       return;
     }
     var qq = (q || '').trim().toLowerCase();
@@ -191,7 +191,7 @@ function caddyuiDelayFetch(ms, fn) {
               || (it.sub || '').toLowerCase().indexOf(qq) >= 0;
         }).slice(0, 50);
     if (visible.length === 0) {
-      results.innerHTML = '<div class="px-3 py-6 text-center text-sm text-ink-400 dark:text-slate-500">No matches</div>';
+      results.innerHTML = '<div class="px-3 py-6 text-center text-sm text-ink-400 dark:text-slate-500">' + escapeHTML(caddyuiT('js.search.no_matches')) + '</div>';
       return;
     }
     if (selected >= visible.length) selected = visible.length - 1;
@@ -200,9 +200,9 @@ function caddyuiDelayFetch(ms, fn) {
       var sel = (i === selected) ? 'bg-brand-50 dark:bg-slate-700' : '';
       var pill = TYPE_COLOR[it.type] || 'bg-ink-100 text-ink-600 dark:bg-slate-700 dark:text-slate-300';
       return '<a href="' + it.url + '" data-cmd-row="' + i + '" class="cmd-row flex items-center gap-3 px-3 py-2 rounded-lg ' + sel + ' hover:bg-brand-50 dark:hover:bg-slate-700 transition">' +
-             '<span class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded ' + pill + ' font-medium shrink-0">' + (TYPE_LABEL[it.type] || it.type) + '</span>' +
+             '<span class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded ' + pill + ' font-medium shrink-0">' + escapeHTML(TYPE_LABEL[it.type] || it.type) + '</span>' +
              '<span class="flex-1 min-w-0">' +
-               '<span class="block text-sm text-ink-900 dark:text-slate-100 truncate">' + escapeHTML(it.label || '(unnamed)') + '</span>' +
+               '<span class="block text-sm text-ink-900 dark:text-slate-100 truncate">' + escapeHTML(it.label || caddyuiT('js.search.unnamed')) + '</span>' +
                (it.sub ? '<span class="block text-xs text-ink-500 dark:text-slate-400 truncate">' + escapeHTML(it.sub) + '</span>' : '') +
              '</span>' +
              '</a>';
@@ -341,7 +341,7 @@ function caddyuiDelayFetch(ms, fn) {
   // actually created. Cancel just dismisses the card.
   function appendToolCallCard(tc) {
     var args = tc.args || {};
-    var labels = { 'create_proxy_host': '➕ Create proxy host', 'create_redirection': '➕ Create redirection' };
+    var labels = { 'create_proxy_host': caddyuiT('js.ai.create_proxy_host'), 'create_redirection': caddyuiT('js.ai.create_redirection') };
     var color = tc.name === 'create_redirection' ? 'sky' : 'brand';
     var rows = Object.keys(args).map(function(k) {
       var v = args[k];
@@ -353,13 +353,13 @@ function caddyuiDelayFetch(ms, fn) {
     card.innerHTML =
       '<div class="border-2 border-' + color + '-300 dark:border-' + color + '-700 bg-' + color + '-50 dark:bg-' + color + '-900/30 rounded-lg p-3 max-w-[90%] w-full">' +
         '<div class="flex items-center justify-between mb-2">' +
-          '<div class="text-sm font-semibold text-' + color + '-800 dark:text-' + color + '-200">' + (labels[tc.name] || tc.name) + '</div>' +
-          '<span class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-' + color + '-100 dark:bg-' + color + '-900/50 text-' + color + '-700 dark:text-' + color + '-300 font-medium">tool call</span>' +
+          '<div class="text-sm font-semibold text-' + color + '-800 dark:text-' + color + '-200">' + escapeHTML(labels[tc.name] || tc.name) + '</div>' +
+          '<span class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-' + color + '-100 dark:bg-' + color + '-900/50 text-' + color + '-700 dark:text-' + color + '-300 font-medium">' + escapeHTML(caddyuiT('js.ai.tool_call')) + '</span>' +
         '</div>' +
         '<div class="space-y-1 mb-3">' + rows + '</div>' +
         '<div class="flex items-center gap-2">' +
-          '<button data-tc-apply class="px-3 py-1 rounded-md bg-' + color + '-600 hover:bg-' + color + '-700 text-white text-xs font-medium transition">Apply</button>' +
-          '<button data-tc-cancel class="px-3 py-1 rounded-md border border-ink-200 dark:border-slate-600 text-ink-600 dark:text-slate-300 hover:bg-ink-100 dark:hover:bg-slate-700 text-xs transition">Cancel</button>' +
+          '<button data-tc-apply class="px-3 py-1 rounded-md bg-' + color + '-600 hover:bg-' + color + '-700 text-white text-xs font-medium transition">' + escapeHTML(caddyuiT('js.ai.apply')) + '</button>' +
+          '<button data-tc-cancel class="px-3 py-1 rounded-md border border-ink-200 dark:border-slate-600 text-ink-600 dark:text-slate-300 hover:bg-ink-100 dark:hover:bg-slate-700 text-xs transition">' + escapeHTML(caddyuiT('js.ai.cancel')) + '</button>' +
           '<span data-tc-status class="text-xs text-ink-500 dark:text-slate-400 ml-2"></span>' +
         '</div>' +
       '</div>';
@@ -373,12 +373,12 @@ function caddyuiDelayFetch(ms, fn) {
     cancelBtn.addEventListener('click', function() {
       applyBtn.disabled = true;
       cancelBtn.disabled = true;
-      statusEl.textContent = '✗ cancelled';
+      statusEl.textContent = caddyuiT('js.ai.cancelled');
     });
     applyBtn.addEventListener('click', function() {
       applyBtn.disabled = true;
       cancelBtn.disabled = true;
-      statusEl.textContent = 'creating…';
+      statusEl.textContent = caddyuiT('js.ai.creating');
       fetch('/api/ai/exec-tool', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -391,11 +391,11 @@ function caddyuiDelayFetch(ms, fn) {
             statusEl.innerHTML = '<span class="text-red-600 dark:text-red-400">✗ ' + escapeHTML(d.error) + '</span>';
             return;
           }
-          var url = d.url ? ' <a href="' + d.url + '" class="text-' + color + '-700 dark:text-' + color + '-300 underline">edit →</a>' : '';
-          statusEl.innerHTML = '<span class="text-emerald-700 dark:text-emerald-300">' + escapeHTML(d.summary || '✓ created') + '</span>' + url;
+          var url = d.url ? ' <a href="' + d.url + '" class="text-' + color + '-700 dark:text-' + color + '-300 underline">' + escapeHTML(caddyuiT('js.ai.edit')) + '</a>' : '';
+          statusEl.innerHTML = '<span class="text-emerald-700 dark:text-emerald-300">' + escapeHTML(d.summary || caddyuiT('js.ai.created')) + '</span>' + url;
         })
         .catch(function(err) {
-          statusEl.innerHTML = '<span class="text-red-600 dark:text-red-400">✗ network error: ' + escapeHTML(err.message) + '</span>';
+          statusEl.innerHTML = '<span class="text-red-600 dark:text-red-400">' + escapeHTML(caddyuiT('js.ai.network_error', {error: err.message})) + '</span>';
         });
     });
   }
@@ -407,7 +407,7 @@ function caddyuiDelayFetch(ms, fn) {
   var newChatBtn = document.getElementById('ai-new-chat');
   function clearChat() {
     conversation = [];
-    history.innerHTML = '<div class="text-xs text-ink-400 dark:text-slate-500 text-center">Ask anything about your CaddyUI config — proxy hosts, redirects, certs, Caddyfile snippets…</div>';
+    history.innerHTML = '<div class="text-xs text-ink-400 dark:text-slate-500 text-center">' + escapeHTML(caddyuiT('js.ai.prompt')) + '</div>';
   }
   if (newChatBtn) newChatBtn.addEventListener('click', clearChat);
 
@@ -444,7 +444,7 @@ function caddyuiDelayFetch(ms, fn) {
     submit.disabled = true;
     var thinking = document.createElement('div');
     thinking.className = 'flex justify-start';
-    thinking.innerHTML = '<div class="bg-ink-100 dark:bg-slate-700 text-ink-500 dark:text-slate-400 px-3 py-2 rounded-lg italic text-xs">Thinking…</div>';
+    thinking.innerHTML = '<div class="bg-ink-100 dark:bg-slate-700 text-ink-500 dark:text-slate-400 px-3 py-2 rounded-lg italic text-xs">' + escapeHTML(caddyuiT('js.ai.thinking')) + '</div>';
     history.appendChild(thinking);
     history.scrollTop = history.scrollHeight;
     fetch('/api/ai/chat', {
@@ -480,7 +480,7 @@ function caddyuiDelayFetch(ms, fn) {
       })
       .catch(function(err) {
         thinking.remove();
-        appendBubble('assistant', 'Network error: ' + err.message, true);
+        appendBubble('assistant', caddyuiT('js.ai.network_error', {error: err.message}), true);
       })
       .finally(function() {
         submit.disabled = false;
@@ -496,7 +496,8 @@ function caddyuiDelayFetch(ms, fn) {
   function paint() {
     var mode = document.documentElement.dataset.themeMode || 'auto';
     document.querySelectorAll('[data-theme-toggle]').forEach(function(btn) {
-      btn.title = 'Theme: ' + mode + ' (click to change)';
+      var label = {auto: caddyuiT('js.theme.auto'), light: caddyuiT('js.theme.light'), dark: caddyuiT('js.theme.dark')}[mode] || mode;
+      btn.title = caddyuiT('js.theme.description', {mode: label});
       btn.querySelectorAll('[data-theme-icon]').forEach(function(icon) {
         icon.classList.toggle('hidden', icon.dataset.themeIcon !== mode);
       });
@@ -711,7 +712,7 @@ function caddyuiDelayFetch(ms, fn) {
     el.innerHTML =
       '<span class="' + iconColorClass + '">' + icon + '</span>' +
       '<span class="flex-1 leading-snug">' + String(msg).replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>' +
-      '<button class="ml-1 opacity-60 hover:opacity-100 transition" aria-label="Dismiss">' +
+      '<button class="ml-1 opacity-60 hover:opacity-100 transition" aria-label="' + window.caddyuiEscapeHTML(caddyuiT('js.toast.dismiss')) + '">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
       '</button>';
 

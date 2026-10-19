@@ -1,17 +1,15 @@
-{{define "title"}}Groups · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.groups.groups_caddyui_1a89271d"}}{{end}}
 {{define "content"}}
 <div class="flex items-start justify-between mb-8 gap-6">
   <div>
-    <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Groups</h1>
+    <h1 class="text-2xl font-semibold tracking-tight text-ink-900">{{t $ "page.groups.groups_39bbb719"}}</h1>
     <p class="text-sm text-ink-500 mt-1 max-w-2xl">
-      Put user-role accounts into a shared group so they can view each other's
-      proxy hosts, redirects, raw routes, and certificates. Editing and
-      deleting stays owner-scoped — group membership grants visibility only.
+      {{t $ "page.groups.put_user_role_accounts_into_a_shared_group_so_th_2f037e3b"}}
     </p>
   </div>
   <a href="/groups/new" class="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition whitespace-nowrap">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    New group
+    {{t $ "page.groups.new_group_df796c65"}}
   </a>
 </div>
 
@@ -19,11 +17,11 @@
   <table class="w-full text-sm min-w-[620px]">
     <thead class="bg-ink-50/50 text-left">
       <tr class="text-xs uppercase tracking-wider text-ink-500">
-        <th class="px-5 py-3 font-medium">Name</th>
-        <th class="px-5 py-3 font-medium">Description</th>
-        <th class="px-5 py-3 font-medium">Members</th>
-        <th class="px-5 py-3 font-medium">Created</th>
-        <th class="px-5 py-3 font-medium text-right sticky right-0 bg-ink-50 shadow-[-6px_0_8px_-4px_rgba(0,0,0,0.06)] z-10">Actions</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.groups.name_dcd1d522"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.groups.description_526e0087"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.groups.members_1044a4c0"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.groups.created_d70b9e24"}}</th>
+        <th class="px-5 py-3 font-medium text-right sticky right-0 bg-ink-50 shadow-[-6px_0_8px_-4px_rgba(0,0,0,0.06)] z-10">{{t $ "page.groups.actions_ff8059dc"}}</th>
       </tr>
     </thead>
     <tbody>
@@ -32,7 +30,7 @@
         <td class="px-5 py-3 text-ink-800">
           <span class="inline-flex items-center gap-1">
             <span class="font-medium">{{.Name}}</span>
-            <a href="/groups/{{.ID}}/edit" title="Edit group" class="inline-flex items-center justify-center w-6 h-6 rounded text-ink-400 hover:text-brand-600 hover:bg-ink-100 transition" aria-label="Edit {{.Name}}">
+            <a href="/groups/{{.ID}}/edit" title="{{t $ "page.groups.title.edit_group_f24f78c7"}}" class="inline-flex items-center justify-center w-6 h-6 rounded text-ink-400 hover:text-brand-600 hover:bg-ink-100 transition" aria-label="{{t $ "page.groups.aria-label.edit_464c4ffd"}} {{.Name}}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </a>
           </span>
@@ -46,8 +44,8 @@
         </td>
         <td class="px-5 py-3 font-mono text-xs text-ink-500">{{fmtIn .CreatedAt "2006-01-02"}}</td>
         <td class="px-5 py-3 text-right whitespace-nowrap sticky right-0 bg-white shadow-[-6px_0_8px_-4px_rgba(0,0,0,0.06)]">
-          <form method="post" action="/groups/{{.ID}}/delete" class="inline" onsubmit="return confirm('Delete group {{.Name}}? Members will no longer see each other\u0027s rows.')">
-            <button class="text-red-600 hover:text-red-700 text-sm transition">Delete</button>
+          <form method="post" action="/groups/{{.ID}}/delete" class="inline" onsubmit="return confirm(caddyuiT('js.groups.delete_group_value1_members_will_no_longer_see_e_843e9a88', {value1: {{.Name}}}))">
+            <button class="text-red-600 hover:text-red-700 text-sm transition">{{t $ "page.groups.delete_e2d0a549"}}</button>
           </form>
         </td>
       </tr>
@@ -57,9 +55,9 @@
           <div class="w-12 h-12 mx-auto bg-ink-100 rounded-full flex items-center justify-center mb-3">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-ink-400"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </div>
-          <div class="text-ink-600 text-sm font-medium">No groups yet</div>
-          <p class="text-xs text-ink-500 mt-1 max-w-sm mx-auto">Create one to let user-role accounts share a view of their teammates' resources.</p>
-          <a href="/groups/new" class="inline-block mt-3 text-brand-600 hover:text-brand-700 text-sm font-medium">+ Add one</a>
+          <div class="text-ink-600 text-sm font-medium">{{t $ "page.groups.no_groups_yet_07514d06"}}</div>
+          <p class="text-xs text-ink-500 mt-1 max-w-sm mx-auto">{{t $ "page.groups.create_one_to_let_user_role_accounts_share_a_vie_08767df9"}}</p>
+          <a href="/groups/new" class="inline-block mt-3 text-brand-600 hover:text-brand-700 text-sm font-medium">{{t $ "page.groups.add_one_218a37c1"}}</a>
         </td>
       </tr>
       {{end}}

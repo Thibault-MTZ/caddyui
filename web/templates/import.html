@@ -1,17 +1,15 @@
-{{define "title"}}Import · CaddyUI{{end}}
+{{define "title"}}{{t $ "page.import.import_caddyui_d3a8cfa5"}}{{end}}
 {{define "content"}}
 <div class="mb-8">
-  <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Import from live Caddy</h1>
+  <h1 class="text-2xl font-semibold tracking-tight text-ink-900">{{t $ "page.import.import_from_live_caddy_00e213d3"}}</h1>
   <p class="text-sm text-ink-500 mt-1 max-w-2xl">
-    Scans your current Caddy config via the admin API. Simple reverse-proxies and redirects become
-    editable entries; routes with per-path routing, multiple upstreams, or unsupported handlers are
-    imported as advanced routes (raw JSON) so nothing is lost.
+    {{t $ "page.import.scans_your_current_caddy_config_via_the_admin_ap_eb49f88d"}}
   </p>
 </div>
 
 {{if .Error}}
 <div data-toast="error" class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl mb-4">
-  <div class="font-medium text-sm">Couldn't fetch Caddy config</div>
+  <div class="font-medium text-sm">{{t $ "page.import.couldn_t_fetch_caddy_config_755686ab"}}</div>
   <div class="text-xs mt-1 font-mono">{{.Error}}</div>
 </div>
 {{end}}
@@ -19,32 +17,32 @@
 {{with .Result}}
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Proxy hosts</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "page.import.proxy_hosts_226e6362"}}</div>
     <div class="text-3xl font-semibold text-brand-700 mt-2">{{len .Proxies}}</div>
   </div>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Redirects</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "page.import.redirects_4340f285"}}</div>
     <div class="text-3xl font-semibold text-brand-700 mt-2">{{len .Redirect}}</div>
   </div>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Advanced</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "page.import.advanced_9f088dbe"}}</div>
     <div class="text-3xl font-semibold text-purple-700 mt-2">{{len .Passthrough}}</div>
-    <div class="text-xs text-ink-400 mt-1">raw JSON, preserved verbatim</div>
+    <div class="text-xs text-ink-400 mt-1">{{t $ "page.import.raw_json_preserved_verbatim_1db59159"}}</div>
   </div>
   <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Skipped</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "page.import.skipped_12698ce1"}}</div>
     <div class="text-3xl font-semibold text-amber-600 mt-2">{{len .Skipped}}</div>
   </div>
 </div>
 
 {{if .Proxies}}
-<h2 class="text-sm font-semibold uppercase tracking-wider text-ink-500 mb-3">Proxy hosts</h2>
+<h2 class="text-sm font-semibold uppercase tracking-wider text-ink-500 mb-3">{{t $ "page.import.proxy_hosts_226e6362"}}</h2>
 <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden mb-6">
   <table class="w-full text-sm">
     <thead class="bg-ink-50/50 text-left">
       <tr class="text-xs uppercase tracking-wider text-ink-500">
-        <th class="px-5 py-3 font-medium">Source</th>
-        <th class="px-5 py-3 font-medium">Destination</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.import.source_0e570ca6"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.import.destination_293d404a"}}</th>
       </tr>
     </thead>
     <tbody>
@@ -60,14 +58,14 @@
 {{end}}
 
 {{if .Redirect}}
-<h2 class="text-sm font-semibold uppercase tracking-wider text-ink-500 mb-3">Redirections</h2>
+<h2 class="text-sm font-semibold uppercase tracking-wider text-ink-500 mb-3">{{t $ "page.import.redirections_10f77acc"}}</h2>
 <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden mb-6">
   <table class="w-full text-sm">
     <thead class="bg-ink-50/50 text-left">
       <tr class="text-xs uppercase tracking-wider text-ink-500">
-        <th class="px-5 py-3 font-medium">Source</th>
-        <th class="px-5 py-3 font-medium">Destination</th>
-        <th class="px-5 py-3 font-medium">Code</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.import.source_0e570ca6"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.import.destination_293d404a"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.import.code_340f4630"}}</th>
       </tr>
     </thead>
     <tbody>
@@ -89,20 +87,20 @@
 {{end}}
 
 {{if .Passthrough}}
-<h2 class="text-sm font-semibold uppercase tracking-wider text-ink-500 mb-3">Advanced routes <span class="normal-case tracking-normal text-ink-400 font-normal">(raw JSON, imported verbatim)</span></h2>
+<h2 class="text-sm font-semibold uppercase tracking-wider text-ink-500 mb-3">{{t $ "page.import.advanced_routes_f232b3e6"}} <span class="normal-case tracking-normal text-ink-400 font-normal">{{t $ "page.import.raw_json_imported_verbatim_cb3aa95c"}}</span></h2>
 <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden mb-6">
   <table class="w-full text-sm">
     <thead class="bg-ink-50/50 text-left">
       <tr class="text-xs uppercase tracking-wider text-ink-500">
-        <th class="px-5 py-3 font-medium">Label</th>
-        <th class="px-5 py-3 font-medium">Reason</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.import.label_0e66373f"}}</th>
+        <th class="px-5 py-3 font-medium">{{t $ "page.import.reason_f81ab834"}}</th>
       </tr>
     </thead>
     <tbody>
       {{range .Passthrough}}
       <tr class="border-t border-ink-100">
         <td class="px-5 py-3 font-mono text-xs text-ink-800">{{.Label}}</td>
-        <td class="px-5 py-3 text-xs text-ink-500">complex route (per-path / multi-upstream / custom handler)</td>
+        <td class="px-5 py-3 text-xs text-ink-500">{{t $ "page.import.complex_route_per_path_multi_upstream_custom_han_35b17efc"}}</td>
       </tr>
       {{end}}
     </tbody>
@@ -111,7 +109,7 @@
 {{end}}
 
 {{if .Skipped}}
-<h2 class="text-sm font-semibold uppercase tracking-wider text-ink-500 mb-3">Skipped <span class="normal-case tracking-normal text-ink-400 font-normal">(handle manually, or adjust your Caddyfile)</span></h2>
+<h2 class="text-sm font-semibold uppercase tracking-wider text-ink-500 mb-3">{{t $ "page.import.skipped_12698ce1"}} <span class="normal-case tracking-normal text-ink-400 font-normal">{{t $ "page.import.handle_manually_or_adjust_your_caddyfile_b3b31533"}}</span></h2>
 <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
   <ul class="text-xs space-y-1 font-mono text-amber-900">
     {{range .Skipped}}<li>• {{.}}</li>{{end}}
@@ -121,20 +119,20 @@
 
 <div class="bg-white border border-ink-200 rounded-xl shadow-card p-5 flex items-center justify-between gap-4">
   <div class="text-sm text-ink-600">
-    Clicking <strong class="text-ink-900">Import</strong> adds these entries to CaddyUI's database.<br/>
-    Your live Caddy config is <strong class="text-ink-900">not</strong> modified until you create/edit/delete an entry afterward.<br/>
-    <span class="text-xs text-ink-500">Domains that already exist in CaddyUI will be skipped.</span>
+    {{t $ "page.import.clicking_b2c56144"}} <strong class="text-ink-900">{{t $ "page.import.import_2cff9baa"}}</strong> {{t $ "page.import.adds_these_entries_to_caddyui_s_database_0b91000e"}}<br/>
+    {{t $ "page.import.your_live_caddy_config_is_55d25027"}} <strong class="text-ink-900">{{t $ "page.import.not_254bb97b"}}</strong> {{t $ "page.import.modified_until_you_create_edit_delete_an_entry_a_472e29d5"}}<br/>
+    <span class="text-xs text-ink-500">{{t $ "page.import.domains_that_already_exist_in_caddyui_will_be_sk_b92eb107"}}</span>
   </div>
   <form method="post" action="/import">
     <button class="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 disabled:bg-ink-300 disabled:cursor-not-allowed text-white font-medium px-5 py-2 rounded-lg shadow-sm transition" {{if not (or .Proxies .Redirect .Passthrough)}}disabled{{end}}>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Import
+      {{t $ "page.import.import_2cff9baa"}}
     </button>
   </form>
 </div>
 
 <details class="mt-8">
-  <summary class="cursor-pointer text-xs text-ink-500 hover:text-ink-700 transition">Raw Caddy config JSON</summary>
+  <summary class="cursor-pointer text-xs text-ink-500 hover:text-ink-700 transition">{{t $ "page.import.raw_caddy_config_json_73626884"}}</summary>
   <pre class="mt-2 bg-ink-900 text-ink-100 text-xs p-4 rounded-lg overflow-x-auto">{{.RawJSON}}</pre>
 </details>
 {{end}}

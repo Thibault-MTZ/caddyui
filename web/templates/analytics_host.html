@@ -1,9 +1,9 @@
-{{define "title"}}{{.Host}} · Analytics · CaddyUI{{end}}
+{{define "title"}}{{.Host}} · {{t $ "analytics.heading"}} {{t $ "page.analytics_host.caddyui_a80cd555"}}{{end}}
 {{define "content"}}
 <div class="flex items-center gap-2 text-xs text-ink-500 mb-2">
   <a href="/analytics?server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}" class="hover:text-ink-700 inline-flex items-center gap-1">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="15 18 9 12 15 6"/></svg>
-    All hosts
+    {{t $ "analytics.all_hosts"}}
   </a>
 </div>
 
@@ -11,24 +11,24 @@
   <div class="min-w-0">
     <h1 class="text-2xl font-semibold tracking-tight text-ink-900 truncate">{{.Host}}</h1>
     <p class="text-sm text-ink-500 mt-1">
-      {{.WindowLabel}} · {{.Totals.Visitors}} visitors · {{.Totals.Views}} views · handled by {{.ServerScopeName}}
+      {{if eq .WindowQuery "1d"}}{{t $ "analytics.window.1d"}}{{else if eq .WindowQuery "30d"}}{{t $ "analytics.window.30d"}}{{else}}{{t $ "analytics.window.7d"}}{{end}} · {{$scope := .ServerScopeName}}{{if eq .SelectedServerID 0}}{{$scope = t $ "analytics.all_servers"}}{{end}}{{t $ "analytics.host_summary" "visitors" .Totals.Visitors "views" .Totals.Views "server" $scope}}
     </p>
   </div>
   {{/* Window selector — keeps the query-string approach honest; server only
        accepts 1d/7d/30d, anything else falls back to 7d. */}}
   <div class="flex items-center gap-2 flex-wrap">
     <div class="inline-flex rounded-lg border border-ink-200 bg-white p-0.5 text-xs shadow-card">
-      {{$cur := .WindowLabel}}
-      <a href="/analytics/{{urlquery .Host}}?window=1d&amp;server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}" class="px-3 py-1.5 rounded-md transition {{if eq $cur "last 24 hours"}}bg-brand-50 text-brand-700 font-medium{{else}}text-ink-600 hover:bg-ink-50{{end}}">24 hours</a>
-      <a href="/analytics/{{urlquery .Host}}?window=7d&amp;server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}" class="px-3 py-1.5 rounded-md transition {{if eq $cur "last 7 days"}}bg-brand-50 text-brand-700 font-medium{{else}}text-ink-600 hover:bg-ink-50{{end}}">7 days</a>
-      <a href="/analytics/{{urlquery .Host}}?window=30d&amp;server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}" class="px-3 py-1.5 rounded-md transition {{if eq $cur "last 30 days"}}bg-brand-50 text-brand-700 font-medium{{else}}text-ink-600 hover:bg-ink-50{{end}}">30 days</a>
+      {{$cur := .WindowQuery}}
+      <a href="/analytics/{{urlquery .Host}}?window=1d&amp;server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}" class="px-3 py-1.5 rounded-md transition {{if eq $cur "1d"}}bg-brand-50 text-brand-700 font-medium{{else}}text-ink-600 hover:bg-ink-50{{end}}">{{t $ "analytics.24_hours"}}</a>
+      <a href="/analytics/{{urlquery .Host}}?window=7d&amp;server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}" class="px-3 py-1.5 rounded-md transition {{if eq $cur "7d"}}bg-brand-50 text-brand-700 font-medium{{else}}text-ink-600 hover:bg-ink-50{{end}}">{{t $ "analytics.7_days"}}</a>
+      <a href="/analytics/{{urlquery .Host}}?window=30d&amp;server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}" class="px-3 py-1.5 rounded-md transition {{if eq $cur "30d"}}bg-brand-50 text-brand-700 font-medium{{else}}text-ink-600 hover:bg-ink-50{{end}}">{{t $ "analytics.30_days"}}</a>
     </div>
     <a href="/analytics/export.csv?host={{urlquery .Host}}&amp;days=7&amp;server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}" download
        class="inline-flex items-center gap-1.5 text-sm text-ink-600 hover:text-ink-800 border border-ink-200 hover:border-ink-300 px-3 py-1.5 rounded-lg transition">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
       </svg>
-      Export CSV
+      {{t $ "analytics.export_csv"}}
     </a>
   </div>
 </div>
@@ -36,56 +36,56 @@
 {{/* ── Summary cards ── */}}
 <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Visitors</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.visitors"}}</div>
     <div class="mt-1 text-2xl font-semibold text-ink-900">{{.Totals.Visitors}}</div>
     {{if .VisitorsChangeAbs}}
     <div class="text-xs mt-0.5 {{if .VisitorsUp}}text-emerald-600{{else}}text-red-600{{end}}">
-      {{if .VisitorsUp}}↑{{else}}↓{{end}}{{.VisitorsChangeAbs}}% vs prev
+      {{if .VisitorsUp}}↑{{else}}↓{{end}}{{t $ "analytics.change" "percent" .VisitorsChangeAbs}}
     </div>
     {{else}}
-    <div class="text-xs text-ink-400 mt-0.5">unique IPs</div>
+    <div class="text-xs text-ink-400 mt-0.5">{{t $ "analytics.unique_ips"}}</div>
     {{end}}
   </div>
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Views</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.views"}}</div>
     <div class="mt-1 text-2xl font-semibold text-ink-900">{{.Totals.Views}}</div>
     {{if .ViewsChangeAbs}}
     <div class="text-xs mt-0.5 {{if .ViewsUp}}text-emerald-600{{else}}text-red-600{{end}}">
-      {{if .ViewsUp}}↑{{else}}↓{{end}}{{.ViewsChangeAbs}}% vs prev
+      {{if .ViewsUp}}↑{{else}}↓{{end}}{{t $ "analytics.change" "percent" .ViewsChangeAbs}}
     </div>
     {{else}}
-    <div class="text-xs text-ink-400 mt-0.5">total requests</div>
+    <div class="text-xs text-ink-400 mt-0.5">{{t $ "analytics.total_requests"}}</div>
     {{end}}
   </div>
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Success rate</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.success_rate"}}</div>
     {{$tot := addInt .Status.S2xx (addInt .Status.S3xx (addInt .Status.S4xx (addInt .Status.S5xx .Status.SOther)))}}
     {{$ok := addInt .Status.S2xx .Status.S3xx}}
     <div class="mt-1 text-2xl font-semibold text-ink-900">
       {{if gt $tot 0}}{{mulDivInt $ok 100 $tot}}%{{else}}—{{end}}
     </div>
-    <div class="text-xs text-ink-400 mt-0.5">2xx + 3xx of total</div>
+    <div class="text-xs text-ink-400 mt-0.5">{{t $ "analytics.2xx_3xx_of_total"}}</div>
   </div>
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Status mix</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.status_mix"}}</div>
     {{$srv := "all"}}{{if ne .SelectedServerID 0}}{{$srv = .SelectedServerID}}{{end}}
     <div class="mt-1 flex items-center gap-2 text-xs">
-      <a href="/analytics/{{urlquery .Host}}/status?class=2xx&amp;window={{.WindowQuery}}&amp;server={{$srv}}" class="inline-flex items-center gap-1 hover:text-brand-700" title="Drill into 2xx"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>{{.Status.S2xx}}</a>
-      <a href="/analytics/{{urlquery .Host}}/status?class=3xx&amp;window={{.WindowQuery}}&amp;server={{$srv}}" class="inline-flex items-center gap-1 hover:text-brand-700" title="Drill into 3xx"><span class="w-2 h-2 rounded-full bg-sky-500"></span>{{.Status.S3xx}}</a>
-      <a href="/analytics/{{urlquery .Host}}/status?class=4xx&amp;window={{.WindowQuery}}&amp;server={{$srv}}" class="inline-flex items-center gap-1 hover:text-brand-700" title="Drill into 4xx"><span class="w-2 h-2 rounded-full bg-amber-500"></span>{{.Status.S4xx}}</a>
-      <a href="/analytics/{{urlquery .Host}}/status?class=5xx&amp;window={{.WindowQuery}}&amp;server={{$srv}}" class="inline-flex items-center gap-1 hover:text-brand-700" title="Drill into 5xx"><span class="w-2 h-2 rounded-full bg-red-500"></span>{{.Status.S5xx}}</a>
+      <a href="/analytics/{{urlquery .Host}}/status?class=2xx&amp;window={{.WindowQuery}}&amp;server={{$srv}}" class="inline-flex items-center gap-1 hover:text-brand-700" title="{{t $ "analytics.drill_status" "class" "2xx"}}"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>{{.Status.S2xx}}</a>
+      <a href="/analytics/{{urlquery .Host}}/status?class=3xx&amp;window={{.WindowQuery}}&amp;server={{$srv}}" class="inline-flex items-center gap-1 hover:text-brand-700" title="{{t $ "analytics.drill_status" "class" "3xx"}}"><span class="w-2 h-2 rounded-full bg-sky-500"></span>{{.Status.S3xx}}</a>
+      <a href="/analytics/{{urlquery .Host}}/status?class=4xx&amp;window={{.WindowQuery}}&amp;server={{$srv}}" class="inline-flex items-center gap-1 hover:text-brand-700" title="{{t $ "analytics.drill_status" "class" "4xx"}}"><span class="w-2 h-2 rounded-full bg-amber-500"></span>{{.Status.S4xx}}</a>
+      <a href="/analytics/{{urlquery .Host}}/status?class=5xx&amp;window={{.WindowQuery}}&amp;server={{$srv}}" class="inline-flex items-center gap-1 hover:text-brand-700" title="{{t $ "analytics.drill_status" "class" "5xx"}}"><span class="w-2 h-2 rounded-full bg-red-500"></span>{{.Status.S5xx}}</a>
     </div>
-    <div class="mt-1 text-[10px] text-ink-400">2xx · 3xx · 4xx · 5xx — click to drill in</div>
+    <div class="mt-1 text-[10px] text-ink-400">{{t $ "analytics.2xx_3xx_4xx_5xx_click_to_drill_in"}}</div>
   </div>
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Avg response</div>
-    <div class="mt-1 text-2xl font-semibold text-ink-900">{{.ResponseTime.AvgMs}}<span class="text-base font-normal text-ink-400">ms</span></div>
-    <div class="text-xs text-ink-400 mt-0.5">p95 {{.ResponseTime.P95Ms}}ms · max {{.ResponseTime.MaxMs}}ms</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.avg_response"}}</div>
+    <div class="mt-1 text-2xl font-semibold text-ink-900">{{.ResponseTime.AvgMs}}<span class="text-base font-normal text-ink-400">{{t $ "page.analytics_host.ms_f785c3ce"}}</span></div>
+    <div class="text-xs text-ink-400 mt-0.5">p95 {{.ResponseTime.P95Ms}}{{t $ "page.analytics_host.ms_max_53bc7e0a"}} {{.ResponseTime.MaxMs}}{{t $ "page.analytics_host.ms_f785c3ce"}}</div>
   </div>
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
-    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Bandwidth out</div>
+    <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.bandwidth_out"}}</div>
     <div class="mt-1 text-2xl font-semibold text-ink-900">{{fmtBytes .Bandwidth}}</div>
-    <div class="text-xs text-ink-400 mt-0.5">total bytes sent</div>
+    <div class="text-xs text-ink-400 mt-0.5">{{t $ "analytics.total_bytes_sent"}}</div>
   </div>
 </div>
 
@@ -93,9 +93,9 @@
 <div class="bg-white border border-ink-200 rounded-xl p-4 mb-6 shadow-card">
   <div class="flex items-baseline justify-between mb-3">
     <div>
-      <div class="text-sm font-medium text-ink-800">Requests over time</div>
+      <div class="text-sm font-medium text-ink-800">{{t $ "analytics.requests_over_time"}}</div>
       <div class="text-xs text-ink-400">
-        {{if eq .BucketSeconds 3600}}1-hour buckets{{else if eq .BucketSeconds 86400}}1-day buckets{{else}}{{.BucketSeconds}}s buckets{{end}}
+        {{if eq .BucketSeconds 3600}}{{t $ "analytics.1_hour_buckets"}}{{else if eq .BucketSeconds 86400}}{{t $ "analytics.1_day_buckets"}}{{else}}{{t $ "analytics.buckets_seconds" "seconds" .BucketSeconds}}{{end}}
       </div>
     </div>
   </div>
@@ -110,7 +110,7 @@
     {{end}}
   </svg>
   {{else}}
-  <div class="py-8 text-center text-sm text-ink-400">No events in this window.</div>
+  <div class="py-8 text-center text-sm text-ink-400">{{t $ "analytics.no_events_in_this_window"}}</div>
   {{end}}
 </div>
 
@@ -118,15 +118,15 @@
   {{/* ── Top paths ── */}}
   <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden">
     <div class="flex items-baseline justify-between px-5 pt-4 pb-2">
-      <div class="text-sm font-medium text-ink-800">Top paths</div>
-      <div class="text-xs text-ink-400">{{len .Paths}} shown</div>
+      <div class="text-sm font-medium text-ink-800">{{t $ "analytics.top_paths"}}</div>
+      <div class="text-xs text-ink-400">{{t $ "analytics.shown" "count" (len .Paths)}}</div>
     </div>
     <table class="w-full text-sm">
       <thead class="bg-ink-50/50 text-left">
         <tr class="text-xs uppercase tracking-wider text-ink-500">
-          <th class="px-5 py-2.5 font-medium w-14">Method</th>
-          <th class="px-5 py-2.5 font-medium">Path</th>
-          <th class="px-5 py-2.5 font-medium text-right">Views</th>
+          <th class="px-5 py-2.5 font-medium w-14">{{t $ "analytics.method"}}</th>
+          <th class="px-5 py-2.5 font-medium">{{t $ "analytics.path"}}</th>
+          <th class="px-5 py-2.5 font-medium text-right">{{t $ "analytics.views"}}</th>
         </tr>
       </thead>
       <tbody>
@@ -148,7 +148,7 @@
         </tr>
         {{else}}
         <tr>
-          <td colspan="3" class="px-5 py-10 text-center text-sm text-ink-400">No path data in this window.</td>
+          <td colspan="3" class="px-5 py-10 text-center text-sm text-ink-400">{{t $ "analytics.no_path_data_in_this_window"}}</td>
         </tr>
         {{end}}
       </tbody>
@@ -158,14 +158,14 @@
   {{/* ── Top visitors ── */}}
   <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden">
     <div class="flex items-baseline justify-between px-5 pt-4 pb-2">
-      <div class="text-sm font-medium text-ink-800">Top visitors</div>
-      <div class="text-xs text-ink-400">by request count</div>
+      <div class="text-sm font-medium text-ink-800">{{t $ "analytics.top_visitors"}}</div>
+      <div class="text-xs text-ink-400">{{t $ "analytics.by_request_count"}}</div>
     </div>
     <table class="w-full text-sm">
       <thead class="bg-ink-50/50 text-left">
         <tr class="text-xs uppercase tracking-wider text-ink-500">
-          <th class="px-5 py-2.5 font-medium">Client IP</th>
-          <th class="px-5 py-2.5 font-medium text-right">Views</th>
+          <th class="px-5 py-2.5 font-medium">{{t $ "analytics.client_ip"}}</th>
+          <th class="px-5 py-2.5 font-medium text-right">{{t $ "analytics.views"}}</th>
         </tr>
       </thead>
       <tbody>
@@ -186,7 +186,7 @@
         </tr>
         {{else}}
         <tr>
-          <td colspan="2" class="px-5 py-10 text-center text-sm text-ink-400">No visitors in this window.</td>
+          <td colspan="2" class="px-5 py-10 text-center text-sm text-ink-400">{{t $ "analytics.no_visitors_in_this_window"}}</td>
         </tr>
         {{end}}
       </tbody>
@@ -198,8 +198,8 @@
 {{if .Browsers}}
 <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden mb-6">
   <div class="flex items-baseline justify-between px-5 pt-4 pb-3">
-    <div class="text-sm font-medium text-ink-800">Browser / client breakdown</div>
-    <div class="text-xs text-ink-400">{{.WindowLabel}}</div>
+    <div class="text-sm font-medium text-ink-800">{{t $ "analytics.browser_client_breakdown"}}</div>
+    <div class="text-xs text-ink-400">{{if eq .WindowQuery "1d"}}{{t $ "analytics.window.1d"}}{{else if eq .WindowQuery "30d"}}{{t $ "analytics.window.30d"}}{{else}}{{t $ "analytics.window.7d"}}{{end}}</div>
   </div>
   <div class="px-5 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8">
     {{$topBrowser := 0}}
@@ -222,15 +222,15 @@
 {{if .ErrorPaths}}
 <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden mb-6">
   <div class="flex items-baseline justify-between px-5 pt-4 pb-2">
-    <div class="text-sm font-medium text-ink-800">Top error paths</div>
-    <div class="text-xs text-ink-400">4xx + 5xx · {{.WindowLabel}}</div>
+    <div class="text-sm font-medium text-ink-800">{{t $ "analytics.top_error_paths"}}</div>
+    <div class="text-xs text-ink-400">{{t $ "page.analytics_host.4xx_5xx_bd6186fe"}} {{if eq .WindowQuery "1d"}}{{t $ "analytics.window.1d"}}{{else if eq .WindowQuery "30d"}}{{t $ "analytics.window.30d"}}{{else}}{{t $ "analytics.window.7d"}}{{end}}</div>
   </div>
   <table class="w-full text-sm">
     <thead class="bg-ink-50/50 text-left">
       <tr class="text-xs uppercase tracking-wider text-ink-500">
-        <th class="px-5 py-2.5 font-medium w-14">Method</th>
-        <th class="px-5 py-2.5 font-medium">Path</th>
-        <th class="px-5 py-2.5 font-medium text-right">Errors</th>
+        <th class="px-5 py-2.5 font-medium w-14">{{t $ "analytics.method"}}</th>
+        <th class="px-5 py-2.5 font-medium">{{t $ "analytics.path"}}</th>
+        <th class="px-5 py-2.5 font-medium text-right">{{t $ "analytics.errors"}}</th>
       </tr>
     </thead>
     <tbody>
@@ -260,16 +260,16 @@
 {{if .ErrorDetails}}
 <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden mb-6">
   <div class="flex items-baseline justify-between px-5 pt-4 pb-2">
-    <div class="text-sm font-medium text-ink-800">Error detail</div>
-    <div class="text-xs text-ink-400">exact status &amp; path · {{.WindowLabel}}</div>
+    <div class="text-sm font-medium text-ink-800">{{t $ "analytics.error_detail"}}</div>
+    <div class="text-xs text-ink-400">{{t $ "analytics.exact_status_amp_path"}} {{if eq .WindowQuery "1d"}}{{t $ "analytics.window.1d"}}{{else if eq .WindowQuery "30d"}}{{t $ "analytics.window.30d"}}{{else}}{{t $ "analytics.window.7d"}}{{end}}</div>
   </div>
   <table class="w-full text-sm">
     <thead class="bg-ink-50/50 text-left">
       <tr class="text-xs uppercase tracking-wider text-ink-500">
-        <th class="px-5 py-2.5 font-medium w-16">Status</th>
-        <th class="px-5 py-2.5 font-medium w-14">Method</th>
-        <th class="px-5 py-2.5 font-medium">Path</th>
-        <th class="px-5 py-2.5 font-medium text-right">Count</th>
+        <th class="px-5 py-2.5 font-medium w-16">{{t $ "analytics.status"}}</th>
+        <th class="px-5 py-2.5 font-medium w-14">{{t $ "analytics.method"}}</th>
+        <th class="px-5 py-2.5 font-medium">{{t $ "analytics.path"}}</th>
+        <th class="px-5 py-2.5 font-medium text-right">{{t $ "analytics.count"}}</th>
       </tr>
     </thead>
     <tbody>
@@ -299,8 +299,8 @@
 {{/* ── Status breakdown (detailed bar) ── */}}
 <div class="bg-white border border-ink-200 rounded-xl p-5 shadow-card mb-6">
   <div class="flex items-baseline justify-between mb-3">
-    <div class="text-sm font-medium text-ink-800">HTTP status breakdown</div>
-    <div class="text-xs text-ink-400">{{.WindowLabel}}</div>
+    <div class="text-sm font-medium text-ink-800">{{t $ "analytics.http_status_breakdown"}}</div>
+    <div class="text-xs text-ink-400">{{if eq .WindowQuery "1d"}}{{t $ "analytics.window.1d"}}{{else if eq .WindowQuery "30d"}}{{t $ "analytics.window.30d"}}{{else}}{{t $ "analytics.window.7d"}}{{end}}</div>
   </div>
   {{$tot := addInt .Status.S2xx (addInt .Status.S3xx (addInt .Status.S4xx (addInt .Status.S5xx .Status.SOther)))}}
   {{if gt $tot 0}}
@@ -309,19 +309,19 @@
     {{if gt .Status.S3xx 0}}<div class="bg-sky-500" style="width: {{mulDivInt .Status.S3xx 100 $tot}}%" title="3xx: {{.Status.S3xx}}"></div>{{end}}
     {{if gt .Status.S4xx 0}}<div class="bg-amber-500" style="width: {{mulDivInt .Status.S4xx 100 $tot}}%" title="4xx: {{.Status.S4xx}}"></div>{{end}}
     {{if gt .Status.S5xx 0}}<div class="bg-red-500" style="width: {{mulDivInt .Status.S5xx 100 $tot}}%" title="5xx: {{.Status.S5xx}}"></div>{{end}}
-    {{if gt .Status.SOther 0}}<div class="bg-ink-400" style="width: {{mulDivInt .Status.SOther 100 $tot}}%" title="other: {{.Status.SOther}}"></div>{{end}}
+    {{if gt .Status.SOther 0}}<div class="bg-ink-400" style="width: {{mulDivInt .Status.SOther 100 $tot}}%" title="{{t $ "analytics.other"}}: {{.Status.SOther}}"></div>{{end}}
   </div>
   {{$srv2 := "all"}}{{if ne .SelectedServerID 0}}{{$srv2 = .SelectedServerID}}{{end}}
   {{$sw := printf "window=%s&server=%v" .WindowQuery $srv2}}
   <div class="mt-3 grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
-    <a href="/analytics/{{urlquery .Host}}/status?class=2xx&amp;{{$sw}}" class="flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-ink-50 transition"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-ink-600">2xx</span><span class="text-ink-900 font-mono ml-auto">{{.Status.S2xx}}</span></a>
-    <a href="/analytics/{{urlquery .Host}}/status?class=3xx&amp;{{$sw}}" class="flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-ink-50 transition"><span class="w-2 h-2 rounded-full bg-sky-500"></span><span class="text-ink-600">3xx</span><span class="text-ink-900 font-mono ml-auto">{{.Status.S3xx}}</span></a>
-    <a href="/analytics/{{urlquery .Host}}/status?class=4xx&amp;{{$sw}}" class="flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-ink-50 transition"><span class="w-2 h-2 rounded-full bg-amber-500"></span><span class="text-ink-600">4xx</span><span class="text-ink-900 font-mono ml-auto">{{.Status.S4xx}}</span></a>
-    <a href="/analytics/{{urlquery .Host}}/status?class=5xx&amp;{{$sw}}" class="flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-ink-50 transition"><span class="w-2 h-2 rounded-full bg-red-500"></span><span class="text-ink-600">5xx</span><span class="text-ink-900 font-mono ml-auto">{{.Status.S5xx}}</span></a>
-    <a href="/analytics/{{urlquery .Host}}/status?class=other&amp;{{$sw}}" class="flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-ink-50 transition"><span class="w-2 h-2 rounded-full bg-ink-400"></span><span class="text-ink-600">other</span><span class="text-ink-900 font-mono ml-auto">{{.Status.SOther}}</span></a>
+    <a href="/analytics/{{urlquery .Host}}/status?class=2xx&amp;{{$sw}}" class="flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-ink-50 transition"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-ink-600">{{t $ "page.analytics_host.2xx_6b25661e"}}</span><span class="text-ink-900 font-mono ml-auto">{{.Status.S2xx}}</span></a>
+    <a href="/analytics/{{urlquery .Host}}/status?class=3xx&amp;{{$sw}}" class="flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-ink-50 transition"><span class="w-2 h-2 rounded-full bg-sky-500"></span><span class="text-ink-600">{{t $ "page.analytics_host.3xx_0ad84065"}}</span><span class="text-ink-900 font-mono ml-auto">{{.Status.S3xx}}</span></a>
+    <a href="/analytics/{{urlquery .Host}}/status?class=4xx&amp;{{$sw}}" class="flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-ink-50 transition"><span class="w-2 h-2 rounded-full bg-amber-500"></span><span class="text-ink-600">{{t $ "page.analytics_host.4xx_6f61ff95"}}</span><span class="text-ink-900 font-mono ml-auto">{{.Status.S4xx}}</span></a>
+    <a href="/analytics/{{urlquery .Host}}/status?class=5xx&amp;{{$sw}}" class="flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-ink-50 transition"><span class="w-2 h-2 rounded-full bg-red-500"></span><span class="text-ink-600">{{t $ "page.analytics_host.5xx_aa29d51b"}}</span><span class="text-ink-900 font-mono ml-auto">{{.Status.S5xx}}</span></a>
+    <a href="/analytics/{{urlquery .Host}}/status?class=other&amp;{{$sw}}" class="flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-ink-50 transition"><span class="w-2 h-2 rounded-full bg-ink-400"></span><span class="text-ink-600">{{t $ "analytics.other"}}</span><span class="text-ink-900 font-mono ml-auto">{{.Status.SOther}}</span></a>
   </div>
   {{else}}
-  <div class="py-6 text-center text-sm text-ink-400">No responses in this window.</div>
+  <div class="py-6 text-center text-sm text-ink-400">{{t $ "analytics.no_responses_in_this_window"}}</div>
   {{end}}
 </div>
 {{end}}
