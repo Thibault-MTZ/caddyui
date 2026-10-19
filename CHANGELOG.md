@@ -5,6 +5,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+- Extend the existing JSON localization system to forms, Settings, browser messages
+  and request feedback; use complete messages where grammar needs flexible word order.
+- Expand and review French interface text, including certificate, health-probe and
+  DNS explanations. Keep submitted values and configuration identifiers unchanged.
+
+### Developer tooling
+
+- Add conservative message extraction, catalog synchronization and placeholder checks,
+  with regression coverage for locales, escaping and form submission contracts.
+
+---
+
 ## [2.65.1] - 2026-10-16 - Go toolchain 1.27.2 closes 12 standard-library vulnerabilities
 
 ### Security

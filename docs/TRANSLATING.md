@@ -7,6 +7,7 @@ CaddyUI's interface can be shown in other languages (since v2.62.0, issue #128).
 | Code | Language | Maintainer |
 |---|---|---|
 | `en` | English (source) | — |
+| `fr` | Français (French) | Local catalog based on the reviewed French translation in PR #144 |
 | `zh-CN` | 简体中文 (Simplified Chinese) | @chongfenglaosiji (since v2.62.1) |
 
 ## The catalog files
@@ -67,6 +68,79 @@ v2.63.0 added about 250 keys:
 | `status.*` | shared status words — Online, Offline, Enabled, Disabled, … |
 
 More of the interface is moved onto keys release by release — the other Settings pages, then the list pages and forms, the large proxy-host form last. When new keys appear in `en.json`, a translation simply shows English for them until it is updated.
+
+## Local Analytics prototype (unpublished)
+
+This checkout explores the next Analytics translation batch locally. The maintainer
+has already announced work on the other Settings pages, including Analytics, in
+PR #135; coordinate that overlap before proposing an upstream contribution.
+This prototype does not imply upstream agreement or publication.
+
+`analytics.*` covers the Analytics overview, host, visitor, path and status pages,
+and Settings → Analytics (including storage and retention controls). English and
+French are supplied; other catalogs fall back to English. The visitor block
+confirmation uses `js.analytics.block_confirm`. Window selectors use the stable
+`WindowQuery` value rather than translated display labels. Markup, request data,
+form actions, CSV exports and filtering remain in the templates.
+
+Technical values and server diagnostics (including relative timestamps, ingest
+target warnings, storage errors and reasons a reclaim is blocked) retain their
+existing server-provided formatting. They are outside this template batch.
+
+Regression coverage:
+
+```bash
+go test ./internal/i18n/ ./internal/server/ -run 'Translation|Catalog|Language|Locale|Analytics'
+go build ./...
+```
+
+The Analytics tests render all six routes in French, check empty states, filter
+selection, escaped request data and locale separation, and keep catalog text free
+of HTML. The initial French catalog and the subsequent template extraction are
+separate commits so that the translation-only contribution remains reviewable.
+
+## Local interface extraction (unpublished)
+
+The `interface-localization` development branch extends the same JSON mechanism
+across the templates, browser messages and selected server messages. It does not
+add machine translation, gettext, a second runtime or an external service.
+English remains authoritative; French is supplied separately for every current
+catalog entry, including the embedded help. Catalog completeness is validated,
+but fragmented rich-text sentences still need visual and grammatical review.
+Extraction coverage and translation coverage are different measurements: a
+complete catalog does not imply that external diagnostics or every future UI
+message is translated.
+
+To create or update the translation work file without losing existing work:
+
+```sh
+go run ./cmd/i18n-catalog -lang fr -sync
+go run ./cmd/i18n-catalog -lang fr
+# Only require completeness when the language is actually finished:
+go run ./cmd/i18n-catalog -lang fr -require-complete
+```
+
+Synchronization adds empty values for missing English keys. Empty values fall
+back to English. It never invents translated prose or overwrites filled values.
+Named placeholders and server printf directives are validated before deployment.
+
+The reviewed template extraction workflow is documented in
+[`cmd/i18n/README.md`](../cmd/i18n/README.md). `cmd/i18n-messages` separately audits
+recognized Go message contexts. These conservative scanners are review aids;
+zero automatically extractable literals does not prove that every dynamic
+message is localized. Technical examples, user data, external service errors and
+protocol identifiers must not be translated as interface prose.
+
+Use complete phrases with named variables for new text. Keep HTML in templates,
+escape translated text at its insertion context, and never use translated labels
+as selectors, form values or API identifiers. Existing rich-text fragments still
+need grammatical review before an upstream proposal. Relative-time displays and
+dashboard recommendations now select the request's locale rather than changing
+global process state.
+
+The intended upstream split is code/tooling plus English first, then a French
+catalog-only update. Both need coordination with the maintainer's ongoing i18n
+work; neither is published by this local branch.
 
 ## Sending a translation
 
