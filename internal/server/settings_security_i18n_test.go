@@ -58,3 +58,40 @@ func TestI18nSecuritySettingsEscapesStoredValues(t *testing.T) {
 		t.Error("stored issuer must remain escaped in the translated form")
 	}
 }
+
+// These messages must remain whole so translators can move technical values
+// and the profile-menu label to the position their language requires.
+func TestI18nSecuritySettingsInterpolatesCompleteHelp(t *testing.T) {
+	e := newSecEnv(t)
+	for _, lang := range []string{"en", "fr", "ru", "zh-CN"} {
+		t.Run(lang, func(t *testing.T) {
+			e.do(t, "admin", http.MethodPost, "/profile", url.Values{"action": {"update_locale"}, "locale": {lang}})
+			rec := e.do(t, "admin", http.MethodGet, "/settings/security", nil)
+			if rec.Code != http.StatusOK {
+				t.Fatalf("security settings: HTTP %d", rec.Code)
+			}
+			body := rec.Body.String()
+			for _, message := range []struct {
+				key  string
+				args []any
+			}{
+				{"settings.security.oidc.redirect_help", []any{"suffix", "/callback"}},
+				{"settings.security.oidc.groups_help", []any{"claim", "groups"}},
+				{"settings.security.totp.help", []any{"profile", translations().T(lang, "settings.security.totp.profile_link")}},
+			} {
+				want := html.EscapeString(translations().T(lang, message.key, message.args...))
+				if !strings.Contains(body, want) {
+					t.Errorf("complete help missing for %s: %q", message.key, want)
+				}
+			}
+			for _, placeholder := range []string{"{suffix}", "{claim}", "{profile}"} {
+				if strings.Contains(body, placeholder) {
+					t.Errorf("unresolved help placeholder: %s", placeholder)
+				}
+			}
+			if !strings.Contains(body, "https://") || !strings.Contains(body, "/auth/oidc/callback") {
+				t.Error("technical callback example lost")
+			}
+		})
+	}
+}
