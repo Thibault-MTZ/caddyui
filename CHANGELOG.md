@@ -13,7 +13,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ### Notes
 
-- The four colour-theme names under Settings → Appearance (*Forest Green*, *Deep Indigo*, *Carbon Orange*, *Rose / Crimson*) remain in English in this catalog. Nothing is broken — they are set explicitly, so they behave exactly as a fallback would — and the contributor has offered to keep the translation current as new strings land.
+- The four colour-theme names under Settings → Appearance (*Forest Green*, *Deep Indigo*, *Carbon Orange*, *Rose / Crimson*) are deliberately left in English in this catalog, the contributor treating them as names of predefined themes rather than ordinary labels. The French and Chinese catalogs translate them; both readings are defensible. The contributor has also offered to keep the Russian translation current as new strings land.
 
 ---
 
