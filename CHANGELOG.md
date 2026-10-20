@@ -5,6 +5,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.66.1] - 2026-10-20 - Russian interface translation (#146)
+
+### Added
+
+- **Russian (`ru`) interface translation**, contributed by @tkkost — all 314 catalog keys, with placeholders and technical terms preserved. Pick it under **Profile → Language**, or set it as the site-wide default under Settings. CaddyUI now ships **English, Français, Русский and 简体中文**, three of them community-contributed inside a fortnight.
+
+### Notes
+
+- The four colour-theme names under Settings → Appearance (*Forest Green*, *Deep Indigo*, *Carbon Orange*, *Rose / Crimson*) remain in English in this catalog. Nothing is broken — they are set explicitly, so they behave exactly as a fallback would — and the contributor has offered to keep the translation current as new strings land.
+
+---
+
 ## [2.66.0] - 2026-10-19 - Request explorer, latency percentiles and French (#145, #142)
 
 ### Added
