@@ -730,7 +730,12 @@ func ResponseTimeSince(db *sql.DB, since time.Time, host string, serverIDs ...in
 		args = append(args, serverArgs...)
 	}
 	err := db.QueryRow(
-		`SELECT COALESCE(AVG(duration_ms),0), COALESCE(MIN(duration_ms),0), COALESCE(MAX(duration_ms),0)
+		// v2.66.0 (issue #145): AVG() returns a REAL, and scanning that into
+		// an int64 fails outright — this panel had been returning a scan
+		// error and all-zero stats on any real data set, since an average
+		// duration is essentially never a whole number. CAST keeps the
+		// result integral on both SQLite and MariaDB.
+		`SELECT CAST(COALESCE(AVG(duration_ms),0) AS INTEGER), COALESCE(MIN(duration_ms),0), COALESCE(MAX(duration_ms),0)
 		   FROM access_events WHERE ts >= ?`+filter, args...).Scan(&s.AvgMs, &s.MinMs, &s.MaxMs)
 	if err != nil && err != sql.ErrNoRows {
 		return s, err

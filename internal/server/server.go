@@ -371,6 +371,10 @@ func parseTemplates(tplFS fs.FS) (map[string]*template.Template, error) {
 			return (a * b) / c
 		},
 		"subInt64": func(a, b int64) int64 { return a - b },
+		// addInt64 lets a chart bar compute its own bucket's end time
+		// (bucket start + bucket seconds) for an exact drill-through link.
+		// v2.66.0 (issue #145).
+		"addInt64": func(a, b int64) int64 { return a + b },
 		// fmtBytes renders a byte count as a human-readable size string.
 		// Used in analytics cards to show bandwidth totals without overwhelming
 		// the reader with raw byte counts (e.g. "1.4 GB" instead of "1503238553").
@@ -795,6 +799,7 @@ func (s *Server) Routes() http.Handler {
 		// don't have Edit permission on.
 		r.Get("/analytics", s.getAnalytics)
 		r.Get("/analytics/export.csv", s.exportAnalyticsCSV)
+		r.Get("/analytics/requests", s.getAnalyticsRequests) // issue #145: cross-dimension request explorer
 		r.Get("/analytics/{host}", s.getAnalyticsHost)
 		r.Get("/analytics/{host}/visitor", s.getAnalyticsVisitor) // issue #94
 		r.Get("/analytics/{host}/path", s.getAnalyticsPath)       // issue #94

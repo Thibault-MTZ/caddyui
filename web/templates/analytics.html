@@ -8,6 +8,14 @@
       {{if .IsAdmin}}{{if eq .SelectedServerID 0}}{{t $ "analytics.scope.fleet"}}{{else}}{{t $ "analytics.scope.node"}}{{end}}
       {{else}}{{t $ "analytics.scope.owned"}}{{end}}
     </p>
+    {{/* v2.66.0 (issue #145): a visible way into the explorer. The status
+         chips, user-agent rows and chart bars all link there too, but a
+         deliberate search needs a starting point that is not a drill-down. */}}
+    <a href="/analytics/requests?server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}"
+       class="inline-flex items-center gap-1.5 mt-2 text-sm text-brand-600 hover:text-brand-700 font-medium">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Search requests by host, status, agent or time
+    </a>
   </div>
   <div class="flex items-center gap-2 flex-wrap">
     {{/* Server switcher — only renders when there's more than one Caddy
@@ -80,11 +88,15 @@
   </div>
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
     <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.status_mix_7d"}}</div>
+    {{/* v2.66.0 (issue #145 item 1): these were plain text, so the fleet-wide
+         status mix was a dead end — the per-host page's equivalent chips have
+         always been links. Each now opens the explorer filtered to that class. */}}
+    {{$srv := "all"}}{{if ne .SelectedServerID 0}}{{$srv = printf "%d" .SelectedServerID}}{{end}}
     <div class="mt-1 flex items-center gap-2 text-xs">
-      <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>{{.Status.S2xx}}</span>
-      <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span>{{.Status.S3xx}}</span>
-      <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span>{{.Status.S4xx}}</span>
-      <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span>{{.Status.S5xx}}</span>
+      <a href="/analytics/requests?status=2xx&amp;server={{$srv}}" title="Show 2xx requests" class="inline-flex items-center gap-1 hover:text-brand-700"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>{{.Status.S2xx}}</a>
+      <a href="/analytics/requests?status=3xx&amp;server={{$srv}}" title="Show 3xx requests" class="inline-flex items-center gap-1 hover:text-brand-700"><span class="w-2 h-2 rounded-full bg-sky-500"></span>{{.Status.S3xx}}</a>
+      <a href="/analytics/requests?status=4xx&amp;server={{$srv}}" title="Show 4xx requests" class="inline-flex items-center gap-1 hover:text-brand-700"><span class="w-2 h-2 rounded-full bg-amber-500"></span>{{.Status.S4xx}}</a>
+      <a href="/analytics/requests?status=5xx&amp;server={{$srv}}" title="Show 5xx requests" class="inline-flex items-center gap-1 hover:text-brand-700"><span class="w-2 h-2 rounded-full bg-red-500"></span>{{.Status.S5xx}}</a>
     </div>
     <div class="mt-1 text-[10px] text-ink-400">{{t $ "page.analytics.2xx_3xx_4xx_5xx_d7726232"}}</div>
   </div>

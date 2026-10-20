@@ -79,8 +79,12 @@
   </div>
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
     <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.avg_response"}}</div>
-    <div class="mt-1 text-2xl font-semibold text-ink-900">{{.ResponseTime.AvgMs}}<span class="text-base font-normal text-ink-400">{{t $ "page.analytics_host.ms_f785c3ce"}}</span></div>
-    <div class="text-xs text-ink-400 mt-0.5">p95 {{.ResponseTime.P95Ms}}{{t $ "page.analytics_host.ms_max_53bc7e0a"}} {{.ResponseTime.MaxMs}}{{t $ "page.analytics_host.ms_f785c3ce"}}</div>
+    <div class="mt-1 text-2xl font-semibold text-ink-900">{{.ResponseTime.AvgMs}}<span class="text-base font-normal text-ink-400">ms</span></div>
+    {{/* v2.66.0 (issue #145): p50/p95/p99 rather than p95 alone — a single
+         percentile hides whether a slow tail is a handful of requests or a
+         broad shift. */}}
+    <div class="text-xs text-ink-400 mt-0.5">p50 {{.Latency.P50Ms}}ms · p95 {{.Latency.P95Ms}}ms · p99 {{.Latency.P99Ms}}ms</div>
+    <div class="text-[10px] text-ink-400 mt-0.5">min {{.Latency.MinMs}}ms · max {{.Latency.MaxMs}}ms over {{.Latency.Count}} requests</div>
   </div>
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
     <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.bandwidth_out"}}</div>
@@ -100,15 +104,37 @@
     </div>
   </div>
   {{if .Buckets}}
-  <svg viewBox="0 0 {{len .Buckets}} 40" preserveAspectRatio="none" class="w-full h-32 text-brand-500">
+  {{/* v2.66.0 (issue #145 items 2 and 3): each bar is split by response class
+       so a rise in errors is visible without opening another page, and each
+       bar links into the explorer bounded to that exact bucket — which is how
+       "what happened during that spike" gets answered in one click rather
+       than by reconstructing a time range by hand. */}}
+  {{$srv := "all"}}{{if ne .SelectedServerID 0}}{{$srv = printf "%d" .SelectedServerID}}{{end}}
+  {{$bs := .BucketSeconds}}
+  <svg viewBox="0 0 {{len .Buckets}} 40" preserveAspectRatio="none" class="w-full h-32">
     {{$max := 0}}
     {{range .Buckets}}{{if gt .Views $max}}{{$max = .Views}}{{end}}{{end}}
     {{if eq $max 0}}{{$max = 1}}{{end}}
     {{range $i, $b := .Buckets}}
       {{$h := 0}}{{if gt $b.Views 0}}{{$h = mulDivInt $b.Views 38 $max}}{{end}}
-      <rect x="{{$i}}" y="{{subInt 40 $h}}" width="0.85" height="{{$h}}" fill="currentColor" opacity="0.8"/>
+      {{$key := $b.Hour.Unix}}
+      {{$mix := index $.StatusMixByBucket $key}}
+      {{$err := addInt $mix.S4xx $mix.S5xx}}
+      {{$errH := 0}}{{if gt $err 0}}{{$errH = mulDivInt $err 38 $max}}{{end}}
+      {{if gt $errH $h}}{{$errH = $h}}{{end}}
+      <a href="/analytics/requests?host={{urlquery $.Host}}&amp;from={{$key}}&amp;to={{addInt64 $key $bs}}&amp;server={{$srv}}">
+        <title>{{$b.Hour.Format "2 Jan 15:04"}} — {{$b.Views}} requests{{if gt $err 0}}, {{$err}} errors{{end}}</title>
+        {{/* Full bar, then the 4xx+5xx portion drawn over its base. */}}
+        <rect x="{{$i}}" y="{{subInt 40 $h}}" width="0.85" height="{{$h}}" fill="#3b82f6" opacity="0.75"/>
+        {{if gt $errH 0}}<rect x="{{$i}}" y="{{subInt 40 $errH}}" width="0.85" height="{{$errH}}" fill="#ef4444" opacity="0.95"/>{{end}}
+      </a>
     {{end}}
   </svg>
+  <div class="flex items-center gap-3 mt-2 text-[10px] text-ink-500">
+    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#3b82f6"></span>all requests</span>
+    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#ef4444"></span>4xx / 5xx</span>
+    <span class="text-ink-400">· click a bar to list that period's requests</span>
+  </div>
   {{else}}
   <div class="py-8 text-center text-sm text-ink-400">{{t $ "analytics.no_events_in_this_window"}}</div>
   {{end}}
@@ -193,6 +219,46 @@
     </table>
   </div>
 </div>
+
+{{/* ── Exact user agents (v2.66.0, issue #145 item 4) ──
+     The browser breakdown below buckets agents into Chrome/Firefox/…, which
+     is the wrong resolution for "which bot is hammering this host". These
+     are the agent strings verbatim, and each links into the explorer so the
+     requests behind a number are one click away rather than a drill-down
+     through an individual visitor. */}}
+{{if .HostAgents}}
+<div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden mb-6">
+  <div class="flex items-baseline justify-between px-5 pt-4 pb-3">
+    <div class="text-sm font-medium text-ink-800">User agents</div>
+    <div class="text-xs text-ink-400">{{.WindowLabel}}</div>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-xs">
+      <thead class="bg-ink-50 text-left text-ink-600">
+        <tr>
+          <th class="px-5 py-2 font-medium">Agent</th>
+          <th class="px-3 py-2 font-medium text-right">Requests</th>
+          <th class="px-3 py-2 font-medium text-right">Visitors</th>
+          <th class="px-5 py-2 font-medium text-right"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .HostAgents}}
+        <tr class="border-t border-ink-100 hover:bg-ink-50/60">
+          <td class="px-5 py-1.5 font-mono truncate max-w-[32rem] text-ink-700" title="{{.UserAgent}}">{{.UserAgent}}</td>
+          <td class="px-3 py-1.5 text-right font-mono text-ink-900">{{.Views}}</td>
+          <td class="px-3 py-1.5 text-right font-mono text-ink-600">{{.Visitors}}</td>
+          <td class="px-5 py-1.5 text-right">
+            <a href="/analytics/requests?host={{urlquery $.Host}}&amp;ua={{urlquery .UserAgent}}&amp;window={{$.WindowQuery}}&amp;server={{if eq $.SelectedServerID 0}}all{{else}}{{$.SelectedServerID}}{{end}}"
+               class="text-brand-600 hover:underline whitespace-nowrap">Show requests →</a>
+          </td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}
 
 {{/* ── Top browsers ── */}}
 {{if .Browsers}}
