@@ -744,6 +744,23 @@ func (s *Server) getAnalyticsHost(w http.ResponseWriter, r *http.Request) {
 	}
 	rawBuckets, _ := models.AccessBuckets(s.DB, since, now, bucketSec, host, serverScopeID)
 	buckets := fillBuckets(rawBuckets, since, now, bucketSec)
+
+	// v2.66.0 (issue #145): the extra dimensions the reporter was having to
+	// chase across several pages — the raw user agents hitting this host
+	// (TopBrowsers above only buckets them into Chrome/Firefox/…), the full
+	// latency picture, and the per-bucket status mix so the request chart can
+	// be coloured by response class.
+	insight := models.InsightFilter{From: since, Host: host, ServerID: serverScopeID}
+	hostAgents, _ := models.HostUserAgents(s.DB, insight, 12)
+	latency, errLat := models.LatencySummary(s.DB, insight)
+	if errLat != nil {
+		log.Printf("analytics: LatencySummary(%s): %v", host, errLat)
+	}
+	statusMix, _ := models.StatusMixBuckets(s.DB, insight, bucketSec)
+	mixByBucket := map[int64]models.StatusMixBucket{}
+	for _, b := range statusMix {
+		mixByBucket[b.Hour.Unix()] = b
+	}
 	serverScopeName := "All servers"
 	if serverScopeID > 0 {
 		serverScopeName = fmt.Sprintf("Server %d", serverScopeID)
@@ -772,6 +789,9 @@ func (s *Server) getAnalyticsHost(w http.ResponseWriter, r *http.Request) {
 		"ErrorPaths":        errorPaths,
 		"ErrorDetails":      errorDetails,
 		"Browsers":          browsers,
+		"HostAgents":        hostAgents,  // issue #145 item 4
+		"Latency":           latency,     // issue #145 item 6
+		"StatusMixByBucket": mixByBucket, // issue #145 item 3
 		"Section":           "analytics",
 		"ViewsChange":       viewsChange,
 		"ViewsUp":           viewsUp,

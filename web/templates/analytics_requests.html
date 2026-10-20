@@ -1,0 +1,172 @@
+{{define "title"}}Request explorer · CaddyUI{{end}}
+{{define "content"}}
+
+{{/* v2.66.0 (issue #145): one filter over every dimension, so narrowing by
+     host + status + agent + time is a single view rather than a chain of
+     drill-downs that each dead-end. */}}
+
+<div class="flex items-center gap-2 text-xs text-ink-500 mb-2">
+  <a href="/analytics?server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}" class="hover:text-ink-700 inline-flex items-center gap-1">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><polyline points="15 18 9 12 15 6"/></svg>
+    Analytics
+  </a>
+</div>
+
+<div class="mb-6">
+  <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Request explorer</h1>
+  <p class="text-sm text-ink-500 mt-1">Filter traffic by host, response status, user agent, path or client, over any window.</p>
+</div>
+
+{{if .Error}}
+<div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{{.Error}}</div>
+{{end}}
+
+<form method="get" action="/analytics/requests" class="bg-white border border-ink-200 rounded-xl p-4 shadow-card mb-6">
+  <input type="hidden" name="server" value="{{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}">
+  {{/* Preserve an explicit chart range across a filter edit; clearing it is
+       what the "whole window" button below is for. */}}
+  {{if .ExplicitRange}}
+  <input type="hidden" name="from" value="{{.Filter.From}}">
+  <input type="hidden" name="to" value="{{.Filter.To}}">
+  {{end}}
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    <div>
+      <label class="block text-xs font-medium text-ink-700 mb-1">Host</label>
+      <input name="host" value="{{.Filter.Host}}" placeholder="app.example.com"
+        class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-ink-700 mb-1">Response status</label>
+      <select name="status" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+        <option value="" {{if eq .Filter.Status ""}}selected{{end}}>Any status</option>
+        <option value="2xx" {{if eq .Filter.Status "2xx"}}selected{{end}}>2xx — success</option>
+        <option value="3xx" {{if eq .Filter.Status "3xx"}}selected{{end}}>3xx — redirect</option>
+        <option value="4xx" {{if eq .Filter.Status "4xx"}}selected{{end}}>4xx — client error</option>
+        <option value="5xx" {{if eq .Filter.Status "5xx"}}selected{{end}}>5xx — server error</option>
+        <option value="other" {{if eq .Filter.Status "other"}}selected{{end}}>Other</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-ink-700 mb-1">Time window</label>
+      <select name="window" class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition"{{if .ExplicitRange}} disabled{{end}}>
+        <option value="1h" {{if eq .Filter.Window "1h"}}selected{{end}}>Last hour</option>
+        <option value="6h" {{if eq .Filter.Window "6h"}}selected{{end}}>Last 6 hours</option>
+        <option value="1d" {{if eq .Filter.Window "1d"}}selected{{end}}>Last 24 hours</option>
+        <option value="" {{if eq .Filter.Window ""}}selected{{end}}>Last 7 days</option>
+        <option value="30d" {{if eq .Filter.Window "30d"}}selected{{end}}>Last 30 days</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-ink-700 mb-1">User agent contains</label>
+      <input name="ua" value="{{.Filter.UA}}" placeholder="Googlebot"
+        class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-ink-700 mb-1">Path</label>
+      <input name="path" value="{{.Filter.Path}}" placeholder="/api/health"
+        class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-ink-700 mb-1">Client IP</label>
+      <input name="ip" value="{{.Filter.ClientIP}}" placeholder="203.0.113.9"
+        class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+    </div>
+  </div>
+  <div class="flex items-center gap-3 mt-4 flex-wrap">
+    <button type="submit" class="ui-button ui-button--primary">Search</button>
+    <a href="/analytics/requests?server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}" class="ui-button ui-button--quiet">Clear</a>
+    {{if .ExplicitRange}}
+    <span class="text-xs text-amber-700">
+      Restricted to {{.RangeFrom.Format "2 Jan 15:04"}} – {{if .RangeTo.IsZero}}now{{else}}{{.RangeTo.Format "15:04"}}{{end}} from a chart selection.
+      <a href="/analytics/requests?host={{.Filter.Host}}&amp;status={{.Filter.Status}}&amp;ua={{.Filter.UA}}&amp;path={{.Filter.Path}}&amp;ip={{.Filter.ClientIP}}&amp;server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}" class="underline hover:text-amber-900">Use the whole window instead</a>
+    </span>
+    {{end}}
+  </div>
+</form>
+
+{{if not .HasFilter}}
+  <div class="bg-white border border-ink-200 rounded-xl p-8 shadow-card text-center">
+    <p class="text-sm text-ink-600">Choose at least one filter above to list matching requests.</p>
+    <p class="text-xs text-ink-400 mt-2">For example: status <strong>5xx</strong> over the last 24 hours, or a user agent containing <strong>bot</strong>.</p>
+  </div>
+{{else}}
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+    <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
+      <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Matching requests</div>
+      <div class="mt-1 text-2xl font-semibold text-ink-900">{{.Total}}</div>
+      <div class="text-xs text-ink-400">{{if .ExplicitRange}}selected range{{else}}{{.WindowLabel}}{{end}}</div>
+    </div>
+    <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
+      <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Status mix of these results</div>
+      <div class="mt-1 flex items-center gap-2 text-xs flex-wrap">
+        <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>{{.StatusMix.S2xx}}</span>
+        <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span>{{.StatusMix.S3xx}}</span>
+        <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span>{{.StatusMix.S4xx}}</span>
+        <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span>{{.StatusMix.S5xx}}</span>
+      </div>
+      <div class="mt-1 text-[10px] text-ink-400">2xx · 3xx · 4xx · 5xx</div>
+    </div>
+    <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
+      <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">Hosts in these results</div>
+      <div class="mt-1 space-y-0.5 max-h-24 overflow-auto">
+        {{range .Facets}}
+        <a href="/analytics/requests?host={{urlquery .Host}}&amp;status={{$.Filter.Status}}&amp;ua={{urlquery $.Filter.UA}}&amp;window={{$.Filter.Window}}&amp;server={{if eq $.SelectedServerID 0}}all{{else}}{{$.SelectedServerID}}{{end}}"
+           class="flex items-center justify-between text-xs hover:bg-ink-50 rounded px-1 -mx-1 py-0.5 transition">
+          <span class="font-mono truncate text-ink-700">{{.Host}}</span>
+          <span class="text-ink-500 ml-2 shrink-0">{{.Views}}</span>
+        </a>
+        {{else}}
+        <div class="text-xs text-ink-400">No hosts matched.</div>
+        {{end}}
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden">
+    <div class="px-4 py-3 border-b border-ink-100 flex items-center justify-between gap-3 flex-wrap">
+      <div class="text-sm font-medium text-ink-800">Requests</div>
+      {{if .Truncated}}<div class="text-xs text-amber-700">Showing the {{.RowCount}} most recent of {{.Total}} matches — narrow the filter to see the rest.</div>{{end}}
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs">
+        <thead class="bg-ink-50 text-left text-ink-600">
+          <tr>
+            <th class="px-3 py-2 font-medium">Time</th>
+            <th class="px-3 py-2 font-medium">Status</th>
+            <th class="px-3 py-2 font-medium">Host</th>
+            <th class="px-3 py-2 font-medium">Path</th>
+            <th class="px-3 py-2 font-medium">Client</th>
+            <th class="px-3 py-2 font-medium">User agent</th>
+            <th class="px-3 py-2 font-medium text-right">Time</th>
+          </tr>
+        </thead>
+        <tbody class="font-mono">
+          {{range .Rows}}
+          <tr class="border-t border-ink-100 hover:bg-ink-50/60">
+            <td class="px-3 py-1.5 whitespace-nowrap text-ink-600">{{.TS.Format "2 Jan 15:04:05"}}</td>
+            <td class="px-3 py-1.5">
+              {{if ge .Status 500}}<span class="text-red-600 font-semibold">{{.Status}}</span>
+              {{else if ge .Status 400}}<span class="text-amber-600 font-semibold">{{.Status}}</span>
+              {{else if ge .Status 300}}<span class="text-sky-600">{{.Status}}</span>
+              {{else}}<span class="text-emerald-600">{{.Status}}</span>{{end}}
+            </td>
+            <td class="px-3 py-1.5 truncate max-w-[14rem]"><a href="/analytics/{{urlquery .Host}}" class="text-brand-600 hover:underline">{{.Host}}</a></td>
+            <td class="px-3 py-1.5 truncate max-w-[18rem] text-ink-700" title="{{.Method}} {{.Path}}">{{.Method}} {{.Path}}</td>
+            <td class="px-3 py-1.5 whitespace-nowrap">
+              <a href="/analytics/requests?ip={{urlquery .ClientIP}}&amp;window={{$.Filter.Window}}&amp;server={{if eq $.SelectedServerID 0}}all{{else}}{{$.SelectedServerID}}{{end}}" class="text-ink-600 hover:text-brand-600 hover:underline">{{.ClientIP}}</a>
+            </td>
+            <td class="px-3 py-1.5 truncate max-w-[16rem] text-ink-500" title="{{.UserAgent}}">{{.UserAgent}}</td>
+            <td class="px-3 py-1.5 text-right whitespace-nowrap text-ink-600">{{.DurationMs}} ms</td>
+          </tr>
+          {{else}}
+          <tr><td colspan="7" class="px-3 py-6 text-center text-ink-400 font-sans">No requests matched this filter.</td></tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+{{end}}
+
+{{end}}

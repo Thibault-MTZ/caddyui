@@ -5,6 +5,29 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.66.0] - 2026-10-19 - Request explorer, latency percentiles and French (#145, #142)
+
+### Added
+
+- **A request explorer at Analytics → Search requests** (#145). One filter over host, response status, user agent, path, client IP and time window, listing the matching requests with a status mix and the hosts they came from. @BenRLange's own examples — *all 500 errors from today*, *user-agent activity for a host yesterday afternoon*, *4xx for one host over a week* — are each a single view now rather than a chain of drill-downs that each dead-ended.
+- **The fleet-wide status mix is clickable** (#145). The per-host page's status chips have always been links; the ones on the main Analytics page were plain text, so the most obvious starting point for "what are these errors?" went nowhere. Each class now opens the explorer filtered to it.
+- **Request-chart bars are split by response class and drill through to their own period** (#145). A rise in 4xx/5xx is visible in the bar itself, and clicking any bar lists exactly that bucket's requests — so "what happened during that spike" no longer means reconstructing a time range by hand.
+- **Exact user agents per host** (#145). The host page had a *browser* breakdown, which buckets agents into Chrome/Firefox/… and hides precisely what you want when a bot is hammering a host. The verbatim agent strings now appear with request and visitor counts, each linking into the explorer.
+- **p50, p95 and p99 response times** on the host page (#145), alongside min/max and the sample count. A single percentile can't distinguish a slow tail from a broad shift.
+- **French (`fr`) interface translation** (#142, #144), contributed by @Thibault-MTZ — all 314 catalog keys. CaddyUI now ships English, Français and 简体中文.
+
+### Fixed
+
+- **The response-time panel had been showing nothing.** `AVG(duration_ms)` returns a floating-point value, and the query scanned it straight into an integer — which fails, since an average duration is essentially never a whole number. The panel returned a scan error and all-zero statistics on any real data set. Found while adding the percentiles above and confirmed against a 188,000-event database, where it reported zeros before the fix and a 284 ms average after it. This is why latency looked absent rather than merely sparse.
+
+### Notes
+
+- **Upstream time cannot be separated from total time.** Issue #145 asked to distinguish proxy time from backend time; Caddy's access log emits a single `duration` for the whole request, so there is nothing to split. Reporting a guess would be worse than reporting nothing. Everything else in that request is covered.
+- The explorer reads raw access events, so it reaches back as far as your access-event retention — the same bound the existing drill-downs have, not the longer daily rollup.
+- Non-admins see only hosts they own: a hand-edited `?host=` for someone else's host returns 404 rather than 403, so the set of hosts stays unguessable.
+
+---
+
 ## [2.65.1] - 2026-10-16 - Go toolchain 1.27.2 closes 12 standard-library vulnerabilities
 
 ### Security
