@@ -13,6 +13,29 @@ import (
 	"github.com/X4Applegate/caddyui/internal/models"
 )
 
+func TestAnalyticsRequestExplorerLocaleKeepsFilters(t *testing.T) {
+	e := newSecEnv(t)
+	for _, tc := range []struct{ lang, title, empty string }{
+		{"en", "Request explorer", "No requests matched this filter."},
+		{"fr", "Explorateur de requêtes", "Aucune requête ne correspond à ce filtre."},
+		{"ru", "Request explorer", "No requests matched this filter."},
+	} {
+		t.Run(tc.lang, func(t *testing.T) {
+			e.do(t, "admin", http.MethodPost, "/profile", url.Values{"action": {"update_locale"}, "locale": {tc.lang}})
+			rec := e.do(t, "admin", http.MethodGet, "/analytics/requests?server=all&status=5xx&window=1d", nil)
+			if rec.Code != http.StatusOK {
+				t.Fatalf("request explorer: HTTP %d", rec.Code)
+			}
+			body := rec.Body.String()
+			for _, want := range []string{tc.title, tc.empty, `name="status"`, `value="5xx" selected`, `value="1d" selected`, `action="/analytics/requests"`} {
+				if !strings.Contains(body, want) {
+					t.Errorf("missing explorer label or filter contract %q", want)
+				}
+			}
+		})
+	}
+}
+
 func TestAnalyticsSettingsDescriptionShowsConfiguredRetention(t *testing.T) {
 	e := newSecEnv(t)
 	for _, tc := range []struct{ lang, days, want string }{
