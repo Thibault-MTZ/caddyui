@@ -84,7 +84,7 @@
          percentile hides whether a slow tail is a handful of requests or a
          broad shift. */}}
     <div class="text-xs text-ink-400 mt-0.5">p50 {{.Latency.P50Ms}}{{t $ "page.analytics_host.ms_p95_a2c4e69a"}} {{.Latency.P95Ms}}{{t $ "page.analytics_host.ms_p99_f2b5b8df"}} {{.Latency.P99Ms}}{{t $ "page.analytics_host.ms_f785c3ce"}}</div>
-    <div class="text-[10px] text-ink-400 mt-0.5">{{t $ "page.analytics_host.min_1f6fa6f6"}} {{.Latency.MinMs}}{{t $ "page.analytics_host.ms_max_53bc7e0a"}} {{.Latency.MaxMs}}{{t $ "page.analytics_host.ms_over_c6f5f870"}} {{.Latency.Count}} {{t $ "page.analytics_host.requests_ec72420d"}}</div>
+    <div class="text-[10px] text-ink-400 mt-0.5">{{t $ "analytics.latency.range" "min" .Latency.MinMs "max" .Latency.MaxMs "count" .Latency.Count}}</div>
   </div>
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
     <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.bandwidth_out"}}</div>

@@ -77,7 +77,7 @@
     <a href="/analytics/requests?server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}" class="ui-button ui-button--quiet">{{t $ "page.analytics_requests.clear_83b12c22"}}</a>
     {{if .ExplicitRange}}
     <span class="text-xs text-amber-700">
-      {{t $ "page.analytics_requests.restricted_to_ff72d6f6"}} {{.RangeFrom.Format "2 Jan 15:04"}} – {{if .RangeTo.IsZero}}{{t $ "page.analytics_requests.now_ed5eb9a3"}}{{else}}{{.RangeTo.Format "15:04"}}{{end}} {{t $ "page.analytics_requests.from_a_chart_selection_70dd9053"}}
+      {{$rangeEnd := t $ "page.analytics_requests.now_ed5eb9a3"}}{{if not .RangeTo.IsZero}}{{$rangeEnd = .RangeTo.Format "15:04"}}{{end}}{{t $ "analytics.requests.selected_range" "from" (.RangeFrom.Format "2 Jan 15:04") "to" $rangeEnd}}
       <a href="/analytics/requests?host={{.Filter.Host}}&amp;status={{.Filter.Status}}&amp;ua={{.Filter.UA}}&amp;path={{.Filter.Path}}&amp;ip={{.Filter.ClientIP}}&amp;server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}" class="underline hover:text-amber-900">{{t $ "page.analytics_requests.use_the_whole_window_instead_3816137e"}}</a>
     </span>
     {{end}}
@@ -126,7 +126,7 @@
   <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden">
     <div class="px-4 py-3 border-b border-ink-100 flex items-center justify-between gap-3 flex-wrap">
       <div class="text-sm font-medium text-ink-800">{{t $ "page.analytics_requests.requests_ada27592"}}</div>
-      {{if .Truncated}}<div class="text-xs text-amber-700">{{t $ "page.analytics_requests.showing_the_55fa9981"}} {{.RowCount}} {{t $ "page.analytics_requests.most_recent_of_c77bd5b4"}} {{.Total}} {{t $ "page.analytics_requests.matches_narrow_the_filter_to_see_the_rest_37df0ce6"}}</div>{{end}}
+      {{if .Truncated}}<div class="text-xs text-amber-700">{{t $ "analytics.requests.truncated" "count" .RowCount "total" .Total}}</div>{{end}}
     </div>
     <div class="overflow-x-auto">
       <table class="w-full text-xs">

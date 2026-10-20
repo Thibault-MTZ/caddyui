@@ -4756,5 +4756,8 @@
   "page.analytics_requests.time_window_5b389e00": "Time window",
   "page.analytics_requests.use_the_whole_window_instead_3816137e": "Use the whole window instead",
   "page.analytics_requests.user_agent_825af78f": "User agent",
-  "page.analytics_requests.user_agent_contains_a92004f6": "User agent contains"
+  "page.analytics_requests.user_agent_contains_a92004f6": "User agent contains",
+  "analytics.requests.truncated": "Showing the {count} most recent of {total} matches — narrow the filter to see the rest.",
+  "analytics.requests.selected_range": "Restricted to {from} – {to} from a chart selection.",
+  "analytics.latency.range": "min {min}ms · max {max}ms over {count} requests"
 }
