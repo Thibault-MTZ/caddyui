@@ -383,8 +383,6 @@
   "settings.security.oidc.issuer": "Issuer URL",
   "settings.security.oidc.redirect": "Redirect URL",
   "settings.security.oidc.callback": "(callback)",
-  "settings.security.oidc.redirect_help_intro": "Register this exact URL with your provider — including the",
-  "settings.security.oidc.redirect_help_end": "on the end:",
   "settings.security.oidc.client_id": "Client ID",
   "settings.security.oidc.client_secret": "Client secret",
   "settings.security.oidc.keep_secret": "•••••••• (leave blank to keep)",
@@ -401,8 +399,6 @@
   "settings.security.oidc.default_role_help": "Given to a new SSO account when no group rule below matches. Existing accounts keep the role they already have — this only applies at creation.",
   "settings.security.oidc.groups_claim": "Groups claim",
   "settings.security.optional": "(optional)",
-  "settings.security.oidc.groups_help_intro": "The ID-token claim holding the user's groups — usually",
-  "settings.security.oidc.groups_help_end": ". Your provider has to be configured to include it in the token. Leave blank to use the default role for everyone.",
   "settings.security.oidc.rules": "Group → role rules",
   "settings.security.oidc.rules_intro": "One",
   "settings.security.oidc.rules_role": "per line, role being",
@@ -416,7 +412,9 @@
   "settings.security.login_attempts.help": "Blocks an IP after this many failed login attempts in a 15-minute window. 0 disables brute-force protection.",
   "settings.security.login_attempts.placeholder": "0 = no limit",
   "settings.security.totp.require": "Require two-factor authentication (TOTP) for everyone",
-  "settings.security.totp.help": "Site-wide policy. Any user who has not enrolled TOTP is sent to the setup page and cannot reach the rest of CaddyUI until they finish. It does not enrol anyone for you, and it cannot switch TOTP on or off for one account — each person manages their own under",
+  "settings.security.totp.help": "Site-wide policy. Any user who has not enrolled TOTP is sent to the setup page and cannot reach the rest of CaddyUI until they finish. It does not enrol anyone for you, and it cannot switch TOTP on or off for one account — each person manages their own under {profile}.",
   "settings.security.totp.profile_link": "user menu → My two-factor authentication",
-  "settings.security.totp.warning": "This applies to you too. If your own account has no TOTP yet, saving this sends you straight to enrolment, and you will need to finish it before you can reach this page again — including to switch the policy back off."
+  "settings.security.totp.warning": "This applies to you too. If your own account has no TOTP yet, saving this sends you straight to enrolment, and you will need to finish it before you can reach this page again — including to switch the policy back off.",
+  "settings.security.oidc.redirect_help": "Register this exact URL with your provider — including the {suffix} on the end:",
+  "settings.security.oidc.groups_help": "The ID-token claim holding the user's groups — usually {claim}. Your provider has to be configured to include it in the token. Leave blank to use the default role for everyone."
 }

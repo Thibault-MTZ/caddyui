@@ -987,7 +987,7 @@
                so it read as a recommendation to use the bare /auth/oidc path.
                Spell the whole thing out below the field instead, where it
                cannot be clipped, and build it from this request's own host. */}}
-          <p class="text-xs text-ink-500 mt-1">{{t $ "settings.security.oidc.redirect_help_intro"}} <strong>/callback</strong> {{t $ "settings.security.oidc.redirect_help_end"}}</p>
+          <p class="text-xs text-ink-500 mt-1">{{t $ "settings.security.oidc.redirect_help" "suffix" "/callback"}}</p>
           <code class="mt-1 block w-full select-all break-all rounded-md bg-ink-50 border border-ink-200 px-2 py-1.5 text-xs font-mono text-ink-900">{{.OIDCSuggestedRedirectURL}}</code>
         </div>
         <div>
@@ -1034,7 +1034,7 @@
             <input name="oidc_groups_claim" value="{{.OIDCGroupsClaim}}" type="text" autocomplete="off" placeholder="groups"
               class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
           </div>
-          <p class="text-xs text-ink-500 sm:pt-6">{{t $ "settings.security.oidc.groups_help_intro"}} <code class="font-mono">groups</code>{{t $ "settings.security.oidc.groups_help_end"}}</p>
+          <p class="text-xs text-ink-500 sm:pt-6">{{t $ "settings.security.oidc.groups_help" "claim" "groups"}}</p>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
           <div>
@@ -1068,7 +1068,7 @@
     <div class="flex items-start justify-between gap-4 mt-4 pt-4 border-t border-ink-100">
       <div>
         <label class="block text-sm font-medium text-ink-800">{{t $ "settings.security.totp.require"}}</label>
-        <p class="text-xs text-ink-500 mt-0.5">{{t $ "settings.security.totp.help"}} <strong>{{t $ "settings.security.totp.profile_link"}}</strong>.</p>
+        <p class="text-xs text-ink-500 mt-0.5">{{t $ "settings.security.totp.help" "profile" (t $ "settings.security.totp.profile_link")}}</p>
         <p class="text-xs text-amber-700 mt-1">{{t $ "settings.security.totp.warning"}}</p>
       </div>
       <label class="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
