@@ -36,6 +36,37 @@ func TestAnalyticsRequestExplorerLocaleKeepsFilters(t *testing.T) {
 	}
 }
 
+func TestAnalyticsRequestExplorerWindowSummaryFollowsLocale(t *testing.T) {
+	e := newSecEnv(t)
+	for _, lang := range []string{"en", "fr", "ru"} {
+		e.do(t, "admin", http.MethodPost, "/profile", url.Values{"action": {"update_locale"}, "locale": {lang}})
+		for _, tc := range []struct{ token, english, french string }{
+			{"1h", "last hour", "dernière heure"},
+			{"6h", "last 6 hours", "6 dernières heures"},
+			{"1d", "last 24 hours", "dernières 24 heures"},
+			{"24h", "last 24 hours", "dernières 24 heures"},
+			{"day", "last 24 hours", "dernières 24 heures"},
+			{"30d", "last 30 days", "30 derniers jours"},
+			{"", "last 7 days", "7 derniers jours"},
+			{"unknown", "last 7 days", "7 derniers jours"},
+		} {
+			t.Run(lang+"/"+tc.token, func(t *testing.T) {
+				rec := e.do(t, "admin", http.MethodGet, "/analytics/requests?server=all&status=5xx&window="+url.QueryEscape(tc.token), nil)
+				if rec.Code != http.StatusOK {
+					t.Fatalf("request explorer: HTTP %d", rec.Code)
+				}
+				want := tc.english
+				if lang == "fr" {
+					want = tc.french
+				}
+				if !strings.Contains(rec.Body.String(), ">"+want+"</div>") {
+					t.Errorf("window summary missing %q", want)
+				}
+			})
+		}
+	}
+}
+
 func TestAnalyticsSettingsDescriptionShowsConfiguredRetention(t *testing.T) {
 	e := newSecEnv(t)
 	for _, tc := range []struct{ lang, days, want string }{
