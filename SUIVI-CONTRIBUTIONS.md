@@ -1,7 +1,7 @@
 # Atelier personnel — CaddyUI en français
 
 La branche `homelab` est désormais la référence de ma version personnelle.
-Elle reprend le travail de `i18n-personal`, conservée comme branche d'atelier. Le
+Elle reprend le travail de `i18n-personal`, conservée uniquement en local. Le
 travail initial n'a pas été suivi avec un historique Git rigoureux dès le début.
 Les commits récents suivent les essais et corrections au fil du travail.
 
@@ -15,7 +15,7 @@ n'est pas une version officielle ni une recommandation de mise à jour automatiq
 ## Organisation
 
 - Référence personnelle : `homelab` ; déploiement réel à vérifier séparément.
-- Atelier complet : `i18n-personal`, commits et suivi en français.
+- Ancien atelier : `i18n-personal`, conservé en local ; travail courant sur `homelab`.
 - Extraction propre : `i18n-settings-security`, basée sur l'amont `e96a090`
   (après v2.66.1), sans ajout de traduction française.
 - Français : `fr-settings-security`, basée sur la branche d'extraction ; son
@@ -87,3 +87,24 @@ préalable ni de réécriture des anciens commits pour embellir l'historique.
 Les résultats du bilan précédent restent des preuves historiques, pas des tests
 rejoués à chaque modification de cette liste. Aucune nouvelle PR ni aucun
 déploiement ne sont créés par cette mise à jour documentaire.
+
+
+## Étape locale — résumé de période Analytics
+
+Le résumé de période de l’explorateur utilisait encore une chaîne anglaise
+produite dans le gestionnaire Go, même avec un profil français. Il utilise
+maintenant le catalogue existant, avec deux clés supplémentaires pour 1 h et 6 h.
+Les valeurs des filtres et leurs alias restent techniques et inchangés.
+
+Le test de régression a d’abord reproduit le défaut : les huit cas français
+échouaient. Après correction, les tests ciblés Analytics et i18n passent
+(serveur : 9,733 s), les 4 869 clés françaises sont renseignées et la compilation
+`go build -p 1 ./...` passe sous Go 1.27.2, Linux amd64, CGO désactivé.
+Ces essais utilisent des bases temporaires et un faux Caddy dans le laboratoire ;
+ils ne constituent pas une validation navigateur ni un déploiement.
+
+Ce correctif reste dans le fork personnel. Le prochain lot à proposer reste
+Sécurité, suivant l’ordre demandé par le mainteneur : extraction anglaise puis
+français séparé. Les phrases fragmentées autour du balisage doivent encore être
+relues avant soumission. Aucune nouvelle PR ou publication sur le dépôt officiel
+sans accord préalable.
