@@ -68,6 +68,30 @@ v2.63.0 added about 250 keys:
 
 More of the interface is moved onto keys release by release — the other Settings pages, then the list pages and forms, the large proxy-host form last. When new keys appear in `en.json`, a translation simply shows English for them until it is updated.
 
+## Security settings
+
+The Security settings page uses `settings.security.*` for CAPTCHA provider
+labels and help, trusted proxies and client-IP headers, certificate directories,
+IP allowlists and blocklists, OIDC, session limits and TOTP policy. Shared status
+and save labels reuse existing keys. New keys fall back to English in partial
+catalogs; translations can be contributed separately without template changes.
+
+OIDC callback/group help and the TOTP explanation use complete messages with
+named placeholders. Preserve `{suffix}`, `{claim}` and `{profile}` when
+translating, but move them where the language requires. Technical form values,
+role identifiers and environment-variable names must stay unchanged.
+
+Regression checks:
+
+```sh
+go test ./internal/i18n/ ./internal/server/ -run 'I18n|Translation|Catalog|Language|Locale'
+go build ./...
+```
+
+The Security rendering tests cover partial-catalog fallback, form contracts,
+stored-value escaping, help interpolation and conditional CAPTCHA states. They
+use a fake Caddy API and do not verify external identity or CAPTCHA providers.
+
 ## Sending a translation
 
 Open a pull request that only adds or edits `web/i18n/<code>.json`. If you maintain a language, mention it in the PR so you can be pinged when new keys appear.
