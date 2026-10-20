@@ -193,7 +193,7 @@ func (s *Server) getAnalyticsRequests(w http.ResponseWriter, r *http.Request) {
 		"Facets":           facets,
 		"StatusMix":        mix,
 		"Error":            errMsg,
-		"WindowLabel":      windowLabelFor(f.Window),
+		"WindowLabel":      s.tr(r, requestWindowLabelKey(f.Window)),
 		"ExplicitRange":    f.From != "",
 		"RangeFrom":        since,
 		"RangeTo":          until,
@@ -203,19 +203,20 @@ func (s *Server) getAnalyticsRequests(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// windowLabelFor is the human label for a window token.
-func windowLabelFor(token string) string {
+// requestWindowLabelKey keeps the display locale separate from the query token.
+// Match windowDuration's aliases and fallback without translating form values.
+func requestWindowLabelKey(token string) string {
 	switch token {
 	case "1h":
-		return "last hour"
+		return "analytics.window.1h"
 	case "6h":
-		return "last 6 hours"
+		return "analytics.window.6h"
 	case "1d", "24h", "day":
-		return "last 24 hours"
+		return "analytics.window.1d"
 	case "30d":
-		return "last 30 days"
+		return "analytics.window.30d"
 	default:
-		return "last 7 days"
+		return "analytics.window.7d"
 	}
 }
 

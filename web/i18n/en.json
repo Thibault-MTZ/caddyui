@@ -4865,5 +4865,7 @@
   "settings.security.totp.require": "Require two-factor authentication (TOTP) for everyone",
   "settings.security.totp.help": "Site-wide policy. Any user who has not enrolled TOTP is sent to the setup page and cannot reach the rest of CaddyUI until they finish. It does not enrol anyone for you, and it cannot switch TOTP on or off for one account — each person manages their own under",
   "settings.security.totp.profile_link": "user menu → My two-factor authentication",
-  "settings.security.totp.warning": "This applies to you too. If your own account has no TOTP yet, saving this sends you straight to enrolment, and you will need to finish it before you can reach this page again — including to switch the policy back off."
+  "settings.security.totp.warning": "This applies to you too. If your own account has no TOTP yet, saving this sends you straight to enrolment, and you will need to finish it before you can reach this page again — including to switch the policy back off.",
+  "analytics.window.1h": "last hour",
+  "analytics.window.6h": "last 6 hours"
 }
