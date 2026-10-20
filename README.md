@@ -1,3 +1,49 @@
+# CaddyUI — fork personnel de développement / Personal development fork
+
+## Français
+
+**Ce fork est mon espace personnel de développement et de test. Il n'est pas destiné à la production de tiers.**
+
+La branche **`homelab`** sert de référence pour la version que j'utilise chez moi : c'est ma branche de production personnelle. Les essais et changements en cours se font sur des branches séparées avant d'y être intégrés après validation dans ma VM de test. Sa présence ne garantit pas qu'elle est déjà déployée sur mon homelab.
+
+Organisation du travail :
+
+- **`homelab`** : version personnelle validée, avec mes adaptations utiles au homelab.
+- **Branches de travail** : développement, brouillons et essais dans la VM ; une branche par sujet.
+- **Branches de contribution** : changements ciblés préparés à partir de la branche de référence du projet d'origine, sans embarquer les adaptations propres à mon homelab.
+
+Le parcours prévu est : comprendre le problème, préparer un changement, le tester dans la VM, puis intégrer ce qui est validé à `homelab`. Les améliorations utiles à tous peuvent faire l'objet d'une PR séparée vers le projet d'origine. Fusionner une branche et déployer chez moi sont deux étapes distinctes.
+
+Il est basé sur [CaddyUI par X4Applegate](https://github.com/X4Applegate/caddyui). Pour installer et utiliser le projet, référez-vous au dépôt d'origine et à ses versions officielles.
+
+J'utilise ce fork pour expérimenter dans ma VM de test et mon homelab, travailler sur la traduction française, comprendre les bugs et tester des améliorations. Les changements sont préparés sur des branches de travail ou de brouillon avant de proposer des pull requests ciblées, testées et faciles à relire au projet d'origine. Une expérimentation présente ici n'est pas forcément prête à être intégrée.
+
+Je travaille principalement en français. L'IA m'aide notamment à traduire mes textes en anglais et peut aussi m'aider à rédiger ou préparer des contributions. Les formulations anglaises peuvent donc provenir d'une traduction automatique assistée par IA.
+
+## English
+
+**This fork is my personal development and testing workspace. It is not intended for production use by others.**
+
+The **`homelab`** branch tracks the version I use at home: it is my personal production branch. Experiments and ongoing changes belong on separate branches before being merged after validation in my test VM. The existence of this branch does not guarantee that it is already deployed in my homelab.
+
+Workflow:
+
+- **`homelab`**: my validated personal version, including changes specific to my homelab.
+- **Working branches**: development, drafts, and experiments in the test VM, with one topic per branch.
+- **Contribution branches**: focused changes prepared from the upstream project's reference branch, without including my homelab-specific customizations.
+
+The intended process is to understand the problem, prepare a change, test it in the VM, and then merge validated changes into `homelab`. Improvements useful to others can be submitted as separate upstream PRs. Merging a branch and deploying at home are separate steps.
+
+It is based on [CaddyUI by X4Applegate](https://github.com/X4Applegate/caddyui). To install and use the project, please refer to the upstream repository and its official releases.
+
+I use this fork to experiment in my test VM and homelab, work on the French translation, understand bugs, and test improvements. Changes are prepared on working or draft branches before submitting focused, tested, easy-to-review pull requests upstream. Experiments in this fork are not necessarily ready to be merged.
+
+I primarily work in French. AI helps me translate my text into English and may also help me write or prepare contributions. English wording may therefore come from AI-assisted automatic translation.
+
+---
+
+## Upstream README / Documentation du projet d'origine
+
 # Caddy UI
 
 A modern, self-hosted web UI for [Caddy](https://caddyserver.com/) — manage proxy hosts, redirections, SSL certificates, and advanced routes through a clean interface, without touching config files.
