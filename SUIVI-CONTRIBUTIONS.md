@@ -2,8 +2,10 @@
 
 Cette branche `i18n-personal` est ma version de développement et de test. Le
 travail initial n'a pas été suivi avec un historique Git rigoureux dès le début.
-Les commits récents décrivent les étapes réellement effectuées ; ils ne
-reconstituent pas artificiellement plusieurs jours de développement.
+Les commits récents suivent les essais et corrections au fil du travail.
+
+Je m’aide d’outils d’IA pour explorer des idées, préparer des tests et organiser
+mes contributions. Je relis et corrige le résultat, qui reste perfectible.
 
 Une version antérieure est utilisée dans mon installation. Cette branche mise
 à jour n'y a pas été déployée et tous les parcours ne sont pas vérifiés. Ce fork
