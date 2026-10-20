@@ -14,7 +14,7 @@
     <a href="/analytics/requests?server={{if eq .SelectedServerID 0}}all{{else}}{{.SelectedServerID}}{{end}}"
        class="inline-flex items-center gap-1.5 mt-2 text-sm text-brand-600 hover:text-brand-700 font-medium">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      Search requests by host, status, agent or time
+      {{t $ "page.analytics.search_requests_by_host_status_agent_or_time_47417c57"}}
     </a>
   </div>
   <div class="flex items-center gap-2 flex-wrap">
@@ -93,10 +93,10 @@
          always been links. Each now opens the explorer filtered to that class. */}}
     {{$srv := "all"}}{{if ne .SelectedServerID 0}}{{$srv = printf "%d" .SelectedServerID}}{{end}}
     <div class="mt-1 flex items-center gap-2 text-xs">
-      <a href="/analytics/requests?status=2xx&amp;server={{$srv}}" title="Show 2xx requests" class="inline-flex items-center gap-1 hover:text-brand-700"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>{{.Status.S2xx}}</a>
-      <a href="/analytics/requests?status=3xx&amp;server={{$srv}}" title="Show 3xx requests" class="inline-flex items-center gap-1 hover:text-brand-700"><span class="w-2 h-2 rounded-full bg-sky-500"></span>{{.Status.S3xx}}</a>
-      <a href="/analytics/requests?status=4xx&amp;server={{$srv}}" title="Show 4xx requests" class="inline-flex items-center gap-1 hover:text-brand-700"><span class="w-2 h-2 rounded-full bg-amber-500"></span>{{.Status.S4xx}}</a>
-      <a href="/analytics/requests?status=5xx&amp;server={{$srv}}" title="Show 5xx requests" class="inline-flex items-center gap-1 hover:text-brand-700"><span class="w-2 h-2 rounded-full bg-red-500"></span>{{.Status.S5xx}}</a>
+      <a href="/analytics/requests?status=2xx&amp;server={{$srv}}" title="{{t $ "page.analytics.title.show_2xx_requests_06bd8025"}}" class="inline-flex items-center gap-1 hover:text-brand-700"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>{{.Status.S2xx}}</a>
+      <a href="/analytics/requests?status=3xx&amp;server={{$srv}}" title="{{t $ "page.analytics.title.show_3xx_requests_1cb12198"}}" class="inline-flex items-center gap-1 hover:text-brand-700"><span class="w-2 h-2 rounded-full bg-sky-500"></span>{{.Status.S3xx}}</a>
+      <a href="/analytics/requests?status=4xx&amp;server={{$srv}}" title="{{t $ "page.analytics.title.show_4xx_requests_fab5a265"}}" class="inline-flex items-center gap-1 hover:text-brand-700"><span class="w-2 h-2 rounded-full bg-amber-500"></span>{{.Status.S4xx}}</a>
+      <a href="/analytics/requests?status=5xx&amp;server={{$srv}}" title="{{t $ "page.analytics.title.show_5xx_requests_79a5fc46"}}" class="inline-flex items-center gap-1 hover:text-brand-700"><span class="w-2 h-2 rounded-full bg-red-500"></span>{{.Status.S5xx}}</a>
     </div>
     <div class="mt-1 text-[10px] text-ink-400">{{t $ "page.analytics.2xx_3xx_4xx_5xx_d7726232"}}</div>
   </div>

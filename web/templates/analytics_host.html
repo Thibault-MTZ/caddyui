@@ -79,12 +79,12 @@
   </div>
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
     <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.avg_response"}}</div>
-    <div class="mt-1 text-2xl font-semibold text-ink-900">{{.ResponseTime.AvgMs}}<span class="text-base font-normal text-ink-400">ms</span></div>
+    <div class="mt-1 text-2xl font-semibold text-ink-900">{{.ResponseTime.AvgMs}}<span class="text-base font-normal text-ink-400">{{t $ "page.analytics_host.ms_f785c3ce"}}</span></div>
     {{/* v2.66.0 (issue #145): p50/p95/p99 rather than p95 alone — a single
          percentile hides whether a slow tail is a handful of requests or a
          broad shift. */}}
-    <div class="text-xs text-ink-400 mt-0.5">p50 {{.Latency.P50Ms}}ms · p95 {{.Latency.P95Ms}}ms · p99 {{.Latency.P99Ms}}ms</div>
-    <div class="text-[10px] text-ink-400 mt-0.5">min {{.Latency.MinMs}}ms · max {{.Latency.MaxMs}}ms over {{.Latency.Count}} requests</div>
+    <div class="text-xs text-ink-400 mt-0.5">p50 {{.Latency.P50Ms}}{{t $ "page.analytics_host.ms_p95_a2c4e69a"}} {{.Latency.P95Ms}}{{t $ "page.analytics_host.ms_p99_f2b5b8df"}} {{.Latency.P99Ms}}{{t $ "page.analytics_host.ms_f785c3ce"}}</div>
+    <div class="text-[10px] text-ink-400 mt-0.5">{{t $ "page.analytics_host.min_1f6fa6f6"}} {{.Latency.MinMs}}{{t $ "page.analytics_host.ms_max_53bc7e0a"}} {{.Latency.MaxMs}}{{t $ "page.analytics_host.ms_over_c6f5f870"}} {{.Latency.Count}} {{t $ "page.analytics_host.requests_ec72420d"}}</div>
   </div>
   <div class="bg-white border border-ink-200 rounded-xl p-4 shadow-card">
     <div class="text-xs uppercase tracking-wider text-ink-500 font-medium">{{t $ "analytics.bandwidth_out"}}</div>
@@ -123,7 +123,7 @@
       {{$errH := 0}}{{if gt $err 0}}{{$errH = mulDivInt $err 38 $max}}{{end}}
       {{if gt $errH $h}}{{$errH = $h}}{{end}}
       <a href="/analytics/requests?host={{urlquery $.Host}}&amp;from={{$key}}&amp;to={{addInt64 $key $bs}}&amp;server={{$srv}}">
-        <title>{{$b.Hour.Format "2 Jan 15:04"}} — {{$b.Views}} requests{{if gt $err 0}}, {{$err}} errors{{end}}</title>
+        <title>{{$b.Hour.Format "2 Jan 15:04"}} — {{$b.Views}} {{t $ "page.analytics_host.requests_ec72420d"}}{{if gt $err 0}}, {{$err}} {{t $ "page.analytics_host.errors_be4bd567"}}{{end}}</title>
         {{/* Full bar, then the 4xx+5xx portion drawn over its base. */}}
         <rect x="{{$i}}" y="{{subInt 40 $h}}" width="0.85" height="{{$h}}" fill="#3b82f6" opacity="0.75"/>
         {{if gt $errH 0}}<rect x="{{$i}}" y="{{subInt 40 $errH}}" width="0.85" height="{{$errH}}" fill="#ef4444" opacity="0.95"/>{{end}}
@@ -131,9 +131,9 @@
     {{end}}
   </svg>
   <div class="flex items-center gap-3 mt-2 text-[10px] text-ink-500">
-    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#3b82f6"></span>all requests</span>
-    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#ef4444"></span>4xx / 5xx</span>
-    <span class="text-ink-400">· click a bar to list that period's requests</span>
+    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#3b82f6"></span>{{t $ "page.analytics_host.all_requests_24c8d632"}}</span>
+    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#ef4444"></span>{{t $ "page.analytics_host.4xx_5xx_873f2044"}}</span>
+    <span class="text-ink-400">{{t $ "page.analytics_host.click_a_bar_to_list_that_period_s_requests_07dd62f9"}}</span>
   </div>
   {{else}}
   <div class="py-8 text-center text-sm text-ink-400">{{t $ "analytics.no_events_in_this_window"}}</div>
@@ -229,16 +229,16 @@
 {{if .HostAgents}}
 <div class="bg-white border border-ink-200 rounded-xl shadow-card overflow-hidden mb-6">
   <div class="flex items-baseline justify-between px-5 pt-4 pb-3">
-    <div class="text-sm font-medium text-ink-800">User agents</div>
+    <div class="text-sm font-medium text-ink-800">{{t $ "page.analytics_host.user_agents_574bc092"}}</div>
     <div class="text-xs text-ink-400">{{.WindowLabel}}</div>
   </div>
   <div class="overflow-x-auto">
     <table class="w-full text-xs">
       <thead class="bg-ink-50 text-left text-ink-600">
         <tr>
-          <th class="px-5 py-2 font-medium">Agent</th>
-          <th class="px-3 py-2 font-medium text-right">Requests</th>
-          <th class="px-3 py-2 font-medium text-right">Visitors</th>
+          <th class="px-5 py-2 font-medium">{{t $ "page.analytics_host.agent_11b39c93"}}</th>
+          <th class="px-3 py-2 font-medium text-right">{{t $ "page.analytics_host.requests_ada27592"}}</th>
+          <th class="px-3 py-2 font-medium text-right">{{t $ "page.analytics_host.visitors_68f7d7fb"}}</th>
           <th class="px-5 py-2 font-medium text-right"></th>
         </tr>
       </thead>
@@ -250,7 +250,7 @@
           <td class="px-3 py-1.5 text-right font-mono text-ink-600">{{.Visitors}}</td>
           <td class="px-5 py-1.5 text-right">
             <a href="/analytics/requests?host={{urlquery $.Host}}&amp;ua={{urlquery .UserAgent}}&amp;window={{$.WindowQuery}}&amp;server={{if eq $.SelectedServerID 0}}all{{else}}{{$.SelectedServerID}}{{end}}"
-               class="text-brand-600 hover:underline whitespace-nowrap">Show requests →</a>
+               class="text-brand-600 hover:underline whitespace-nowrap">{{t $ "page.analytics_host.show_requests_9b69122b"}}</a>
           </td>
         </tr>
         {{end}}
