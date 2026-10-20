@@ -92,6 +92,23 @@ The Security rendering tests cover partial-catalog fallback, form contracts,
 stored-value escaping, help interpolation and conditional CAPTCHA states. They
 use a fake Caddy API and do not verify external identity or CAPTCHA providers.
 
+## Sign-in page
+
+The sign-in page uses `login.*` keys for its title, labels, reset/invitation
+notices, sign-in errors and built-in SSO button. The email field reuses
+`profile.account.email`. Anonymous requests use the site default, then the
+browser language, then English; no account language is inferred from an email
+entered before authentication.
+
+Custom SSO button labels remain administrator-provided text and are escaped,
+not translated. The built-in fallback is translated only when no label is set.
+Authentication, generic credential errors, rate limiting and session behavior
+are unchanged. Forgot/reset-password pages and the TOTP verification page are
+separate areas and are not covered by this extraction.
+
+`TestI18nLogin*` checks locale selection, notices, partial-catalog fallback,
+SSO labels, failed/successful sessions and lockout rendering through the router.
+
 ## Sending a translation
 
 Open a pull request that only adds or edits `web/i18n/<code>.json`. If you maintain a language, mention it in the PR so you can be pinged when new keys appear.
