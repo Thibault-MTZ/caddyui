@@ -383,8 +383,6 @@
   "settings.security.oidc.issuer": "URL de l’émetteur",
   "settings.security.oidc.redirect": "URL de redirection",
   "settings.security.oidc.callback": "(rappel)",
-  "settings.security.oidc.redirect_help_intro": "Enregistrez exactement cette URL auprès de votre fournisseur, y compris",
-  "settings.security.oidc.redirect_help_end": "à la fin :",
   "settings.security.oidc.client_id": "ID client",
   "settings.security.oidc.client_secret": "Secret client",
   "settings.security.oidc.keep_secret": "•••••••• (laisser vide pour conserver)",
@@ -401,8 +399,6 @@
   "settings.security.oidc.default_role_help": "Attribué à un nouveau compte SSO lorsqu’aucune règle de groupe ci-dessous ne correspond. Les comptes existants conservent leur rôle ; ce paramètre s’applique uniquement à la création.",
   "settings.security.oidc.groups_claim": "Attribut des groupes",
   "settings.security.optional": "(facultatif)",
-  "settings.security.oidc.groups_help_intro": "L’attribut du jeton d’identité contenant les groupes de l’utilisateur, généralement",
-  "settings.security.oidc.groups_help_end": ". Votre fournisseur doit être configuré pour l’inclure dans le jeton. Laissez vide pour attribuer le rôle par défaut à tous.",
   "settings.security.oidc.rules": "Règles groupe → rôle",
   "settings.security.oidc.rules_intro": "Une entrée",
   "settings.security.oidc.rules_role": "par ligne, le rôle étant",
@@ -416,7 +412,9 @@
   "settings.security.login_attempts.help": "Bloque une IP après ce nombre de tentatives de connexion échouées sur une période de 15 minutes. 0 désactive la protection contre les attaques par force brute.",
   "settings.security.login_attempts.placeholder": "0 = aucune limite",
   "settings.security.totp.require": "Imposer l’authentification à deux facteurs (TOTP) à tous",
-  "settings.security.totp.help": "Politique appliquée à toute l’installation. Tout utilisateur n’ayant pas configuré TOTP est redirigé vers la page de configuration et ne peut pas accéder au reste de CaddyUI avant de l’avoir terminée. Ce réglage ne configure TOTP pour personne et ne permet pas de l’activer ou de le désactiver sur un compte donné ; chacun gère son propre réglage dans le",
+  "settings.security.totp.help": "Politique appliquée à toute l’installation. Tout utilisateur n’ayant pas configuré TOTP est redirigé vers la page de configuration et ne peut pas accéder au reste de CaddyUI avant de l’avoir terminée. Ce réglage ne configure TOTP pour personne et ne permet pas de l’activer ou de le désactiver sur un compte donné ; chacun gère son propre réglage dans le {profile}.",
   "settings.security.totp.profile_link": "menu utilisateur → Mon authentification à deux facteurs",
-  "settings.security.totp.warning": "Cette règle s’applique aussi à vous. Si votre compte n’a pas encore TOTP, l’enregistrement vous redirigera directement vers sa configuration. Vous devrez la terminer avant de pouvoir revenir sur cette page, y compris pour désactiver cette politique."
+  "settings.security.totp.warning": "Cette règle s’applique aussi à vous. Si votre compte n’a pas encore TOTP, l’enregistrement vous redirigera directement vers sa configuration. Vous devrez la terminer avant de pouvoir revenir sur cette page, y compris pour désactiver cette politique.",
+  "settings.security.oidc.redirect_help": "Enregistrez exactement cette URL auprès de votre fournisseur, y compris {suffix} à la fin :",
+  "settings.security.oidc.groups_help": "L’attribut du jeton d’identité contenant les groupes de l’utilisateur, généralement {claim}. Votre fournisseur doit être configuré pour l’inclure dans le jeton. Laissez vide pour attribuer le rôle par défaut à tous."
 }
