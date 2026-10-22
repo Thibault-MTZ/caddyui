@@ -2406,6 +2406,16 @@ func migrate(db *sql.DB) error {
 		migrationStep(db, `ALTER TABLE proxy_hosts ADD COLUMN rate_limit_window_sec INTEGER NOT NULL DEFAULT 0`)
 	}
 
+	// v2.68.0: record how an account actually signs in, so the Users page can
+	// show it. Nullable rather than defaulted: "never used SSO" and "used SSO
+	// at the zero time" must stay distinguishable.
+	if !columnExists2(db, "users", "sso_last_login") {
+		migrationStep(db, `ALTER TABLE users ADD COLUMN sso_last_login TIMESTAMP`)
+	}
+	if !columnExists2(db, "users", "sso_issuer") {
+		migrationStep(db, `ALTER TABLE users ADD COLUMN sso_issuer TEXT NOT NULL DEFAULT ''`)
+	}
+
 	// v2.64.0 (discussion #137): client certificate authentication (mTLS).
 	// Empty mode means off, so existing hosts keep asking for no client
 	// certificate after upgrade.

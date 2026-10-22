@@ -370,6 +370,8 @@ func parseTemplates(tplFS fs.FS) (map[string]*template.Template, error) {
 			return (a * b) / c
 		},
 		"subInt64": func(a, b int64) int64 { return a - b },
+		// ssoLabel shortens an issuer URL for a badge. v2.68.0.
+		"ssoLabel": ssoProviderLabel,
 		// addInt64 lets a chart bar compute its own bucket's end time
 		// (bucket start + bucket seconds) for an exact drill-through link.
 		// v2.66.0 (issue #145).

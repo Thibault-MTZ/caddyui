@@ -5,6 +5,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.68.0] - 2026-10-22 - Users shows how each account signs in
+
+### Added
+
+- **A Sign-in column on the Users page.** Each account shows whether it signs in through your identity provider, with a password, or both — so "who is using Google?" is answerable at a glance instead of by inspecting the database.
+  - The provider is recorded on **every** SSO sign-in rather than inferred from how the account was created. An account added by hand that later signs in with Google shows **both** badges, which is the truthful answer; guessing from the creation path would have got that wrong.
+  - The badge is named after the provider — *Google*, *Authentik*, whatever your issuer is — and the full issuer URL and last sign-in time are in its tooltip, so an abbreviation is never the only thing on screen.
+  - **Accounts with no usable password are flagged `SSO only`.** An account the provider created has no password it is possible to match, so it depends entirely on SSO: disable single sign-on, or remove the person at the provider, and they lose access until an administrator sets a password. That is worth seeing before it happens rather than afterwards.
+
+### Notes
+
+- Existing accounts show no provider badge until their next SSO sign-in — nothing is backfilled, because there is no record of past sign-ins to backfill from. Password accounts are unaffected and display immediately.
+
+---
+
 ## [2.67.0] - 2026-10-22 - Restrict SSO to your own email domains
 
 ### Added

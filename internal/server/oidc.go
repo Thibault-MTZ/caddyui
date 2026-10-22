@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -318,6 +319,30 @@ func (s *Server) oidcClients(ctx context.Context, cfg oidcConfig) (*oauth2.Confi
 	return oauth2Cfg, verifier, nil
 }
 
+// ssoProviderLabel turns an issuer URL into something short enough for a
+// badge: https://accounts.google.com -> "Google", https://sso.example.com ->
+// "Example". The full issuer is shown alongside it wherever this appears, so
+// a wrong guess is never the only thing on screen. v2.68.0.
+func ssoProviderLabel(issuer string) string {
+	u, err := url.Parse(strings.TrimSpace(issuer))
+	if err != nil || u.Host == "" {
+		return "SSO"
+	}
+	host := strings.ToLower(u.Hostname())
+	parts := strings.Split(host, ".")
+	if len(parts) < 2 {
+		return "SSO"
+	}
+	// The registrable label, i.e. the one before the public suffix. Good
+	// enough for a badge on the common cases; co.uk and friends just yield
+	// the next label along, which is still recognisable.
+	name := parts[len(parts)-2]
+	if name == "" {
+		return "SSO"
+	}
+	return strings.ToUpper(name[:1]) + name[1:]
+}
+
 func oidcRandom() string {
 	b := make([]byte, 32)
 	_, _ = rand.Read(b)
@@ -489,6 +514,16 @@ func (s *Server) getOIDCCallback(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/login?error=sso", http.StatusSeeOther)
 			return
 		}
+	}
+
+	// v2.68.0: record that the provider asserted this identity, and which
+	// provider it was, so the Users page can show how each account signs in.
+	// Written here rather than after the session is issued because this is
+	// the point the identity provider has authenticated them — a local
+	// second factor may still follow, and that is a separate gate.
+	if err := models.RecordSSOLogin(s.DB, u.ID, cfg.Issuer); err != nil {
+		// Never fail a sign-in over bookkeeping.
+		log.Printf("oidc: recording SSO login for %s: %v", email, err)
 	}
 
 	// Honour a user's local TOTP as a second factor even over SSO — otherwise

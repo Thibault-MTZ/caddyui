@@ -58,6 +58,7 @@
         <th class="px-5 py-3 font-medium">Email</th>
         <th class="px-5 py-3 font-medium">Name</th>
         <th class="px-5 py-3 font-medium">Role</th>
+        <th class="px-5 py-3 font-medium">Sign-in</th>
         <th class="px-5 py-3 font-medium">Created</th>
         <th class="px-5 py-3 font-medium text-right sticky right-0 bg-ink-50 shadow-[-6px_0_8px_-4px_rgba(0,0,0,0.06)] z-10">Actions</th>
       </tr>
@@ -94,6 +95,31 @@
               <span class="w-1.5 h-1.5 rounded-full bg-ink-400"></span>view
             </span>
           {{end}}
+        </td>
+        {{/* v2.68.0: how this account actually signs in. "Used SSO" is
+             recorded on each single sign-on rather than inferred from how the
+             account was created, so an account added by hand and later used
+             with Google shows both. An account with no usable password is
+             called out, because it depends entirely on the provider —
+             turning SSO off would lock it out. */}}
+        <td class="px-5 py-3">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            {{if .UsesSSO}}
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700"
+                    title="Last signed in via {{.SSOIssuer}} on {{fmtIn .SSOLastLogin.Time "2006-01-02 15:04"}}">
+                <span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>{{ssoLabel .SSOIssuer}}
+              </span>
+            {{end}}
+            {{if .CanPasswordLogin}}
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-ink-100 text-ink-600" title="Can sign in with an email and password">password</span>
+            {{else if .UsesSSO}}
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700"
+                    title="No password is set for this account. It can only sign in through the identity provider — if SSO is turned off or the account is removed there, it loses access until an administrator sets a password.">SSO only</span>
+            {{end}}
+            {{if and (not .UsesSSO) (not .CanPasswordLogin)}}
+              <span class="text-ink-400 text-xs">—</span>
+            {{end}}
+          </div>
         </td>
         <td class="px-5 py-3 font-mono text-xs text-ink-500">{{fmtIn .CreatedAt "2006-01-02"}}</td>
         <td class="px-5 py-3 text-right whitespace-nowrap sticky right-0 bg-white shadow-[-6px_0_8px_-4px_rgba(0,0,0,0.06)]">
