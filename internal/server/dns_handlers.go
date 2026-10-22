@@ -1475,6 +1475,7 @@ func (s *Server) getSettings(w http.ResponseWriter, r *http.Request) {
 		"OIDCDefaultRole":          mustGetSetting(s.DB, settingOIDCDefaultRole),
 		"OIDCGroupsClaim":          mustGetSetting(s.DB, settingOIDCGroupsClaim),
 		"OIDCRoleMappings":         mustGetSetting(s.DB, settingOIDCRoleMappings),
+		"OIDCAllowedDomains":       mustGetSetting(s.DB, settingOIDCAllowedDomains), // v2.67.0
 		"OIDCSuggestedRedirectURL": s.publicBaseURL(r) + "/auth/oidc/callback",
 		"Success":                  success,
 		"ClearedName":              clearedName,
@@ -1819,8 +1820,10 @@ func (s *Server) postSettings(w http.ResponseWriter, r *http.Request) {
 			}
 			return role
 		}(),
-		settingOIDCGroupsClaim:     strings.TrimSpace(r.FormValue("oidc_groups_claim")),
-		settingOIDCRoleMappings:    strings.TrimSpace(r.FormValue("oidc_role_mappings")),
+		settingOIDCGroupsClaim:  strings.TrimSpace(r.FormValue("oidc_groups_claim")),
+		settingOIDCRoleMappings: strings.TrimSpace(r.FormValue("oidc_role_mappings")),
+		// v2.67.0: restrict which verified email domains may use SSO.
+		settingOIDCAllowedDomains:  strings.TrimSpace(r.FormValue("oidc_allowed_domains")),
 		settingNotifyWebhookURL:    webhookURL,
 		settingNotifyWebhookSecret: webhookSecret,
 		settingNotifyNtfyURL:       ntfyURL, // v2.12.51

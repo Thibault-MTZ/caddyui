@@ -5,6 +5,25 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.67.0] - 2026-10-22 - Restrict SSO to your own email domains
+
+### Added
+
+- **Allowed email domains for SSO**, under *Settings → Security → SSO*. List the domains that may sign in and every other verified address is refused. Leave it blank and nothing changes, so upgrading restricts nobody.
+
+  This exists because of a distinction that is easy to miss. With a **private** identity provider — Authelia, Authentik, Keycloak — "anyone my provider authenticates" means your own staff. Point CaddyUI at a **public** one such as **Google** and it means every account in the world; with *Auto-create accounts* switched on, that is a CaddyUI account for anyone who finds your login page, at whatever default role you set. Listing your domains closes that.
+
+  - The list gates **sign-in itself**, not just account creation. Gating creation alone would leave an account from outside the listed domains still able to sign in through a provider the administrator believes is restricted.
+  - Matching is on the exact domain after `@`, case-insensitively, and a leading `@` in an entry is tolerated. **Subdomains are not implied** — listing `example.com` does not admit `user@mail.example.com`, which must be listed separately.
+  - **Local password sign-in is unaffected**, so this cannot lock anyone out of the product.
+  - The refusal page does not name the permitted domains; the login page is reachable by anyone and the list is configuration.
+
+### Docs
+
+- **Signing in with Google** is now written up in the in-app documentation: the exact Issuer URL, the redirect URL to register, and the warning above. Google needs no special support — it is an ordinary OIDC provider and CaddyUI has worked with it since SSO shipped — but two things are worth knowing. Group-to-role mapping does **not** work with plain Google, whose ID tokens carry no `groups` claim, so every auto-created user lands on the default role; and Google always returns a verified email address, which CaddyUI requires.
+
+---
+
 ## [2.66.1] - 2026-10-20 - Russian interface translation (#146)
 
 ### Added

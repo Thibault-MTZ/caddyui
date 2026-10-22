@@ -51,6 +51,16 @@ const (
 	// `group|role` rule per line. First match in file order wins.
 	settingOIDCRoleMappings = "oidc_role_mappings"
 
+	// settingOIDCAllowedDomains restricts which verified email domains may
+	// sign in through SSO, one domain per line or comma-separated. Empty
+	// means every identity the provider authenticates is accepted.
+	//
+	// v2.67.0: this matters most with a *public* provider. With a private
+	// IdP, "anyone my IdP authenticates" is your own staff; with Google or
+	// similar it is every account in the world, and with auto-create on that
+	// is an account on your CaddyUI for anyone who finds the login page.
+	settingOIDCAllowedDomains = "oidc_allowed_domains"
+
 	oidcStateCookie        = "caddyui_oidc_state"
 	oidcNonceCookie        = "caddyui_oidc_nonce"
 	oidcDefaultButtonLabel = "Sign in with SSO"
@@ -68,6 +78,55 @@ type oidcConfig struct {
 	DefaultRole  string
 	GroupsClaim  string
 	RoleMappings []oidcRoleMapping
+	// AllowedDomains is the set of verified email domains permitted to sign
+	// in. Empty means no restriction. v2.67.0.
+	AllowedDomains []string
+}
+
+// parseOIDCAllowedDomains reads the domain list. Entries are lowercased and a
+// leading "@" is tolerated, because writing "@example.com" is the obvious
+// mistake to make. Blank lines and `#` comments are skipped.
+func parseOIDCAllowedDomains(raw string) []string {
+	var out []string
+	for _, f := range strings.FieldsFunc(raw, func(r rune) bool {
+		return r == '\n' || r == '\r' || r == ','
+	}) {
+		d := strings.ToLower(strings.TrimSpace(f))
+		d = strings.TrimPrefix(d, "@")
+		if d == "" || strings.HasPrefix(d, "#") {
+			continue
+		}
+		out = append(out, d)
+	}
+	return out
+}
+
+// emailDomainAllowed reports whether this verified address may sign in.
+//
+// The list gates SSO sign-in *entirely*, not just account creation. An
+// administrator who writes "only example.com" means it, and the alternative —
+// gating creation alone — would leave an existing outside account able to sign
+// in through a provider the admin believes is restricted. Local password
+// login is unaffected, so nobody is locked out of the product by this.
+//
+// Matching is on the exact domain after "@". Subdomains are not implied:
+// listing example.com does not admit user@mail.example.com, which has to be
+// listed separately.
+func (c oidcConfig) emailDomainAllowed(email string) bool {
+	if len(c.AllowedDomains) == 0 {
+		return true
+	}
+	at := strings.LastIndex(email, "@")
+	if at < 0 || at == len(email)-1 {
+		return false
+	}
+	domain := strings.ToLower(email[at+1:])
+	for _, d := range c.AllowedDomains {
+		if domain == d {
+			return true
+		}
+	}
+	return false
 }
 
 // oidcRoleMapping grants a CaddyUI role to members of one IdP group.
@@ -174,16 +233,17 @@ func (s *Server) oidcConfig() oidcConfig {
 		label = oidcDefaultButtonLabel
 	}
 	return oidcConfig{
-		Enabled:      mustGetSetting(s.DB, settingOIDCEnabled) == "1",
-		Issuer:       get(settingOIDCIssuer),
-		ClientID:     get(settingOIDCClientID),
-		ClientSecret: strings.TrimSpace(mustGetSetting(s.DB, settingOIDCClientSecret)),
-		RedirectURL:  get(settingOIDCRedirectURL),
-		AutoCreate:   mustGetSetting(s.DB, settingOIDCAutoCreate) == "1",
-		ButtonLabel:  label,
-		DefaultRole:  strings.ToLower(get(settingOIDCDefaultRole)),
-		GroupsClaim:  get(settingOIDCGroupsClaim),
-		RoleMappings: parseOIDCRoleMappings(mustGetSetting(s.DB, settingOIDCRoleMappings)),
+		Enabled:        mustGetSetting(s.DB, settingOIDCEnabled) == "1",
+		Issuer:         get(settingOIDCIssuer),
+		ClientID:       get(settingOIDCClientID),
+		ClientSecret:   strings.TrimSpace(mustGetSetting(s.DB, settingOIDCClientSecret)),
+		RedirectURL:    get(settingOIDCRedirectURL),
+		AutoCreate:     mustGetSetting(s.DB, settingOIDCAutoCreate) == "1",
+		ButtonLabel:    label,
+		DefaultRole:    strings.ToLower(get(settingOIDCDefaultRole)),
+		GroupsClaim:    get(settingOIDCGroupsClaim),
+		RoleMappings:   parseOIDCRoleMappings(mustGetSetting(s.DB, settingOIDCRoleMappings)),
+		AllowedDomains: parseOIDCAllowedDomains(mustGetSetting(s.DB, settingOIDCAllowedDomains)),
 	}
 }
 
@@ -381,6 +441,15 @@ func (s *Server) getOIDCCallback(w http.ResponseWriter, r *http.Request) {
 		// user set an arbitrary address.
 		log.Printf("oidc: rejecting sign-in: email empty or unverified (%q verified=%v)", email, claims.EmailVerified)
 		http.Redirect(w, r, "/login?error=sso_email", http.StatusSeeOther)
+		return
+	}
+	// v2.67.0: the allowed-domain policy, checked before the account lookup
+	// so it governs existing users as well as auto-created ones. Gating only
+	// creation would let an account from outside the listed domains keep
+	// signing in through a provider the administrator believes is restricted.
+	if !cfg.emailDomainAllowed(email) {
+		log.Printf("oidc: rejecting sign-in for %s: domain not in the allowed list %v", email, cfg.AllowedDomains)
+		http.Redirect(w, r, "/login?error=sso_domain", http.StatusSeeOther)
 		return
 	}
 

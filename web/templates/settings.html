@@ -1012,6 +1012,20 @@
         <span class="text-sm text-ink-700">Auto-create accounts<span class="block text-xs text-ink-500">Provision a user on first SSO sign-in (verified email required). Off = only users that already exist in CaddyUI can sign in via SSO.</span></span>
       </label>
 
+      {{/* v2.67.0: restrict which identities the provider may assert. The
+           distinction that matters: with a private IdP, "anyone my provider
+           authenticates" is your own staff; with Google or another public
+           provider it is every account in the world. */}}
+      <div class="mt-4 pt-4 border-t border-ink-100 grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+        <div>
+          <label class="block text-xs font-medium text-ink-700 mb-1">Allowed email domains <span class="text-ink-400 font-normal">(optional)</span></label>
+          <textarea name="oidc_allowed_domains" rows="2" placeholder="example.com&#10;example.org"
+            class="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm font-mono bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{.OIDCAllowedDomains}}</textarea>
+        </div>
+        <p class="text-xs text-ink-500 sm:pt-6">One domain per line. Only verified addresses in these domains may sign in through SSO — this applies to existing accounts too, not only new ones. Subdomains are not implied: list <code class="font-mono">mail.example.com</code> separately if you need it. Local password sign-in is unaffected.
+          <br><strong class="text-amber-700">Leave blank only with a private provider.</strong> With a public one such as Google, blank means any account in the world is accepted — and with auto-create on, each of them gets a CaddyUI account.</p>
+      </div>
+
       {{/* v2.65.0 (issue #139): decide what an auto-created account may do.
            Before this, every SSO account arrived read-only and had to be
            promoted by hand under Users, with nothing in the UI saying so. */}}

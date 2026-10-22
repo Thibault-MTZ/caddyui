@@ -154,6 +154,7 @@ var settingsKeySection = map[string]string{
 	settingOIDCDefaultRole:    "security", // v2.65.0 (issue #139)
 	settingOIDCGroupsClaim:    "security",
 	settingOIDCRoleMappings:   "security",
+	settingOIDCAllowedDomains: "security", // v2.67.0
 	settingSessionDays:        "security",
 	settingMaxLoginAttempts:   "security",
 	settingCaptchaProvider:    "security",

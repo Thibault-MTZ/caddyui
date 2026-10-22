@@ -2034,6 +2034,10 @@ func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
 			msg = "Your identity provider didn't return a verified email address."
 		case "sso_denied":
 			msg = "Single sign-on was cancelled."
+		case "sso_domain":
+			// Deliberately does not name the permitted domains: this page is
+			// reachable by anyone, and the list is configuration.
+			msg = "That account's email domain is not permitted to sign in here."
 		}
 		data["Error"] = msg
 	}
