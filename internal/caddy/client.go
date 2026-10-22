@@ -1271,10 +1271,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 							},
 						}},
 					}},
-					"handle": []any{map[string]any{
-						"handler":     "static_response",
-						"status_code": 403,
-					}},
+					"handle":   []any{denyForbidden()},
 					"terminal": true,
 				},
 			},
@@ -1319,7 +1316,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 				"routes": []any{
 					map[string]any{
 						"match":    []any{map[string]any{"method": methods}},
-						"handle":   []any{map[string]any{"handler": "static_response", "status_code": 405}},
+						"handle":   []any{denyResponse(405, "405 Method Not Allowed", nil)},
 						"terminal": true,
 					},
 				},
@@ -1342,12 +1339,8 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 				"handler": "subroute",
 				"routes": []any{
 					map[string]any{
-						"match": []any{map[string]any{"not": []any{map[string]any{"method": allowed}}}},
-						"handle": []any{map[string]any{
-							"handler":     "static_response",
-							"status_code": 405,
-							"headers":     map[string]any{"Allow": []any{strings.Join(methodStrings(allowed), ", ")}},
-						}},
+						"match":    []any{map[string]any{"not": []any{map[string]any{"method": allowed}}}},
+						"handle":   []any{denyResponse(405, "405 Method Not Allowed", map[string]any{"Allow": []any{strings.Join(methodStrings(allowed), ", ")}})},
 						"terminal": true,
 					},
 				},
@@ -1964,13 +1957,9 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 							map[string]any{"method": []any{method}},
 						},
 						"handle": []any{
-							map[string]any{
-								"handler":     "static_response",
-								"status_code": 405,
-								"headers": map[string]any{
-									"Allow": []any{"GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS"},
-								},
-							},
+							denyResponse(405, "405 Method Not Allowed", map[string]any{
+								"Allow": []any{"GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS"},
+							}),
 						},
 					},
 				},
@@ -2059,10 +2048,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 						},
 					},
 					"handle": []any{
-						map[string]any{
-							"handler":     "static_response",
-							"status_code": 403,
-						},
+						denyForbidden(),
 					},
 				},
 			},
@@ -2203,7 +2189,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 							"User-Agent": map[string]any{"pattern": botRegex},
 						},
 					}},
-					"handle": []any{map[string]any{"handler": "static_response", "status_code": 403}},
+					"handle": []any{denyForbidden()},
 				},
 			},
 		})
@@ -2222,7 +2208,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 						"/phpmyadmin*", "/myadmin*", "/.svn*", "/.hg*",
 						"/.aws*", "/.ssh*", "/admin/config.php*",
 					}}},
-					"handle": []any{map[string]any{"handler": "static_response", "status_code": 404}},
+					"handle": []any{denyResponse(404, "404 Not Found", nil)},
 				},
 			},
 		})
@@ -2413,7 +2399,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 							},
 						},
 					},
-					"handle": []any{map[string]any{"handler": "static_response", "status_code": 403}},
+					"handle": []any{denyForbidden()},
 				},
 			},
 		})
@@ -2494,7 +2480,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 				"routes": []any{
 					map[string]any{
 						"match":  []any{map[string]any{"path": globs}},
-						"handle": []any{map[string]any{"handler": "static_response", "status_code": 403}},
+						"handle": []any{denyForbidden()},
 					},
 				},
 			})
@@ -2691,10 +2677,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 						},
 					},
 					"handle": []any{
-						map[string]any{
-							"handler":     "static_response",
-							"status_code": 403,
-						},
+						denyForbidden(),
 					},
 				},
 			},
@@ -3437,11 +3420,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 								"User-Agent": "(?i)(" + combined + ")",
 							},
 						}},
-						"handle": []any{map[string]any{
-							"handler":     "static_response",
-							"status_code": 403,
-							"body":        "Access denied.\n",
-						}},
+						"handle":   []any{denyResponse(403, "Access denied.", nil)},
 						"terminal": true,
 					},
 				},
@@ -3459,11 +3438,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 							"User-Agent": p.BlockUARegexp,
 						},
 					}},
-					"handle": []any{map[string]any{
-						"handler":     "static_response",
-						"status_code": 403,
-						"body":        "Access denied.\n",
-					}},
+					"handle":   []any{denyResponse(403, "Access denied.", nil)},
 					"terminal": true,
 				},
 			},
@@ -3480,11 +3455,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 							"Referer": p.BlockRefererRegexp,
 						},
 					}},
-					"handle": []any{map[string]any{
-						"handler":     "static_response",
-						"status_code": 403,
-						"body":        "Access denied.\n",
-					}},
+					"handle":   []any{denyResponse(403, "Access denied.", nil)},
 					"terminal": true,
 				},
 			},
@@ -3527,11 +3498,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 						"header": map[string]any{"Referer": []any{"*"}},
 					}},
 				}},
-				"handle": []any{map[string]any{
-					"handler":     "static_response",
-					"status_code": 403,
-					"body":        "Access denied.\n",
-				}},
+				"handle":   []any{denyResponse(403, "Access denied.", nil)},
 				"terminal": true,
 			}},
 		})
@@ -4037,7 +4004,7 @@ func ipAllowlistSubroute(cidrList []string) map[string]any {
 						"client_ip": map[string]any{"ranges": ranges},
 					}},
 				}},
-				"handle":   []any{map[string]any{"handler": "static_response", "status_code": 403}},
+				"handle":   []any{denyForbidden()},
 				"terminal": true,
 			},
 		},
@@ -4058,7 +4025,7 @@ func ipBlocklistSubroute(cidrList []string) map[string]any {
 				"match": []any{map[string]any{
 					"client_ip": map[string]any{"ranges": ranges},
 				}},
-				"handle":   []any{map[string]any{"handler": "static_response", "status_code": 403}},
+				"handle":   []any{denyForbidden()},
 				"terminal": true,
 			},
 		},
@@ -4080,7 +4047,7 @@ func BuildGlobalBlocklistRoute(raw string) map[string]any {
 	}
 	return map[string]any{
 		"match":    []any{map[string]any{"client_ip": map[string]any{"ranges": ranges}}},
-		"handle":   []any{map[string]any{"handler": "static_response", "status_code": 403}},
+		"handle":   []any{denyForbidden()},
 		"terminal": true,
 	}
 }
@@ -4183,7 +4150,7 @@ func BuildRedirectRoute(r models.RedirectionHost) map[string]any {
 								"client_ip": map[string]any{"ranges": allowed},
 							}},
 						}},
-						"handle":   []any{map[string]any{"handler": "static_response", "status_code": 403}},
+						"handle":   []any{denyForbidden()},
 						"terminal": true,
 					},
 				},
@@ -4357,10 +4324,7 @@ func denyDotfilesSubroute() map[string]any {
 					},
 				},
 				"handle": []any{
-					map[string]any{
-						"handler":     "static_response",
-						"status_code": 403,
-					},
+					denyForbidden(),
 				},
 				"terminal": true,
 			},
@@ -4385,10 +4349,7 @@ func ExploitBlockerSubroute() map[string]any {
 					},
 				},
 				"handle": []any{
-					map[string]any{
-						"handler":     "static_response",
-						"status_code": 403,
-					},
+					denyForbidden(),
 				},
 				"terminal": true,
 			},
@@ -4465,6 +4426,39 @@ func buildClientAuthentication(p models.ProxyHost) map[string]any {
 		}
 	}
 	return ca
+}
+
+// denyResponse builds the static_response handler CaddyUI uses whenever it
+// refuses a request itself — IP allowlists and blocklists, blocked methods,
+// blocked paths, blocked agents and the rest.
+//
+// v2.68.1 (issue #148): these used to emit a status code and nothing else.
+// A bodiless response with no Content-Type is legal, but a browser has
+// nothing to render and nothing to go on, and mobile Safari and Edge react by
+// offering the empty response as a `document.txt` download rather than
+// showing a denial page. An explicit short body and content type fixes that
+// without inventing a styled error page inside generated config.
+//
+// Extra headers (an Allow list on a 405, say) are merged in by the caller.
+func denyResponse(status int, body string, extraHeaders map[string]any) map[string]any {
+	headers := map[string]any{
+		"Content-Type": []any{"text/plain; charset=utf-8"},
+	}
+	for k, v := range extraHeaders {
+		headers[k] = v
+	}
+	return map[string]any{
+		"handler":     "static_response",
+		"status_code": status,
+		// Trailing newline so the body reads correctly in a terminal too.
+		"body":    body + "\n",
+		"headers": headers,
+	}
+}
+
+// denyForbidden is the common case: a plain 403 with a readable body.
+func denyForbidden() map[string]any {
+	return denyResponse(403, "403 Forbidden", nil)
 }
 
 // methodStrings converts a []any of method strings back to []string for the

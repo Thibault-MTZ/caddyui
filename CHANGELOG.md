@@ -5,6 +5,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.68.1] - 2026-10-22 - Blocked requests return a readable 403 instead of an empty one (#148)
+
+### Fixed
+
+- **A refused request now carries a body and a `Content-Type`.** Reported by @AlexGuld: an IP allowlist answered with a bare `403` — no body, no content type — and while that is legal HTTP, a browser is given nothing to render and nothing to go on. Mobile Safari and Edge react by offering the empty response as a **`document.txt` download** instead of showing a denial page. Blocked visitors now get `403 Forbidden` as `text/plain; charset=utf-8`.
+- **Every refusal CaddyUI generates was fixed, not just the allowlist.** The same bare-status pattern appeared at **twenty** places — IP allowlists and blocklists, the global blocklist, blocked and disallowed methods, blocked paths, blocked user agents, empty user agents, private-IP blocking and the tenant route guard. They now share one helper, so the next refusal added cannot reintroduce this.
+  - Four of those already had a body but **no content type**, which is the half that actually causes the download. A grep for a missing body would have missed them; they were caught by a test that walks the generated configuration and asserts no refusal is bodiless or typeless.
+- **Redirects and `204 No Content` are deliberately left alone.** A `301`/`302` carries a `Location` and a `204` means "no content" — giving either a body would be the opposite mistake, and a `204` with a body is malformed. There is a test for that too.
+
+### Notes
+
+- Verified against Caddy 2.11.7 end to end, not only in unit tests: before, a blocked request returned `Content-Length: 0` with no content type; after, it returns `403 Forbidden` with `Content-Type: text/plain; charset=utf-8`.
+- Nothing about **who** is blocked changed — this only affects what a blocked visitor is shown.
+
+---
+
 ## [2.68.0] - 2026-10-22 - Users shows how each account signs in
 
 ### Added
