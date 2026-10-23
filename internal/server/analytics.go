@@ -324,7 +324,9 @@ func (s *Server) scopedHostsForAnalytics(u *models.User, serverID int64) ([]stri
 	// teammate's proxy host, they should also see its traffic.
 	peers, _ := models.GroupPeerIDs(s.DB, u.ID)
 
-	var hosts []string
+	// Never nil for a non-admin: callers read nil as "admin, no host filter",
+	// so a viewer who could see no hosts was shown the whole fleet (v2.68.3).
+	hosts := []string{}
 	seen := make(map[string]bool)
 	add := func(raw string) {
 		d := strings.ToLower(strings.TrimSpace(raw))
@@ -415,16 +417,12 @@ func (s *Server) getAnalytics(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	isAdmin := u != nil && u.Role == models.RoleAdmin
-	// If we have a concrete scope — either non-admin anywhere or admin
-	// picking a specific server — treat it as per-host filter mode. The
-	// hot "nil allowedHosts = no filter" path only kicks in for admin
-	// viewing the full fleet.
-	//
-	// When an admin picks a server that has no routes at all, allowedHosts
-	// comes back as an empty non-nil slice. We still want the totals to
-	// show 0 rather than all-fleet, so "scoped" stays true and the per-host
-	// loops below execute with an empty list (zero iterations, zero sums).
-	scoped := allowedHosts != nil
+	// A non-admin is always in per-host filter mode; with no visible hosts
+	// the loops below run zero times and every figure is 0. An admin takes
+	// the single-query hot path, narrowed by access_events.server_id when a
+	// server is picked. v2.68.3: decided by role, not by allowedHosts being
+	// nil — a viewer with no hosts used to fall through to the fleet view.
+	scoped := !isAdmin
 	allServers, _ := models.ListCaddyServers(s.DB)
 
 	now := time.Now()

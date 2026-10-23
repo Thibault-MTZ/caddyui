@@ -5,7 +5,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
-## [2.68.3] - 2026-10-23 - Force SSL hosts redirect over HTTP again when a catch-all route exists (#149)
+## [2.68.3] - 2026-10-23 - Analytics stays inside each viewer's own hosts; Force SSL redirects survive a catch-all route (#149)
+
+### Security
+
+- **The request explorer's counts are scoped to the viewer's own hosts.** Searching with no host picked listed only your own requests, but the *Total* and the status-mix chips counted every host on the fleet. A non-admin could therefore read the size and error rate of other tenants' traffic. This is exactly what a bar on the fleet chart opens since v2.68.2. Total, status mix and host facets now come from a query scoped to the viewer's hosts, wildcards included, rather than from rows filtered afterwards. That also fixes a quieter bug: when other hosts were busier, your own matching requests could be pushed out of the 200 rows shown.
+- **A non-admin who can see no hosts no longer gets the whole fleet.** For such an account, the analytics scope came back as "no list" instead of "an empty list". Every caller read that as *admin, no filter*. The account was shown the full `/analytics` overview, including other hosts' names, traffic and charts, and the explorer listed their requests with paths and client IPs. This affects every signed-in role, since Analytics is open to all of them. It could also happen to a real user, for example a new account or one whose hosts were all removed. Host-page drill-downs and CSV export were not affected: they check for an admin explicitly.
 
 ### Fixed
 
