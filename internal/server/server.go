@@ -5762,7 +5762,10 @@ func (s *Server) buildHTTPRoutes(proxies []models.ProxyHost, redirs []models.Red
 	}
 	routes := s.buildMergedRoutes(httpProxies, httpRedirs, httpRaws)
 	if redirect := buildHTTPSRedirectRoute(forcedDomains); redirect != nil {
-		routes = append(routes, redirect)
+		// v2.68.3 (issue #149): after the last host-matched route, but before
+		// any catch-all that follows it. Appended at the end, a catch-all
+		// Advanced route served on :80 answered every Force SSL host first.
+		routes = insertAfterLastHostRoute(routes, redirect)
 	}
 	// The HTTPS redirect for forced hosts must also beat a wildcard host that
 	// is served on :80 (issue #129).
@@ -5770,6 +5773,25 @@ func (s *Server) buildHTTPRoutes(proxies []models.ProxyHost, redirs []models.Red
 	// The fallback goes after the HTTPS redirect, so a forced-SSL host is
 	// redirected rather than answered with the fallback 404 (issue #123).
 	return s.withFallbackRoute(routes)
+}
+
+// insertAfterLastHostRoute returns routes with route placed just after the
+// last route that matches on hostnames, or first when none does, so no
+// catch-all after the host routes can shadow it. Caddy's automatic HTTPS puts
+// the redirects it adds to an existing :80 server at the same place
+// (caddyserver/caddy#3212). Inserted at a host-route position, the redirect
+// still takes part in sortRoutesBySpecificity.
+func insertAfterLastHostRoute(routes []any, route any) []any {
+	at := 0
+	for i, r := range routes {
+		if _, ok := routeSpecificity(r); ok {
+			at = i + 1
+		}
+	}
+	out := make([]any, 0, len(routes)+1)
+	out = append(out, routes[:at]...)
+	out = append(out, route)
+	return append(out, routes[at:]...)
 }
 
 func buildHTTPSRedirectRoute(domains []string) map[string]any {

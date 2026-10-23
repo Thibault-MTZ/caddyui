@@ -5,6 +5,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.68.3] - 2026-10-23 - Force SSL hosts redirect over HTTP again when a catch-all route exists (#149)
+
+### Fixed
+
+- **A Force SSL host requested over plain HTTP gets its `308` redirect again, not a 404.** Reported by @AlexGuld: on CaddyUI's own `:80` server the HTTPS redirect was appended after every other route, so a catch-all Advanced route served on `:80` answered first, and every Force SSL host received an empty `404`. Deleting the route through Caddy's admin API fixed it until the next sync re-added it. The redirect now goes right after the last host-matched route and ahead of any catch-all that follows. That is where Caddy's own automatic HTTPS puts the redirects it adds to an existing `:80` server ([caddyserver/caddy#3212](https://github.com/caddyserver/caddy/issues/3212)). Exact hosts still beat wildcards, and a path-scoped route for a forced host still runs before that host's redirect (#129).
+- **Import from Caddy no longer copies CaddyUI's own generated config.** In the report above, the catch-all was CaddyUI's own fallback, stored as an Advanced route (`srv0 route[37] (no host match)`) by importing from a Caddy that CaddyUI already managed. The importer now skips the `caddyui_http` server, which CaddyUI rebuilds from its database on every sync. It also skips the fallback route on any server, with or without the CrowdSec guard, and lists it under *Skipped* along with the reason. Before this change, importing that server also turned the Force SSL redirect into a junk Redirection host that claimed the forced hosts.
+
+### Notes
+
+- Existing installs that already hold an imported fallback should delete it from **Advanced routes**. It is the `(no host match)` entry whose JSON is only an `error` / `404` handler. CaddyUI adds its own fallback on every sync, and the stored copy also hides the custom fallback page over HTTPS. Until then, this release keeps it behind the redirects on `:80`.
+
+---
+
 ## [2.68.2] - 2026-10-22 - Request charts separate 4xx from 5xx, and the fleet chart drills through (#145)
 
 ### Fixed
