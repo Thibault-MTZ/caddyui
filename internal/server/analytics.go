@@ -521,6 +521,14 @@ func (s *Server) getAnalytics(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	sparkline := fillBuckets(rawBuckets, twentyFourHoursAgo, now, bucketSec)
+	// v2.68.2 (issue #145 follow-up): colour the fleet chart by response class
+	// and make each bar drill through, matching the per-host chart. Scoped the
+	// same way the sparkline is, so a viewer never sees other tenants' errors.
+	var mixHosts []string
+	if scoped {
+		mixHosts = allowedHosts
+	}
+	mainStatusMix := s.statusMixByBucket(twentyFourHoursAgo, now, bucketSec, mixHosts, serverScopeID)
 
 	// Bandwidth (bytes_out) sparkline — same window and bucket as request sparkline.
 	var bwBuckets []models.BandwidthBucket
@@ -620,6 +628,8 @@ func (s *Server) getAnalytics(w http.ResponseWriter, r *http.Request) {
 		"LiveVisitors":       liveVisitors,
 		"Hosts":              hostRows,
 		"Sparkline":          sparkline,
+		"StatusMixByBucket":  mainStatusMix, // issue #145 follow-up
+		"BucketSeconds":      bucketSec,
 		"BandwidthSparkline": bwSparkline,
 		"BandwidthTotal":     bwTotal,
 		"BandwidthMax":       bwMax,
@@ -756,11 +766,7 @@ func (s *Server) getAnalyticsHost(w http.ResponseWriter, r *http.Request) {
 	if errLat != nil {
 		log.Printf("analytics: LatencySummary(%s): %v", host, errLat)
 	}
-	statusMix, _ := models.StatusMixBuckets(s.DB, insight, bucketSec)
-	mixByBucket := map[int64]models.StatusMixBucket{}
-	for _, b := range statusMix {
-		mixByBucket[b.Hour.Unix()] = b
-	}
+	mixByBucket := s.statusMixByBucket(since, now, bucketSec, []string{host}, serverScopeID)
 	serverScopeName := "All servers"
 	if serverScopeID > 0 {
 		serverScopeName = fmt.Sprintf("Server %d", serverScopeID)
@@ -872,6 +878,44 @@ func (s *Server) resolveAnalyticsScope(w http.ResponseWriter, r *http.Request) (
 		Since:           now.Add(-window),
 		Now:             now,
 	}, true
+}
+
+// statusMixByBucket returns the per-bucket status breakdown keyed by bucket
+// start, for colouring a request chart by response class.
+//
+// hosts nil means fleet-wide; a non-nil list restricts to those hosts and
+// merges their buckets, which is what a non-admin viewer needs — otherwise
+// the chart above their own hosts would be coloured by everyone's errors.
+//
+// v2.68.2 (issue #145 follow-up).
+func (s *Server) statusMixByBucket(from, to time.Time, bucketSec int64, hosts []string, serverID int64) map[int64]models.StatusMixBucket {
+	out := map[int64]models.StatusMixBucket{}
+	add := func(buckets []models.StatusMixBucket) {
+		for _, b := range buckets {
+			key := b.Hour.Unix()
+			m := out[key]
+			m.Hour = b.Hour
+			m.S2xx += b.S2xx
+			m.S3xx += b.S3xx
+			m.S4xx += b.S4xx
+			m.S5xx += b.S5xx
+			m.Other += b.Other
+			out[key] = m
+		}
+	}
+	if hosts == nil {
+		mix, err := models.StatusMixBuckets(s.DB, models.InsightFilter{From: from, To: to, ServerID: serverID}, bucketSec)
+		if err != nil {
+			log.Printf("analytics: StatusMixBuckets(unscoped): %v", err)
+		}
+		add(mix)
+		return out
+	}
+	for _, h := range hosts {
+		mix, _ := models.StatusMixBuckets(s.DB, models.InsightFilter{From: from, To: to, Host: h, ServerID: serverID}, bucketSec)
+		add(mix)
+	}
+	return out
 }
 
 // getAnalyticsVisitor renders the per-visitor drill-down for a single client IP

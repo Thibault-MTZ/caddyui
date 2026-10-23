@@ -5,6 +5,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.68.2] - 2026-10-22 - Request charts separate 4xx from 5xx, and the fleet chart drills through (#145)
+
+### Fixed
+
+- **The request chart no longer lumps client errors in with server errors.** Reported by @BenRLange: v2.66.0 drew 4xx and 5xx as a single red band, so a scanner throwing 404s looked exactly like the backend falling over — the two things you most need to tell apart. Bars are now stacked by response class using the same colours as the status-mix chips everywhere else: **2xx** green, **3xx** blue, **4xx** amber, **5xx** red. The hover text names the counts too, as *"73 requests · 2×4xx · 28×5xx"*.
+
+### Added
+
+- **Bars on the main Analytics chart are clickable**, as the per-host ones already were (#145). A spike there now answers *"which hosts, and were they errors?"* without first guessing a host to drill into. Each bar opens the request explorer bounded to its own hour.
+- The fleet chart is coloured by response class as well, so both charts read the same way.
+
+### Notes
+
+- The fleet chart's colouring respects who you are: a non-admin sees the status mix of their own hosts only, scoped exactly as the chart above it already was.
+- Buckets older than the per-bucket status data fall back to a single neutral bar rather than vanishing.
+
+---
+
 ## [2.68.1] - 2026-10-22 - Blocked requests return a readable 403 instead of an empty one (#148)
 
 ### Fixed
