@@ -416,18 +416,19 @@ func (s *Server) createRawRoute(w http.ResponseWriter, r *http.Request) {
 	// rr.ID must be set so upsertFleetRawRoute can key the fleet mapping off
 	// the source row. RawRoute carries no ServerID field — the source server
 	// is passed separately, as in the proxy/redirect cross-deploy paths.
+	var deployProblems []string
 	if deployTo := s.effectiveDeployTargets(s.currentServerID(r), parseDeployTo(r)); len(deployTo) > 0 {
 		rr.ID = id
-		s.crossDeployRawRoute(s.currentUserEmail(r), s.currentServerID(r), rr, deployTo)
+		deployProblems = s.crossDeployRawRoute(s.currentUserEmail(r), s.currentServerID(r), rr, deployTo)
 	}
 	// v2.5.5: park the user on the deploying checklist when the route has
 	// a host matcher we can probe. Path-only / port-only routes have no
 	// fqdn to verify, so we skip the page and bounce to the list like before.
 	if firstRawRouteHost(rr.JSONData) != "" && !rawRouteHTTPOnly(rr) {
-		http.Redirect(w, r, fmt.Sprintf("/raw-routes/%d/deploying", id), http.StatusSeeOther)
+		http.Redirect(w, r, withDeployProblems(fmt.Sprintf("/raw-routes/%d/deploying", id), deployProblems), http.StatusSeeOther)
 		return
 	}
-	http.Redirect(w, r, "/raw-routes", http.StatusSeeOther)
+	http.Redirect(w, r, withDeployProblems("/raw-routes", deployProblems), http.StatusSeeOther)
 }
 
 // renderRawRouteFormError re-renders the raw-route form with a validation or
@@ -608,18 +609,19 @@ func (s *Server) updateRawRoute(w http.ResponseWriter, r *http.Request) {
 	_ = models.LogActivity(s.DB, s.currentServerID(r), s.currentUserEmail(r), "raw_update", fmt.Sprintf("raw:%d", id), rr.Label, true)
 	s.trySyncCaddy(s.currentServerID(r), forceTLS)
 	// v2.27.0 (issue #38): re-deploy the edited route to any selected targets.
+	var deployProblems []string
 	if deployTo := s.effectiveDeployTargets(s.currentServerID(r), parseDeployTo(r)); len(deployTo) > 0 {
-		s.crossDeployRawRoute(s.currentUserEmail(r), s.currentServerID(r), rr, deployTo)
+		deployProblems = s.crossDeployRawRoute(s.currentUserEmail(r), s.currentServerID(r), rr, deployTo)
 	}
 	// v2.5.5: show the deploying checklist on edits too — changing the
 	// host matcher or the backing service is the same "did it come back
 	// up on HTTPS?" question the create flow asks. Routes without a host
 	// matcher skip the page as in create.
 	if newFQDN != "" && !rawRouteHTTPOnly(rr) { // issue #121: an http:// route has no certificate to wait for
-		http.Redirect(w, r, fmt.Sprintf("/raw-routes/%d/deploying", id), http.StatusSeeOther)
+		http.Redirect(w, r, withDeployProblems(fmt.Sprintf("/raw-routes/%d/deploying", id), deployProblems), http.StatusSeeOther)
 		return
 	}
-	http.Redirect(w, r, "/raw-routes", http.StatusSeeOther)
+	http.Redirect(w, r, withDeployProblems("/raw-routes", deployProblems), http.StatusSeeOther)
 }
 
 // jsonEqual reports whether two JSON strings encode the same value (whitespace-insensitive).

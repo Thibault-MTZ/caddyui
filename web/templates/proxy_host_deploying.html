@@ -1,6 +1,7 @@
 {{define "title"}}Deploying {{.FirstDomain}} · CaddyUI{{end}}
 {{define "content"}}
 <div class="max-w-2xl mx-auto">
+{{template "deployError" .}}
   <div class="mb-6">
     <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Deploying <span class="font-mono text-brand-600">{{.FirstDomain}}</span></h1>
     <p class="text-sm text-ink-500 mt-1.5">DNS usually propagates in 15–60 seconds. HTTPS certificates can take another 30–90 seconds on first request. Feel free to skip ahead at any time.</p>
@@ -89,6 +90,12 @@
 </style>
 
 <script>
+  // v2.68.3 (issue #150): a target that refused this save is reported in
+  // ?deploy_error=; keep it when this page moves on to the list.
+  function keepDeployError(u) {
+    var e = new URLSearchParams(window.location.search).get('deploy_error');
+    return e ? u + (u.indexOf('?') < 0 ? '?' : '&') + 'deploy_error=' + encodeURIComponent(e) : u;
+  }
 (function() {
   var hostID      = {{.Host.ID}};
   var sslEnabled  = {{.Host.SSLEnabled}};
@@ -202,7 +209,7 @@
         var allReady = data.dns_ready && (data.cert_ready || !sslEnabled);
         if (allReady) {
           showBanner('ok', 'Ready — redirecting to proxy hosts…');
-          setTimeout(function() { window.location.href = '/proxy-hosts'; }, 1500);
+          setTimeout(function() { window.location.href = keepDeployError('/proxy-hosts'); }, 1500);
           return;
         }
 
@@ -226,7 +233,7 @@
     // fail from inside the container even after the site is fully live,
     // so we phrase this as "try opening it" rather than "it's not working."
     showBanner('warn', 'Still verifying after 2 minutes — the site may already be live. Opening the host list; click the domain to test it directly.');
-    setTimeout(function() { window.location.href = '/proxy-hosts?deploy_slow=' + encodeURIComponent(firstDomain); }, 3000);
+    setTimeout(function() { window.location.href = keepDeployError('/proxy-hosts?deploy_slow=' + encodeURIComponent(firstDomain)); }, 3000);
   }
 
   // Keep the "elapsed" counter updating every second even when the

@@ -1,6 +1,7 @@
 {{define "title"}}Deploying {{.FirstDomain}} · CaddyUI{{end}}
 {{define "content"}}
 <div class="max-w-2xl mx-auto">
+{{template "deployError" .}}
   <div class="mb-6">
     <h1 class="text-2xl font-semibold tracking-tight text-ink-900">Deploying <span class="font-mono text-brand-600">{{.FirstDomain}}</span></h1>
     <p class="text-sm text-ink-500 mt-1.5">DNS usually propagates in 15–60 seconds. HTTPS certificates can take another 30–90 seconds on first request. Feel free to skip ahead at any time.</p>
@@ -88,6 +89,12 @@
 </style>
 
 <script>
+  // v2.68.3 (issue #150): a target that refused this save is reported in
+  // ?deploy_error=; keep it when this page moves on to the list.
+  function keepDeployError(u) {
+    var e = new URLSearchParams(window.location.search).get('deploy_error');
+    return e ? u + (u.indexOf('?') < 0 ? '?' : '&') + 'deploy_error=' + encodeURIComponent(e) : u;
+  }
 (function() {
   var routeID     = {{.Route.ID}};
   var firstDomain = {{.FirstDomain | printf "%q"}};
@@ -190,7 +197,7 @@
         var allReady = data.dns_ready && data.cert_ready;
         if (allReady) {
           showBanner('ok', 'Ready — redirecting to advanced routes…');
-          setTimeout(function() { window.location.href = '/raw-routes'; }, 1500);
+          setTimeout(function() { window.location.href = keepDeployError('/raw-routes'); }, 1500);
           return;
         }
         if (elapsed > TIMEOUT_MS) { redirectSlow(); return; }
@@ -207,7 +214,7 @@
     // mismatch, restrictive egress) rather than actual deployment failures —
     // phrase the banner as "try opening it" rather than implying a break.
     showBanner('warn', 'Still verifying after 2 minutes — the site may already be live. Opening the route list; click the route to test it directly.');
-    setTimeout(function() { window.location.href = '/raw-routes?deploy_slow=' + encodeURIComponent(firstDomain); }, 3000);
+    setTimeout(function() { window.location.href = keepDeployError('/raw-routes?deploy_slow=' + encodeURIComponent(firstDomain)); }, 3000);
   }
 
   setInterval(tickElapsed, 1000);

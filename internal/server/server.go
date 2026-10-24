@@ -1209,6 +1209,12 @@ func (s *Server) render(w http.ResponseWriter, r *http.Request, name string, dat
 	}
 	// Always inject app version.
 	data["AppVersion"] = s.Version
+	// v2.68.3 (issue #150): a save whose copy did not reach every fleet target
+	// says so on the page it lands on (withDeployProblems); the pages that
+	// receive those redirects render it with {{template "deployError" .}}.
+	if _, ok := data["DeployError"]; !ok && r != nil {
+		data["DeployError"] = r.URL.Query().Get("deploy_error")
+	}
 	// v2.62.0 (issue #128): the page's language and the strings the browser-side
 	// scripts may need (window.CADDYUI_I18N in layout.html).
 	if _, ok := data["Lang"]; !ok {
@@ -3242,10 +3248,11 @@ func (s *Server) createRedirectionHost(w http.ResponseWriter, r *http.Request) {
 	}
 	_ = models.LogActivity(s.DB, s.currentServerID(r), s.currentUserEmail(r), "redirect_create", fmt.Sprintf("redirect:%d", id), rh.Domains, true)
 	s.trySyncCaddy(s.currentServerID(r), rh.CertificateID != 0)
+	var deployProblems []string
 	if len(deployTo) > 0 {
-		s.crossDeployRedirectionHost(s.currentUserEmail(r), s.currentServerID(r), rh, deployTo)
+		deployProblems = s.crossDeployRedirectionHost(s.currentUserEmail(r), s.currentServerID(r), rh, deployTo)
 	}
-	http.Redirect(w, r, "/redirection-hosts", http.StatusSeeOther)
+	http.Redirect(w, r, withDeployProblems("/redirection-hosts", deployProblems), http.StatusSeeOther)
 }
 
 func (s *Server) editRedirectionHost(w http.ResponseWriter, r *http.Request) {
@@ -3368,10 +3375,11 @@ func (s *Server) updateRedirectionHost(w http.ResponseWriter, r *http.Request) {
 	_ = models.LogActivity(s.DB, s.currentServerID(r), s.currentUserEmail(r), "redirect_update", fmt.Sprintf("redirect:%d", id), rh.Domains, true)
 	forceTLS := old != nil && old.CertificateID != rh.CertificateID
 	s.trySyncCaddy(s.currentServerID(r), forceTLS)
+	var deployProblems []string
 	if len(deployTo) > 0 {
-		s.crossDeployRedirectionHost(s.currentUserEmail(r), s.currentServerID(r), rh, deployTo)
+		deployProblems = s.crossDeployRedirectionHost(s.currentUserEmail(r), s.currentServerID(r), rh, deployTo)
 	}
-	http.Redirect(w, r, "/redirection-hosts", http.StatusSeeOther)
+	http.Redirect(w, r, withDeployProblems("/redirection-hosts", deployProblems), http.StatusSeeOther)
 }
 
 func (s *Server) deleteRedirectionHost(w http.ResponseWriter, r *http.Request) {

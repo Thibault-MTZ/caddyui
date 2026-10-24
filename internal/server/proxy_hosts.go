@@ -1483,8 +1483,8 @@ func parseDeployTo(r *http.Request) []int64 {
 // mapping keeps later edits attached even when the hostname changes. Target
 // DNS records and custom certificate selections remain server-specific.
 // Cross-deployed records are always global/admin-owned (ownerID=0).
-func (s *Server) crossDeployProxyHost(actor string, sourceServerID int64, p *models.ProxyHost, serverIDs []int64) {
-	s.crossDeployProxyHostBatch(actor, sourceServerID, p, serverIDs, nil)
+func (s *Server) crossDeployProxyHost(actor string, sourceServerID int64, p *models.ProxyHost, serverIDs []int64) []string {
+	return s.crossDeployProxyHostBatch(actor, sourceServerID, p, serverIDs, nil)
 }
 
 // deployBatch collects the targets that a run of cross-deploys changed, so a
@@ -1492,14 +1492,48 @@ func (s *Server) crossDeployProxyHost(actor string, sourceServerID int64, p *mod
 // batch syncs each target straight away.
 type deployBatch map[int64]bool
 
-func (b deployBatch) changed(s *Server, serverID int64, what string) {
+func (b deployBatch) changed(s *Server, serverID int64, what string) error {
 	if b != nil {
 		b[serverID] = true
-		return
+		return nil
 	}
 	if err := s.syncCaddy(serverID, false); err != nil {
 		log.Printf("cross-deploy %s sync server %d: %v", what, serverID, err)
+		return fmt.Errorf("saved there, but pushing it to Caddy failed: %w", err)
 	}
+	return nil
+}
+
+// deployProblem names a target a copy did not reach, and why. A form save
+// shows these instead of reporting plain success: a refused copy — target
+// monitoring-only, a domain already claimed there, Caddy unreachable — used
+// to be recorded only in the Activity Log, so the save looked fine while the
+// target kept serving its old version of the host (issue #150).
+func (s *Server) deployProblem(serverID int64, err error) string {
+	name := fmt.Sprintf("server #%d", serverID)
+	if srv, e := models.GetCaddyServer(s.DB, serverID); e == nil && srv != nil {
+		name = srv.Name
+	}
+	if strings.Contains(err.Error(), strconv.Quote(name)) { // validateFleetPair names it already
+		return err.Error()
+	}
+	return name + ": " + err.Error()
+}
+
+// withDeployProblems appends the deploy_error notice to a redirect target
+// when a save did not reach every target.
+func withDeployProblems(target string, problems []string) string {
+	if len(problems) == 0 {
+		return target
+	}
+	sep := "?"
+	if strings.Contains(target, "?") {
+		sep = "&"
+	}
+	reasons := strings.Join(problems, "; ")
+	reasons = strings.ToUpper(reasons[:1]) + reasons[1:]
+	msg := "Saved, but not deployed to every server. " + reasons + ". The Activity Log has the details."
+	return target + sep + "deploy_error=" + url.QueryEscape(msg)
 }
 
 func (s *Server) syncDeployBatch(b deployBatch) {
@@ -1547,7 +1581,7 @@ func (s *Server) followRawRouteTargets(actor string, rr *models.RawRoute, batch 
 	}
 }
 
-func (s *Server) crossDeployProxyHostBatch(actor string, sourceServerID int64, p *models.ProxyHost, serverIDs []int64, batch deployBatch) {
+func (s *Server) crossDeployProxyHostBatch(actor string, sourceServerID int64, p *models.ProxyHost, serverIDs []int64, batch deployBatch) (problems []string) {
 	s.fleetDeployMu.Lock()
 	defer s.fleetDeployMu.Unlock()
 
@@ -1558,7 +1592,7 @@ func (s *Server) crossDeployProxyHostBatch(actor string, sourceServerID int64, p
 	if p.NodeLocal {
 		_ = models.LogActivity(s.DB, sourceServerID, actor, "proxy_cross_deploy", fmt.Sprintf("proxy:%d", p.ID),
 			"skipped: host is marked node-local", false)
-		return
+		return nil
 	}
 
 	sourceCerts, _ := models.ListCertificates(s.DB, sourceServerID)
@@ -1566,6 +1600,7 @@ func (s *Server) crossDeployProxyHostBatch(actor string, sourceServerID int64, p
 		if _, _, err := s.validateFleetPair(sourceServerID, sid); err != nil {
 			log.Printf("cross-deploy proxy target %d: %v", sid, err)
 			_ = models.LogActivity(s.DB, sourceServerID, actor, "proxy_cross_deploy", fmt.Sprintf("server:%d", sid), err.Error(), false)
+			problems = append(problems, s.deployProblem(sid, err))
 			continue
 		}
 		// Managed wildcard certificates are not attached by certificate_id;
@@ -1583,7 +1618,8 @@ func (s *Server) crossDeployProxyHostBatch(actor string, sourceServerID int64, p
 		result, err := s.upsertFleetProxyHost(sourceServerID, sid, *p, 0)
 		if err != nil {
 			log.Printf("cross-deploy proxy to server %d: %v", sid, err)
-			_ = models.LogActivity(s.DB, sid, actor, "proxy_cross_deploy", "proxy:new", p.Domains, false)
+			_ = models.LogActivity(s.DB, sid, actor, "proxy_cross_deploy", "proxy:new", p.Domains+": "+err.Error(), false)
+			problems = append(problems, s.deployProblem(sid, err))
 			continue
 		}
 		detail := "already current " + p.Domains
@@ -1594,9 +1630,12 @@ func (s *Server) crossDeployProxyHostBatch(actor string, sourceServerID int64, p
 		}
 		_ = models.LogActivity(s.DB, sid, actor, "proxy_cross_deploy", fmt.Sprintf("proxy:%d", result.ID), detail, true)
 		if result.Changed {
-			batch.changed(s, sid, "proxy")
+			if err := batch.changed(s, sid, "proxy"); err != nil {
+				problems = append(problems, s.deployProblem(sid, err))
+			}
 		}
 	}
+	return problems
 }
 
 func normalizedDomainSet(domains []string) map[string]struct{} {
@@ -1736,11 +1775,11 @@ func (s *Server) crossDeployCertificate(actor string, sourceServerID int64, cert
 // crossDeployRedirectionHost creates or updates the paired redirect on each
 // target server and triggers a Caddy sync on each.
 // Cross-deployed records are always global/admin-owned (ownerID=0).
-func (s *Server) crossDeployRedirectionHost(actor string, sourceServerID int64, rh *models.RedirectionHost, serverIDs []int64) {
-	s.crossDeployRedirectionHostBatch(actor, sourceServerID, rh, serverIDs, nil)
+func (s *Server) crossDeployRedirectionHost(actor string, sourceServerID int64, rh *models.RedirectionHost, serverIDs []int64) []string {
+	return s.crossDeployRedirectionHostBatch(actor, sourceServerID, rh, serverIDs, nil)
 }
 
-func (s *Server) crossDeployRedirectionHostBatch(actor string, sourceServerID int64, rh *models.RedirectionHost, serverIDs []int64, batch deployBatch) {
+func (s *Server) crossDeployRedirectionHostBatch(actor string, sourceServerID int64, rh *models.RedirectionHost, serverIDs []int64, batch deployBatch) (problems []string) {
 	s.fleetDeployMu.Lock()
 	defer s.fleetDeployMu.Unlock()
 
@@ -1748,13 +1787,15 @@ func (s *Server) crossDeployRedirectionHostBatch(actor string, sourceServerID in
 		if _, _, err := s.validateFleetPair(sourceServerID, sid); err != nil {
 			log.Printf("cross-deploy redirect target %d: %v", sid, err)
 			_ = models.LogActivity(s.DB, sourceServerID, actor, "redirect_cross_deploy", fmt.Sprintf("server:%d", sid), err.Error(), false)
+			problems = append(problems, s.deployProblem(sid, err))
 			continue
 		}
 		s.ensureReferencedCertificate(actor, sourceServerID, sid, rh.CertificateID)
 		result, err := s.upsertFleetRedirectionHost(sourceServerID, sid, *rh, 0)
 		if err != nil {
 			log.Printf("cross-deploy redirect to server %d: %v", sid, err)
-			_ = models.LogActivity(s.DB, sid, actor, "redirect_cross_deploy", "redirect:new", rh.Domains, false)
+			_ = models.LogActivity(s.DB, sid, actor, "redirect_cross_deploy", "redirect:new", rh.Domains+": "+err.Error(), false)
+			problems = append(problems, s.deployProblem(sid, err))
 			continue
 		}
 		detail := "already current " + rh.Domains
@@ -1765,9 +1806,12 @@ func (s *Server) crossDeployRedirectionHostBatch(actor string, sourceServerID in
 		}
 		_ = models.LogActivity(s.DB, sid, actor, "redirect_cross_deploy", fmt.Sprintf("redirect:%d", result.ID), detail, true)
 		if result.Changed {
-			batch.changed(s, sid, "redirect")
+			if err := batch.changed(s, sid, "redirect"); err != nil {
+				problems = append(problems, s.deployProblem(sid, err))
+			}
 		}
 	}
+	return problems
 }
 
 // crossDeployRawRoute mirrors an advanced (raw) route onto the given fleet
@@ -1780,11 +1824,11 @@ func (s *Server) crossDeployRedirectionHostBatch(actor string, sourceServerID in
 // there — a destructive workaround for a routine task. The fleet upsert
 // primitive (upsertFleetRawRoute) already existed for the whole-fleet sync
 // path; this just wires it to the per-route form like the other two types.
-func (s *Server) crossDeployRawRoute(actor string, sourceServerID int64, rr *models.RawRoute, serverIDs []int64) {
-	s.crossDeployRawRouteBatch(actor, sourceServerID, rr, serverIDs, nil)
+func (s *Server) crossDeployRawRoute(actor string, sourceServerID int64, rr *models.RawRoute, serverIDs []int64) []string {
+	return s.crossDeployRawRouteBatch(actor, sourceServerID, rr, serverIDs, nil)
 }
 
-func (s *Server) crossDeployRawRouteBatch(actor string, sourceServerID int64, rr *models.RawRoute, serverIDs []int64, batch deployBatch) {
+func (s *Server) crossDeployRawRouteBatch(actor string, sourceServerID int64, rr *models.RawRoute, serverIDs []int64, batch deployBatch) (problems []string) {
 	s.fleetDeployMu.Lock()
 	defer s.fleetDeployMu.Unlock()
 
@@ -1792,20 +1836,22 @@ func (s *Server) crossDeployRawRouteBatch(actor string, sourceServerID int64, rr
 	if rr.NodeLocal {
 		_ = models.LogActivity(s.DB, sourceServerID, actor, "raw_cross_deploy", fmt.Sprintf("raw:%d", rr.ID),
 			"skipped: route is marked node-local", false)
-		return
+		return nil
 	}
 
 	for _, sid := range serverIDs {
 		if _, _, err := s.validateFleetPair(sourceServerID, sid); err != nil {
 			log.Printf("cross-deploy raw route target %d: %v", sid, err)
 			_ = models.LogActivity(s.DB, sourceServerID, actor, "raw_cross_deploy", fmt.Sprintf("server:%d", sid), err.Error(), false)
+			problems = append(problems, s.deployProblem(sid, err))
 			continue
 		}
 		s.ensureReferencedCertificate(actor, sourceServerID, sid, rr.CertificateID)
 		result, err := s.upsertFleetRawRoute(sourceServerID, sid, *rr, 0)
 		if err != nil {
 			log.Printf("cross-deploy raw route to server %d: %v", sid, err)
-			_ = models.LogActivity(s.DB, sid, actor, "raw_cross_deploy", "raw:new", rr.Label, false)
+			_ = models.LogActivity(s.DB, sid, actor, "raw_cross_deploy", "raw:new", rr.Label+": "+err.Error(), false)
+			problems = append(problems, s.deployProblem(sid, err))
 			continue
 		}
 		detail := "already current " + rr.Label
@@ -1816,9 +1862,12 @@ func (s *Server) crossDeployRawRouteBatch(actor string, sourceServerID int64, rr
 		}
 		_ = models.LogActivity(s.DB, sid, actor, "raw_cross_deploy", fmt.Sprintf("raw:%d", result.ID), detail, true)
 		if result.Changed {
-			batch.changed(s, sid, "raw route")
+			if err := batch.changed(s, sid, "raw route"); err != nil {
+				problems = append(problems, s.deployProblem(sid, err))
+			}
 		}
 	}
+	return problems
 }
 
 // parsePEMExpiry decodes the first PEM certificate block in pemData and
@@ -2115,17 +2164,18 @@ func (s *Server) createProxyHost(w http.ResponseWriter, r *http.Request) {
 		})
 		sendNotification(s.DB, payload)
 	}
+	var deployProblems []string
 	if len(deployTo) > 0 {
-		s.crossDeployProxyHost(s.currentUserEmail(r), s.currentServerID(r), p, deployTo)
+		deployProblems = s.crossDeployProxyHost(s.currentUserEmail(r), s.currentServerID(r), p, deployTo)
 	}
 	// v2.5.2: when a managed DNS record was created, park the user on the
 	// deploying page so they can watch DNS propagate + cert issue instead
 	// of landing on an "active" row that can't actually be opened yet.
 	if dnsWorkflow {
-		http.Redirect(w, r, fmt.Sprintf("/proxy-hosts/%d/deploying", id), http.StatusSeeOther)
+		http.Redirect(w, r, withDeployProblems(fmt.Sprintf("/proxy-hosts/%d/deploying", id), deployProblems), http.StatusSeeOther)
 		return
 	}
-	http.Redirect(w, r, "/proxy-hosts", http.StatusSeeOther)
+	http.Redirect(w, r, withDeployProblems("/proxy-hosts", deployProblems), http.StatusSeeOther)
 }
 
 func (s *Server) editProxyHost(w http.ResponseWriter, r *http.Request) {
@@ -2317,18 +2367,19 @@ func (s *Server) updateProxyHost(w http.ResponseWriter, r *http.Request) {
 		})
 		sendNotification(s.DB, payload)
 	}
+	var deployProblems []string
 	if len(deployTo) > 0 {
-		s.crossDeployProxyHost(s.currentUserEmail(r), s.currentServerID(r), p, deployTo)
+		deployProblems = s.crossDeployProxyHost(s.currentUserEmail(r), s.currentServerID(r), p, deployTo)
 	}
 	// v2.5.2: if this edit created a fresh DNS record (first time enabling
 	// Managed DNS, or provider / zone / first-domain changed), show the
 	// deploying page so the user can watch DNS + cert come up. A plain
 	// edit that left DNS untouched goes back to the list as before.
 	if needCreate {
-		http.Redirect(w, r, fmt.Sprintf("/proxy-hosts/%d/deploying", p.ID), http.StatusSeeOther)
+		http.Redirect(w, r, withDeployProblems(fmt.Sprintf("/proxy-hosts/%d/deploying", p.ID), deployProblems), http.StatusSeeOther)
 		return
 	}
-	http.Redirect(w, r, "/proxy-hosts", http.StatusSeeOther)
+	http.Redirect(w, r, withDeployProblems("/proxy-hosts", deployProblems), http.StatusSeeOther)
 }
 
 func (s *Server) deleteProxyHost(w http.ResponseWriter, r *http.Request) {
