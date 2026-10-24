@@ -2180,17 +2180,7 @@ func (s *Server) postSettings(w http.ResponseWriter, r *http.Request) {
 	// this, users had to manually click Sync Caddy after Save and
 	// wondered why their setting "didn't work." Best-effort — failures
 	// are logged but don't block the redirect.
-	serverIDsToSync := []int64{s.currentServerID(r)}
-	if integrationSettingsPresent {
-		serverIDsToSync = serverIDsToSync[:0]
-		if servers, err := models.ListCaddyServers(s.DB); err == nil {
-			for _, srv := range servers {
-				if srv.Type != models.CaddyServerTypeExternal {
-					serverIDsToSync = append(serverIDsToSync, srv.ID)
-				}
-			}
-		}
-	}
+	serverIDsToSync := s.settingsSyncServerIDs(s.currentServerID(r))
 	if settingsSectionSyncsCaddy(settingsPage) { // v2.44.0
 		go func(serverIDs []int64) {
 			// syncCaddy temporarily swaps s.Caddy, so fleet syncs stay sequential.
@@ -2207,6 +2197,33 @@ func (s *Server) postSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/settings?saved=1", http.StatusSeeOther)
+}
+
+// settingsSyncServerIDs is every server a settings save re-syncs: all managed
+// ones, the selected server first. Settings are global — the fleet-wide IP
+// blocklist, global maintenance, the fallback page, stripped headers and the
+// ACME resolvers go into every server's config — but before v2.68.3 (issue
+// #150) only the selected server was re-synced unless the Integrations page
+// was saved, so the other nodes kept serving without the change, e.g. without
+// a newly blocked address, until something else synced them.
+func (s *Server) settingsSyncServerIDs(currentID int64) []int64 {
+	ids := []int64{}
+	servers, err := models.ListCaddyServers(s.DB)
+	if err != nil {
+		log.Printf("settings: list servers to sync: %v", err)
+		return []int64{currentID}
+	}
+	for _, srv := range servers {
+		if srv.Type == models.CaddyServerTypeExternal {
+			continue
+		}
+		if srv.ID == currentID {
+			ids = append([]int64{srv.ID}, ids...)
+		} else {
+			ids = append(ids, srv.ID)
+		}
+	}
+	return ids
 }
 
 // postClearDNSProvider wipes every stored credential for a single DNS

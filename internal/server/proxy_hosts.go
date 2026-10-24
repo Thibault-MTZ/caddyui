@@ -316,6 +316,9 @@ func (s *Server) toggleProxyHost(w http.ResponseWriter, r *http.Request) {
 	if err := s.syncCaddy(s.currentServerID(r), false); err != nil {
 		log.Printf("toggleProxyHost: auto-sync failed (toggle persisted but Caddy not updated): %v", err)
 	}
+	if ph, _ := models.GetProxyHost(s.DB, id); ph != nil { // v2.68.3 (issue #150)
+		s.followProxyHostTargets(s.currentUserEmail(r), ph, nil)
+	}
 	ref := r.Header.Get("Referer")
 	if ref == "" {
 		ref = "/proxy-hosts"
@@ -350,7 +353,7 @@ func (s *Server) bulkToggleProxyHosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var serverID int64
+	var changed []*models.ProxyHost
 	for _, raw := range rawIDs {
 		id, err := strconv.ParseInt(strings.TrimSpace(raw), 10, 64)
 		if err != nil {
@@ -370,16 +373,10 @@ func (s *Server) bulkToggleProxyHosts(w http.ResponseWriter, r *http.Request) {
 				log.Printf("bulkToggle: update %d: %v", id, err)
 				continue
 			}
-			if serverID == 0 {
-				serverID = ph.ServerID
-			}
+			changed = append(changed, ph)
 		}
 	}
-	if serverID != 0 {
-		if err := s.syncCaddy(serverID, false); err != nil {
-			log.Printf("bulkToggle: syncCaddy(%d): %v", serverID, err)
-		}
-	}
+	s.syncChangedProxyHosts(cu.Email, changed)
 	http.Redirect(w, r, "/proxy-hosts", http.StatusSeeOther)
 }
 
@@ -409,7 +406,7 @@ func (s *Server) bulkMaintenanceProxyHosts(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	var serverID int64
+	var changed []*models.ProxyHost
 	for _, raw := range rawIDs {
 		id, err := strconv.ParseInt(strings.TrimSpace(raw), 10, 64)
 		if err != nil {
@@ -429,17 +426,28 @@ func (s *Server) bulkMaintenanceProxyHosts(w http.ResponseWriter, r *http.Reques
 				log.Printf("bulkMaintenance: update %d: %v", id, err)
 				continue
 			}
-			if serverID == 0 {
-				serverID = ph.ServerID
-			}
+			changed = append(changed, ph)
 		}
 	}
-	if serverID != 0 {
-		if err := s.syncCaddy(serverID, false); err != nil {
-			log.Printf("bulkMaintenance: syncCaddy(%d): %v", serverID, err)
-		}
-	}
+	s.syncChangedProxyHosts(cu.Email, changed)
 	http.Redirect(w, r, "/proxy-hosts", http.StatusSeeOther)
+}
+
+// syncChangedProxyHosts applies a bulk action: each server that owns a changed
+// host is synced once, then the hosts follow their automatic deployment
+// targets (issue #150) with one sync per target. Only the first host's server
+// used to be synced, so hosts selected across servers stayed stale elsewhere.
+func (s *Server) syncChangedProxyHosts(actor string, changed []*models.ProxyHost) {
+	sources := deployBatch{}
+	for _, ph := range changed {
+		sources[ph.ServerID] = true
+	}
+	s.syncDeployBatch(sources)
+	targets := deployBatch{}
+	for _, ph := range changed {
+		s.followProxyHostTargets(actor, ph, targets)
+	}
+	s.syncDeployBatch(targets)
 }
 
 // bulkCertificateProxyHosts applies one certificate selection to many proxy
@@ -802,7 +810,7 @@ func (s *Server) bulkToggleRawRoutes(w http.ResponseWriter, r *http.Request) {
 	cu := s.currentUser(r)
 	isAdmin := cu != nil && cu.Role == models.RoleAdmin
 	sid := s.currentServerID(r)
-	changed := 0
+	var changed []*models.RawRoute
 	for _, raw := range rawIDs {
 		id, err := strconv.ParseInt(strings.TrimSpace(raw), 10, 64)
 		if err != nil {
@@ -821,13 +829,18 @@ func (s *Server) bulkToggleRawRoutes(w http.ResponseWriter, r *http.Request) {
 				log.Printf("bulkToggleRaw: update %d: %v", id, err)
 				continue
 			}
-			changed++
+			changed = append(changed, rr)
 		}
 	}
-	if changed > 0 {
+	if len(changed) > 0 {
 		if err := s.syncCaddy(sid, false); err != nil {
 			log.Printf("bulkToggleRaw: syncCaddy: %v", err)
 		}
+		targets := deployBatch{} // v2.68.3 (issue #150)
+		for _, rr := range changed {
+			s.followRawRouteTargets(s.currentUserEmail(r), rr, targets)
+		}
+		s.syncDeployBatch(targets)
 	}
 	http.Redirect(w, r, "/raw-routes", http.StatusSeeOther)
 }
@@ -903,7 +916,7 @@ func (s *Server) bulkToggleRedirectionHosts(w http.ResponseWriter, r *http.Reque
 	cu := s.currentUser(r)
 	isAdmin := cu != nil && cu.Role == models.RoleAdmin
 	sid := s.currentServerID(r)
-	changed := 0
+	var changed []*models.RedirectionHost
 	for _, raw := range rawIDs {
 		id, err := strconv.ParseInt(strings.TrimSpace(raw), 10, 64)
 		if err != nil {
@@ -922,13 +935,18 @@ func (s *Server) bulkToggleRedirectionHosts(w http.ResponseWriter, r *http.Reque
 				log.Printf("bulkToggleRedir: update %d: %v", id, err)
 				continue
 			}
-			changed++
+			changed = append(changed, rh)
 		}
 	}
-	if changed > 0 {
+	if len(changed) > 0 {
 		if err := s.syncCaddy(sid, false); err != nil {
 			log.Printf("bulkToggleRedir: syncCaddy: %v", err)
 		}
+		targets := deployBatch{} // v2.68.3 (issue #150)
+		for _, rh := range changed {
+			s.followRedirectionHostTargets(s.currentUserEmail(r), rh, targets)
+		}
+		s.syncDeployBatch(targets)
 	}
 	http.Redirect(w, r, "/redirection-hosts", http.StatusSeeOther)
 }
@@ -1009,6 +1027,7 @@ func (s *Server) toggleMaintenanceMode(w http.ResponseWriter, r *http.Request) {
 	if err := s.syncCaddy(ph.ServerID, false); err != nil {
 		log.Printf("toggleMaintenanceMode: syncCaddy: %v", err)
 	}
+	s.followProxyHostTargets(s.currentUserEmail(r), ph, nil) // v2.68.3 (issue #150)
 	ref := r.Header.Get("Referer")
 	if ref == "" {
 		ref = "/proxy-hosts"
@@ -1039,6 +1058,9 @@ func (s *Server) toggleRedirectionHost(w http.ResponseWriter, r *http.Request) {
 	}
 	_ = models.LogActivity(s.DB, s.currentServerID(r), s.currentUserEmail(r), action, fmt.Sprintf("redirect:%d", id), "", true)
 	s.trySyncCaddy(s.currentServerID(r), false)
+	if rh, _ := models.GetRedirectionHost(s.DB, id); rh != nil { // v2.68.3 (issue #150)
+		s.followRedirectionHostTargets(s.currentUserEmail(r), rh, nil)
+	}
 	ref := r.Header.Get("Referer")
 	if ref == "" {
 		ref = "/redirection-hosts"
@@ -1462,6 +1484,70 @@ func parseDeployTo(r *http.Request) []int64 {
 // DNS records and custom certificate selections remain server-specific.
 // Cross-deployed records are always global/admin-owned (ownerID=0).
 func (s *Server) crossDeployProxyHost(actor string, sourceServerID int64, p *models.ProxyHost, serverIDs []int64) {
+	s.crossDeployProxyHostBatch(actor, sourceServerID, p, serverIDs, nil)
+}
+
+// deployBatch collects the targets that a run of cross-deploys changed, so a
+// bulk action syncs each target once instead of once per resource. A nil
+// batch syncs each target straight away.
+type deployBatch map[int64]bool
+
+func (b deployBatch) changed(s *Server, serverID int64, what string) {
+	if b != nil {
+		b[serverID] = true
+		return
+	}
+	if err := s.syncCaddy(serverID, false); err != nil {
+		log.Printf("cross-deploy %s sync server %d: %v", what, serverID, err)
+	}
+}
+
+func (s *Server) syncDeployBatch(b deployBatch) {
+	for serverID := range b {
+		if err := s.syncCaddy(serverID, false); err != nil {
+			log.Printf("cross-deploy sync server %d: %v", serverID, err)
+		}
+	}
+}
+
+// v2.68.3 (issue #150): a quick change to a resource — the enable toggle,
+// maintenance mode, a bulk action — follows its server's automatic deployment
+// targets, as a form save does and as Layer4 proxies already did. Before, a
+// host disabled on the source kept serving, unchanged, on every target.
+// Node-local resources stay where they are without a skipped-log entry.
+
+func (s *Server) followProxyHostTargets(actor string, p *models.ProxyHost, batch deployBatch) {
+	if p == nil || p.NodeLocal {
+		return
+	}
+	if targets := s.effectiveDeployTargets(p.ServerID, nil); len(targets) > 0 {
+		s.crossDeployProxyHostBatch(actor, p.ServerID, p, targets, batch)
+	}
+}
+
+// Redirections and advanced routes carry no ServerID field; the row says.
+
+func (s *Server) followRedirectionHostTargets(actor string, rh *models.RedirectionHost, batch deployBatch) {
+	if rh == nil {
+		return
+	}
+	source := models.FleetResourceServerID(s.DB, models.FleetResourceRedirect, rh.ID)
+	if targets := s.effectiveDeployTargets(source, nil); source > 0 && len(targets) > 0 {
+		s.crossDeployRedirectionHostBatch(actor, source, rh, targets, batch)
+	}
+}
+
+func (s *Server) followRawRouteTargets(actor string, rr *models.RawRoute, batch deployBatch) {
+	if rr == nil || rr.NodeLocal {
+		return
+	}
+	source := models.FleetResourceServerID(s.DB, models.FleetResourceRawRoute, rr.ID)
+	if targets := s.effectiveDeployTargets(source, nil); source > 0 && len(targets) > 0 {
+		s.crossDeployRawRouteBatch(actor, source, rr, targets, batch)
+	}
+}
+
+func (s *Server) crossDeployProxyHostBatch(actor string, sourceServerID int64, p *models.ProxyHost, serverIDs []int64, batch deployBatch) {
 	s.fleetDeployMu.Lock()
 	defer s.fleetDeployMu.Unlock()
 
@@ -1508,9 +1594,7 @@ func (s *Server) crossDeployProxyHost(actor string, sourceServerID int64, p *mod
 		}
 		_ = models.LogActivity(s.DB, sid, actor, "proxy_cross_deploy", fmt.Sprintf("proxy:%d", result.ID), detail, true)
 		if result.Changed {
-			if err := s.syncCaddy(sid, false); err != nil {
-				log.Printf("cross-deploy proxy sync server %d: %v", sid, err)
-			}
+			batch.changed(s, sid, "proxy")
 		}
 	}
 }
@@ -1653,6 +1737,10 @@ func (s *Server) crossDeployCertificate(actor string, sourceServerID int64, cert
 // target server and triggers a Caddy sync on each.
 // Cross-deployed records are always global/admin-owned (ownerID=0).
 func (s *Server) crossDeployRedirectionHost(actor string, sourceServerID int64, rh *models.RedirectionHost, serverIDs []int64) {
+	s.crossDeployRedirectionHostBatch(actor, sourceServerID, rh, serverIDs, nil)
+}
+
+func (s *Server) crossDeployRedirectionHostBatch(actor string, sourceServerID int64, rh *models.RedirectionHost, serverIDs []int64, batch deployBatch) {
 	s.fleetDeployMu.Lock()
 	defer s.fleetDeployMu.Unlock()
 
@@ -1677,9 +1765,7 @@ func (s *Server) crossDeployRedirectionHost(actor string, sourceServerID int64, 
 		}
 		_ = models.LogActivity(s.DB, sid, actor, "redirect_cross_deploy", fmt.Sprintf("redirect:%d", result.ID), detail, true)
 		if result.Changed {
-			if err := s.syncCaddy(sid, false); err != nil {
-				log.Printf("cross-deploy redirect sync server %d: %v", sid, err)
-			}
+			batch.changed(s, sid, "redirect")
 		}
 	}
 }
@@ -1695,6 +1781,10 @@ func (s *Server) crossDeployRedirectionHost(actor string, sourceServerID int64, 
 // primitive (upsertFleetRawRoute) already existed for the whole-fleet sync
 // path; this just wires it to the per-route form like the other two types.
 func (s *Server) crossDeployRawRoute(actor string, sourceServerID int64, rr *models.RawRoute, serverIDs []int64) {
+	s.crossDeployRawRouteBatch(actor, sourceServerID, rr, serverIDs, nil)
+}
+
+func (s *Server) crossDeployRawRouteBatch(actor string, sourceServerID int64, rr *models.RawRoute, serverIDs []int64, batch deployBatch) {
 	s.fleetDeployMu.Lock()
 	defer s.fleetDeployMu.Unlock()
 
@@ -1726,9 +1816,7 @@ func (s *Server) crossDeployRawRoute(actor string, sourceServerID int64, rr *mod
 		}
 		_ = models.LogActivity(s.DB, sid, actor, "raw_cross_deploy", fmt.Sprintf("raw:%d", result.ID), detail, true)
 		if result.Changed {
-			if err := s.syncCaddy(sid, false); err != nil {
-				log.Printf("cross-deploy raw route sync server %d: %v", sid, err)
-			}
+			batch.changed(s, sid, "raw route")
 		}
 	}
 }
