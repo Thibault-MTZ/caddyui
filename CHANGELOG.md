@@ -5,6 +5,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.68.4] - 2026-10-24 - Go toolchain 1.27.3 distrusts compromised intermediate certificates
+
+### Security
+
+- **The published binaries were built with Go 1.27.2, which govulncheck reports as affected by GO-2026-6809 (CVE-2026-111943).** Go 1.27.3, released on 2026-10-19, adds a denylist to `crypto/x509` so that `Certificate.Verify` refuses the intermediate certificates that are no longer trusted after the eMudhra intermediate CA compromise. This is the same incident behind Node.js adding those certificates to its own trust-store blocklist this month. CaddyUI calls `Certificate.Verify` when it checks certificates and connects to upstreams and DNS providers over TLS. The pinned toolchain is now **Go 1.27.3**, and govulncheck reports no vulnerabilities that CaddyUI calls.
+- **The `applegater/caddyui` Docker images were not affected.** They build on `golang:1.27-alpine`, which already resolved to 1.27.3 for v2.68.3. Only the native binaries from the GitHub releases page carried the old runtime, so anyone running a downloaded binary should take v2.68.4.
+- **`applegater/caddyui-caddy` is rebuilt as well.** The published image was compiled with Go 1.27.1. The upstream `caddy:2.11.7-builder` image now ships Go 1.27.3, so the rebuild picks up the fix. Caddy stays at 2.11.7, the latest release.
+
+---
+
 ## [2.68.3] - 2026-10-24 - Fleet changes reach every node (#150); analytics stays inside each viewer's own hosts; Force SSL redirects survive a catch-all route (#149)
 
 ### Security
