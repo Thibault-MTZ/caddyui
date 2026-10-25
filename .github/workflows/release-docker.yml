@@ -219,10 +219,13 @@ jobs:
           ref: ${{ needs.plan.outputs.ref }}
 
       # Caddy itself still cross-compiles natively; QEMU only runs the final
-      # stage's `apk upgrade` inside the arm64 alpine image.
+      # stage's `apk upgrade` inside the arm64 alpine image. The action and
+      # its privileged binfmt image are pinned by digest because this job
+      # later holds the Docker Hub token.
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
         with:
+          image: tonistiigi/binfmt:qemu-v10.2.3@sha256:400a4873b838d1b89194d982c45e5fb3cda4593fbfd7e08a02e76b03b21166f0
           platforms: arm64
 
       - name: Set up Docker Buildx
