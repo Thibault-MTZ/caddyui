@@ -28,11 +28,11 @@ The base is the official `caddy:alpine` image; the current build ships **Caddy 2
 
 | Tag | Meaning |
 |---|---|
-| `:vX.Y.Z` | The CaddyUI release that last changed this image's module set or Caddy version. Recommended for production. |
+| `:vX.Y.Z` | The CaddyUI release that last changed this image: its module set, Caddy version or a security fix. Recommended for production. |
 | `:stable` | The newest build. |
 | `:latest` | Kept in lockstep with `:stable`. |
 
-The image is **not rebuilt on every CaddyUI release** — only when its modules or Caddy version change — so a plugin never changes under you silently.
+The image is **not rebuilt on every CaddyUI release** — only when its modules, Caddy version or security fixes change — so a plugin never changes under you silently.
 
 ## Quick start
 

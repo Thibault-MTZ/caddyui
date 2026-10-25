@@ -1,6 +1,18 @@
-# Cross-compile on the builder's native platform (no QEMU): xcaddy honours
-# GOOS/GOARCH, and the alpine final stage only COPYs the finished binary, so
-# `--platform linux/amd64,linux/arm64` works from one Dockerfile.
+# Cross-compile on the builder's native platform: xcaddy honours GOOS/GOARCH,
+# so `--platform linux/amd64,linux/arm64` works from one Dockerfile. The only
+# step that runs inside the target image is the final stage's `apk upgrade`,
+# which needs QEMU for arm64 (release-docker.yml sets it up).
+#
+# Security pins (all but the first only raise a floor, so a newer version wanted
+# by Caddy or a plugin still wins):
+#   - caddy-crowdsec-bouncer @bdd7e516: the upstream commit that supports
+#     CrowdSec 1.7. v0.14.1, the newest tag, needs CrowdSec 1.6; the commit's
+#     only code change since then is that fix. Go back to a tag once one exists.
+#   - crowdsec/pkg/apiclient @v1.7.8 lifts CrowdSec past CVE-2026-44982,
+#     x/net/http2 @v0.61.0 lifts golang.org/x/net past CVE-2026-78669, and
+#     chi/v5 @v5.4.0 lifts go-chi past CVE-2026-114437. These packages are
+#     already linked into Caddy, so the blank import xcaddy adds for each
+#     changes nothing else.
 FROM --platform=$BUILDPLATFORM caddy:2.11.7-builder AS builder
 ARG TARGETOS=linux
 ARG TARGETARCH
@@ -13,10 +25,16 @@ RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} xcaddy build \
     --with github.com/caddy-dns/hetzner/v2 \
     --with github.com/caddy-dns/route53@v1.6.2 \
     --with github.com/caddy-dns/gandi \
-    --with github.com/hslatman/caddy-crowdsec-bouncer/http \
+    --with github.com/hslatman/caddy-crowdsec-bouncer/http@bdd7e516ec46fede2321a99d62ba63f9b9ebd857 \
     --with github.com/mholt/caddy-ratelimit \
     --with github.com/mholt/caddy-l4 \
-    --with github.com/corazawaf/coraza-caddy/v2
+    --with github.com/corazawaf/coraza-caddy/v2 \
+    --with github.com/crowdsecurity/crowdsec/pkg/apiclient@v1.7.8 \
+    --with golang.org/x/net/http2@v0.61.0 \
+    --with github.com/go-chi/chi/v5@v5.4.0
 
 FROM caddy:2.11.7-alpine
+# The caddy base image only gets Alpine fixes when it is rebuilt upstream;
+# upgrade here so this image ships them (e.g. brotli-libs 1.2.1, CVE-2026-111497).
+RUN apk upgrade --no-cache
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy

@@ -5,6 +5,23 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.68.5] - 2026-10-25 - The Caddy image clears its three High CVEs
+
+### Security
+
+- **`applegater/caddyui-caddy` no longer ships three High CVEs that already had fixes.** A Trivy scan of the published `:stable` image found:
+  - **CrowdSec 1.6.3 (CVE-2026-44982).** CrowdSec's AppSec engine skipped request-body rules for chunked and HTTP/2 requests. That code lives in the CrowdSec engine and is not compiled into Caddy, since the bouncer only uses CrowdSec's API client, but scanners flag the whole module. The newest bouncer release, v0.14.1, cannot build against CrowdSec 1.7. The image now pins the upstream bouncer commit that adds 1.7 support, whose only code change since v0.14.1 is that fix, and builds against CrowdSec 1.7.8. **If you run the CrowdSec engine with AppSec, update that container to 1.7.8 or later too**: that is where the bug actually is.
+  - **golang.org/x/net 0.59.0 (CVE-2026-78669).** A malicious HTTP/2 peer could make Caddy burn CPU with many small SETTINGS frames. It is now 0.61.0, which also clears four Medium x/net CVEs.
+  - **brotli-libs 1.2.0 (CVE-2026-111497).** An out-of-bounds write in the Brotli decoder. Caddy does not use this library; the base image's `curl` does. The image now runs `apk upgrade`, so it gets Alpine's fixes even when the upstream `caddy:alpine` base is older.
+- **go-chi moves to 5.4.0 (CVE-2026-114437, Medium).** The affected middleware is not used by Caddy. Trivy now reports no Critical, High or Medium findings in the image. The one remaining advisory, GO-2026-5932 (`x/crypto/openpgp` is unmaintained), has no fix, and that package is not in the binary.
+- **Behaviour is unchanged.** The old and new images gave identical results for: a CrowdSec ban and unban in stream and live mode against a CrowdSec 1.8.1 Local API, the Coraza WAF with the OWASP Core Rule Set (SQL injection and XSS blocked, clean requests passed), Coraza `@validateSchema`, rate limiting, and an HTTP/2 (h2c) reverse proxy. The module list is identical, and Caddy stays at 2.11.7.
+
+### Notes
+
+- CaddyUI itself has no code changes. This release publishes the rebuilt Caddy image. Pull `applegater/caddyui-caddy:stable` (or `:v2.68.5`) and recreate the Caddy container to get it.
+
+---
+
 ## [2.68.4] - 2026-10-24 - Go toolchain 1.27.3 distrusts compromised intermediate certificates
 
 ### Security
