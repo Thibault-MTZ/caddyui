@@ -5,6 +5,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) · Versi
 
 ---
 
+## [2.68.6] - 2026-10-25 - Source Push sends the wildcard, not the apex (#153); a stale "Issuance error" clears once the CA recovers (#151)
+
+### Fixed
+
+- **Source Push shipped the apex certificate to targets when a Managed ACME definition listed both a wildcard and its apex, breaking HTTPS for every subdomain on those targets (#153).** Caddy stores `*.example.com` and `example.com` as two separate certificates. CaddyUI picked the one with the latest expiry, and adding the apex to an existing wildcard definition meant the apex was obtained last — so targets received a certificate presenting only `example.com`, which covers no subdomain at all. Selection is now by **coverage** of the requested names, with expiry only breaking a tie, and a wildcard outweighs a concrete name because it protects everything behind it. Wildcard matching follows TLS rules: `*.example.com` covers one leftmost label, and never the bare apex.
+  - **A target certificate row holds exactly one keypair, so a single push still cannot carry both certificates.** For a `*.example.com` + `example.com` definition, the push now sends the wildcard and records in the activity log which names it does not cover, naming them. To serve the apex on a target as well, give it its own certificate definition with its own push targets. Nothing about this release makes one push deliver two certificates.
+- **A certificate kept showing "Issuance error" after the CA came back, and Refresh would not clear it (#151).** A transient DNS failure during an ACME Renewal Information (ARI) update was recorded as an issuance failure, and two things then kept it on screen: a later successful ARI update was itself classified as an error rather than as a healthy certificate, and a certificate already in `error` or `retrying` was not re-probed, so the recorded failure was never revisited. A successful ARI update is now recognised as success, and a stale failure is re-probed, so the status clears on its own once issuance is actually working again.
+
+### Notes
+
+- Both fixes are on the certificate path, so they were verified by reverting each cause against the new regression tests and confirming the tests fail without the fix — including the wildcard weighting, without which apex and wildcard tie on coverage and the expiry tie-break reintroduces the original bug.
+
+---
+
 ## [2.68.5] - 2026-10-25 - The Caddy image clears its three High CVEs
 
 ### Security
