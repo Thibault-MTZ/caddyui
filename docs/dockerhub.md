@@ -281,7 +281,7 @@ No PEM upload, fake proxy upstream, or private-key transfer is required.
 
 `:stable`, `:latest` and the newest `:vX.Y.Z` all resolve to the same image.
 
-> **`:preview` is retired.** It was once a rolling per-commit channel; it is no longer updated and stays pinned at an old release (`v2.28.0`). Switch to `:stable` or pin a version.
+> **`:preview` is gone.** It was once a rolling per-commit channel. The tag was deleted from Docker Hub in October 2026 — if you still reference it, switch to `:stable` or pin a version.
 
 Multi-arch: `linux/amd64` + `linux/arm64`. Scratch base image, runs as non-root uid `10001`.
 
