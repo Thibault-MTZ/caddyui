@@ -573,12 +573,12 @@ if ('serviceWorker' in navigator) {
             {{else}}
             <span class="w-2 h-2 rounded-full bg-ink-400 shrink-0"></span>
             {{end}}
-            <span class="text-sm font-semibold text-ink-800 shrink-0 truncate">{{.CurrentServer.Name}}</span>
+            <span class="text-sm font-semibold text-ink-800 min-w-0 truncate" title="{{.CurrentServer.Name}}">{{.CurrentServer.Name}}</span>
             <span class="text-ink-200 shrink-0 hidden sm:inline">|</span>
             <span class="text-xs font-mono text-ink-400 truncate hidden sm:inline">{{.CurrentServer.AdminURL}}</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3 text-ink-400 shrink-0"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
-          <div data-server-menu-panel class="hidden absolute left-0 top-full mt-2 w-72 rounded-xl bg-white/95 border border-ink-200 shadow-card-hover overflow-hidden z-30 dark:bg-slate-800/95 dark:border-slate-700 backdrop-blur-sm">
+          <div data-server-menu-panel class="hidden absolute left-0 top-full mt-2 w-72 max-w-[calc(100vw-4rem)] rounded-xl bg-white/95 border border-ink-200 shadow-card-hover overflow-hidden z-30 dark:bg-slate-800/95 dark:border-slate-700 backdrop-blur-sm">
             <div class="px-3.5 py-2 border-b border-ink-100 dark:border-slate-700">
               <div class="text-[10px] font-semibold uppercase tracking-wider text-ink-500">{{t $ "topbar.switch_server"}}</div>
             </div>
@@ -616,8 +616,8 @@ if ('serviceWorker' in navigator) {
         {{else}}
         <span class="w-2 h-2 rounded-full bg-ink-400 shrink-0"></span>
         {{end}}
-        <span class="text-sm font-semibold text-ink-800 shrink-0">{{.CurrentServer.Name}}</span>
-        <span class="text-ink-200 shrink-0">|</span>
+        <span class="text-sm font-semibold text-ink-800 min-w-0 truncate" title="{{.CurrentServer.Name}}">{{.CurrentServer.Name}}</span>
+        <span class="text-ink-200 shrink-0 hidden sm:inline">|</span>
         <span class="text-xs font-mono text-ink-400 truncate hidden sm:block">{{.CurrentServer.AdminURL}}</span>
         {{end}}
         {{end}}
