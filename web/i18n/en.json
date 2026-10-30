@@ -435,5 +435,9 @@
   "login.error.login_limit": "Too many failed login attempts. Please wait 15 minutes and try again.",
   "login.error.invalid_credentials": "Invalid email or password",
   "login.error.totp_limit": "Too many failed verification attempts for this account. Please wait 15 minutes and try again.",
-  "login.sso_default": "Sign in with SSO"
+  "login.sso_default": "Sign in with SSO",
+  "settings.security.oidc.domains_label": "Allowed email domains",
+  "settings.security.oidc.domains_help": "One domain per line. Only verified addresses in these domains may sign in through SSO — this applies to existing accounts too, not only new ones. Subdomains are not implied: list {example} separately if you need it. Local password sign-in is unaffected.",
+  "settings.security.oidc.domains_warning": "Leave blank only with a private provider.",
+  "settings.security.oidc.domains_public_help": "With a public one such as Google, blank means any account in the world is accepted — and with auto-create on, each of them gets a CaddyUI account."
 }

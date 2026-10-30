@@ -112,3 +112,6 @@ SSO labels, failed/successful sessions and lockout rendering through the router.
 ## Sending a translation
 
 Open a pull request that only adds or edits `web/i18n/<code>.json`. If you maintain a language, mention it in the PR so you can be pinged when new keys appear.
+
+The SSO allowed-domain help uses `{example}` for the example subdomain. Keep it
+in the complete sentence. The private-provider warning retains its strong emphasis.
