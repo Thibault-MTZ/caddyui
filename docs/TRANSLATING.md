@@ -74,7 +74,8 @@ Open a pull request that only adds or edits `web/i18n/<code>.json`. If you maint
 
 ## SMTP settings
 
-`settings.smtp.*` covers the email card and its test-email feedback. Preserve
+`settings.smtp.*` covers the email card; `js.settings.smtp.*` covers its dynamic
+test-email feedback. The test button reuses `settings.smtp.test`. Preserve
 `{error}` in feedback messages; it is replaced as text, never HTML. Protocol names
 (STARTTLS, TLS / SSL), example addresses and port numbers stay unchanged.
 Webhook, ntfy and notifier status are separate follow-up batches.
