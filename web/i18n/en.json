@@ -329,9 +329,9 @@
   "settings.smtp.password": "Password",
   "settings.smtp.port": "Port",
   "settings.smtp.none": "None",
-  "settings.smtp.sending": "Sending…",
-  "settings.smtp.sent": "✓ Sent!",
-  "settings.smtp.failed": "Failed: {error}",
-  "settings.smtp.error": "Error: {error}",
-  "settings.smtp.unknown_error": "unknown error"
+  "js.settings.smtp.sending": "Sending…",
+  "js.settings.smtp.sent": "✓ Sent!",
+  "js.settings.smtp.failed": "Failed: {error}",
+  "js.settings.smtp.error": "Error: {error}",
+  "js.settings.smtp.unknown_error": "unknown error"
 }

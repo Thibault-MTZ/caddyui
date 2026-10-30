@@ -1551,20 +1551,20 @@ function testEmail() {
   var btn = document.getElementById('test-email-btn');
   var result = document.getElementById('test-email-result');
   btn.disabled = true;
-  btn.textContent = {{t $ "settings.smtp.sending"}};
+  btn.textContent = {{t $ "js.settings.smtp.sending"}};
   fetch('/settings/test-email', {method: 'POST'})
     .then(function(r) { return r.json(); })
     .then(function(d) {
       if (d.ok) {
-        result.textContent = {{t $ "settings.smtp.sent"}};
+        result.textContent = {{t $ "js.settings.smtp.sent"}};
         result.className = 'text-sm text-brand-700';
       } else {
-        result.textContent = {{t $ "settings.smtp.failed"}}.replace("{error}", function() { return d.error || {{t $ "settings.smtp.unknown_error"}}; });
+        result.textContent = {{t $ "js.settings.smtp.failed"}}.replace("{error}", function() { return d.error || {{t $ "js.settings.smtp.unknown_error"}}; });
         result.className = 'text-sm text-red-700';
       }
     })
     .catch(function(e) {
-      result.textContent = {{t $ "settings.smtp.error"}}.replace("{error}", function() { return e.message; });
+      result.textContent = {{t $ "js.settings.smtp.error"}}.replace("{error}", function() { return e.message; });
       result.className = 'text-sm text-red-700';
     })
     .finally(function() {
