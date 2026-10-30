@@ -548,7 +548,7 @@ if ('serviceWorker' in navigator) {
       {{/* v2.12.26: data-topbar hook so the orange theme can paint a
            branded orange bottom border / warmer dark surface here without
            bleeding the rule into every other .border-b on the page. */}}
-      <div data-topbar class="app-topbar sticky top-0 z-10 border-b border-ink-100 bg-white/95 backdrop-blur-sm flex items-center gap-3 min-w-0">
+      <div data-topbar class="app-topbar sticky top-0 z-10 border-b border-ink-100 bg-white/95 backdrop-blur-sm flex items-center gap-2 sm:gap-3 min-w-0">
         <button type="button" aria-label="Open navigation" onclick="document.getElementById('sidebar').classList.remove('-translate-x-full');document.getElementById('sidebar-scrim').classList.remove('hidden');" class="lg:hidden inline-flex items-center justify-center w-8 h-8 rounded-lg text-ink-600 hover:bg-ink-100 dark:text-slate-400 dark:hover:bg-slate-800 transition shrink-0">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
