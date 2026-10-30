@@ -145,3 +145,30 @@ func TestI18nSecuritySettingsCaptchaStates(t *testing.T) {
 		})
 	}
 }
+
+func TestI18nOIDCAllowedDomainsHelp(t *testing.T) {
+	e := newSecEnv(t)
+	for _, lang := range []string{"en", "fr", "ru", "zh-CN"} {
+		t.Run(lang, func(t *testing.T) {
+			e.do(t, "admin", http.MethodPost, "/profile", url.Values{"action": {"update_locale"}, "locale": {lang}})
+			body := e.do(t, "admin", http.MethodGet, "/settings/security", nil).Body.String()
+			for _, key := range []string{"domains_label", "domains_warning", "domains_public_help"} {
+				want := html.EscapeString(translations().T(lang, "settings.security.oidc."+key))
+				if !strings.Contains(body, want) {
+					t.Errorf("missing %s", key)
+				}
+			}
+			help := translations().T(lang, "settings.security.oidc.domains_help", "example", "mail.example.com")
+			if !strings.Contains(body, html.EscapeString(help)) || strings.Contains(body, "{example}") {
+				t.Error("domain help interpolation failed")
+			}
+			if !strings.Contains(body, `name="oidc_allowed_domains"`) {
+				t.Error("allowed-domain field lost")
+			}
+			warning := html.EscapeString(translations().T(lang, "settings.security.oidc.domains_warning"))
+			if !strings.Contains(body, `<strong class="text-amber-700">`+warning+`</strong>`) {
+				t.Error("security warning emphasis lost")
+			}
+		})
+	}
+}
