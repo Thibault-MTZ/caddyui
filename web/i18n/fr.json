@@ -435,5 +435,9 @@
   "login.error.login_limit": "Trop de tentatives de connexion échouées. Patientez 15 minutes avant de réessayer.",
   "login.error.invalid_credentials": "Adresse e-mail ou mot de passe incorrect.",
   "login.error.totp_limit": "Trop de tentatives de vérification échouées pour ce compte. Patientez 15 minutes avant de réessayer.",
-  "login.error.sso_domain": "Le domaine de cette adresse e-mail n’est pas autorisé à se connecter ici."
+  "login.error.sso_domain": "Le domaine de cette adresse e-mail n’est pas autorisé à se connecter ici.",
+  "settings.security.oidc.domains_label": "Domaines e-mail autorisés",
+  "settings.security.oidc.domains_help": "Un domaine par ligne. Seules les adresses vérifiées de ces domaines peuvent se connecter par SSO, y compris celles des comptes existants. Les sous-domaines ne sont pas inclus automatiquement : ajoutez {example} séparément si nécessaire. La connexion locale par mot de passe reste inchangée.",
+  "settings.security.oidc.domains_warning": "Laissez ce champ vide uniquement avec un fournisseur privé.",
+  "settings.security.oidc.domains_public_help": "Avec un fournisseur public comme Google, un champ vide autorise tout compte dans le monde. Si la création automatique est activée, chacun obtient un compte CaddyUI."
 }
