@@ -1,3 +1,39 @@
+# CaddyUI — fork personnel / Personal fork
+
+## Français
+
+**Fork personnel de développement et de test. Ce dépôt ne fournit pas de version prise en charge pour un usage tiers en production.**
+
+Pour installer CaddyUI, utilisez le [projet d'origine de X4Applegate](https://github.com/X4Applegate/caddyui) et ses versions officielles.
+
+J'utilise ce fork pour mes essais dans une VM et mon homelab, la traduction française et la préparation de contributions. Le travail avance par petits lots : brouillons, tests, corrections et documentation progressive. Toutes les branches n'ont pas le même niveau de validation.
+
+- `main` : base de référence du fork, dont la synchronisation avec l'amont est vérifiée avant chaque contribution.
+- `homelab` : référence personnelle pour mon installation ; sa présence ne prouve pas que le dernier commit est déployé.
+- Branches de travail et de validation : expériences et assemblages de test.
+- Branches de contribution : une correction ou une zone à la fois, extraction anglaise et traduction française séparées.
+
+Mes notes et commits personnels sont principalement en français ; les contributions au projet d'origine sont préparées en anglais. Je m'aide d'outils d'IA, notamment pour la traduction et la préparation de code, que je relis et teste avant soumission. Une compilation ou un test réussi ne garantit pas tous les usages.
+
+## English
+
+**Personal development and testing fork. This repository does not provide a supported release for third-party production use.**
+
+To install CaddyUI, use [X4Applegate's upstream project](https://github.com/X4Applegate/caddyui) and its official releases.
+
+I use this fork for experiments in a VM and my homelab, French localization, and contribution preparation. Work progresses in small batches: drafts, tests, corrections, and documentation. Validation varies between branches.
+
+- `main`: the fork's reference base; synchronization with upstream is checked before each contribution.
+- `homelab`: my personal installation reference; the latest commit is not necessarily deployed.
+- Working and validation branches: experiments and test assemblies.
+- Contribution branches: one fix or area at a time, with English extraction and French translation kept separate.
+
+Personal notes and commits are mainly in French; upstream contributions are prepared in English. I use AI tools, including for translation and code preparation, and review and test the changes before submission. A successful build or test does not guarantee every use case.
+
+---
+
+## Documentation d'origine / Upstream documentation
+
 # Caddy UI
 
 A modern, self-hosted web UI for [Caddy](https://caddyserver.com/) — manage proxy hosts, redirections, SSL certificates, and advanced routes through a clean interface, without touching config files.
