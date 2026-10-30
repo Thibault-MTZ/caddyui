@@ -456,5 +456,9 @@
   "settings.smtp.sent": "✓ Sent!",
   "settings.smtp.failed": "Failed: {error}",
   "settings.smtp.error": "Error: {error}",
-  "settings.smtp.unknown_error": "unknown error"
+  "settings.smtp.unknown_error": "unknown error",
+  "settings.security.oidc.domains_label": "Allowed email domains",
+  "settings.security.oidc.domains_help": "One domain per line. Only verified addresses in these domains may sign in through SSO — this applies to existing accounts too, not only new ones. Subdomains are not implied: list {example} separately if you need it. Local password sign-in is unaffected.",
+  "settings.security.oidc.domains_warning": "Leave blank only with a private provider.",
+  "settings.security.oidc.domains_public_help": "With a public one such as Google, blank means any account in the world is accepted — and with auto-create on, each of them gets a CaddyUI account."
 }

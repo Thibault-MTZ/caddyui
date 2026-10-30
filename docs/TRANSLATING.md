@@ -119,3 +119,6 @@ Open a pull request that only adds or edits `web/i18n/<code>.json`. If you maint
 `{error}` in feedback messages; it is replaced as text, never HTML. Protocol names
 (STARTTLS, TLS / SSL), example addresses and port numbers stay unchanged.
 Webhook, ntfy and notifier status are separate follow-up batches.
+
+The SSO allowed-domain help uses `{example}` for the example subdomain. Keep it
+in the complete sentence. The private-provider warning retains its strong emphasis.
