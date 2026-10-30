@@ -329,9 +329,9 @@
   "settings.smtp.recipients_help": "Séparez les destinataires par des virgules.",
   "settings.smtp.test": "Envoyer un e-mail de test",
   "settings.smtp.test_hint": "Enregistrez les paramètres SMTP pour activer le bouton de test",
-  "settings.smtp.sending": "Envoi en cours…",
-  "settings.smtp.sent": "✓ Envoyé !",
-  "settings.smtp.failed": "Échec : {error}",
-  "settings.smtp.error": "Erreur : {error}",
-  "settings.smtp.unknown_error": "erreur inconnue"
+  "js.settings.smtp.sending": "Envoi en cours…",
+  "js.settings.smtp.sent": "✓ Envoyé !",
+  "js.settings.smtp.failed": "Échec : {error}",
+  "js.settings.smtp.error": "Erreur : {error}",
+  "js.settings.smtp.unknown_error": "erreur inconnue"
 }
