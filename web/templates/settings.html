@@ -1574,7 +1574,7 @@ function testEmail() {
         result.textContent = {{t $ "js.settings.smtp.sent"}};
         result.className = 'text-sm text-brand-700';
       } else {
-        result.textContent = {{t $ "js.settings.smtp.failed"}}.replace("{error}", function() { return d.error || {{t $ "js.settings.smtp.unknown_error"}}; });
+        result.textContent = d.error || {{t $ "js.settings.smtp.unknown_error"}};
         result.className = 'text-sm text-red-700';
       }
     })

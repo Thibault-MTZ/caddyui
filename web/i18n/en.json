@@ -458,7 +458,9 @@
   "settings.smtp.none": "None",
   "js.settings.smtp.sending": "Sending…",
   "js.settings.smtp.sent": "✓ Sent!",
-  "js.settings.smtp.failed": "Failed: {error}",
   "js.settings.smtp.error": "Error: {error}",
-  "js.settings.smtp.unknown_error": "unknown error"
+  "js.settings.smtp.unknown_error": "Test email failed for an unknown reason.",
+  "settings.smtp.test_mail.failed": "Failed: {error}",
+  "settings.smtp.test_mail.subject": "[CaddyUI] Test email",
+  "settings.smtp.test_mail.body": "This is a test notification from CaddyUI.\n\nIf you received this, your SMTP configuration is working correctly.\n\nSent at: {timestamp}\n"
 }

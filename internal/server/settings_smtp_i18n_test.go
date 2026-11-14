@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+
+	"github.com/X4Applegate/caddyui/internal/models"
 )
 
 func TestI18nSMTPSettingsFallbackAndForm(t *testing.T) {
