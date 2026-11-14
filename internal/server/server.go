@@ -19,6 +19,7 @@ import (
 	"io"
 	"io/fs"
 	"log"
+	"mime/quotedprintable"
 	"net"
 	"net/http"
 	"net/smtp"
@@ -6726,12 +6727,29 @@ func sendEmail(db *sql.DB, subject, body string) error {
 	for i, r := range recipients {
 		safeRecipients[i] = stripCRLF(r)
 	}
+	transferEncoding := ""
+	if strings.IndexFunc(body, func(r rune) bool { return r > 127 }) >= 0 {
+		// Localized messages can contain non-ASCII characters even when
+		// the SMTP server does not advertise 8BITMIME.
+		var encoded bytes.Buffer
+		writer := quotedprintable.NewWriter(&encoded)
+		if _, err := writer.Write([]byte(body)); err != nil {
+			return fmt.Errorf("SMTP encode body: %w", err)
+		}
+		if err := writer.Close(); err != nil {
+			return fmt.Errorf("SMTP encode body: %w", err)
+		}
+		body = encoded.String()
+		transferEncoding = "Content-Transfer-Encoding: quoted-printable\r\n"
+	}
+
 	msg := []byte(
 		"From: CaddyUI <" + from + ">\r\n" +
 			"To: " + strings.Join(safeRecipients, ", ") + "\r\n" +
 			"Subject: " + subject + "\r\n" +
 			"MIME-Version: 1.0\r\n" +
 			"Content-Type: text/plain; charset=utf-8\r\n" +
+			transferEncoding +
 			"\r\n" +
 			body,
 	)
