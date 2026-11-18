@@ -24,6 +24,14 @@
 #
 # Environment:
 #   TRIVY_SEVERITY      Severities to scan. Default UNKNOWN,LOW,…,CRITICAL.
+#   FS_DELTA            on | off (default). Gate 4, the filesystem delta. OFF by
+#                       default because it is the only gate that costs a full
+#                       image export per side per arch; intended for the weekly
+#                       refresh rather than every release. Once on, it follows
+#                       MODULE_DRIFT_POLICY for block-vs-report like gates 2/3.
+#   FS_ALLOW_RE         Extended regex of paths a NEW file may appear at under
+#                       gate 4 without objection. Defaulted in the body; see
+#                       the note there before widening it.
 #   MODULE_DRIFT_POLICY block (default) | report. Governs gates 2 AND 3 below.
 #                       The default is the strict one so a caller that forgets
 #                       the variable gets the SAFER behaviour, never the weaker
@@ -42,7 +50,7 @@
 #   1  blocked                (a human must look)
 #   2  the gate could not run (treat as blocked)
 #
-# A COVERAGE PRECONDITION, then THREE independent gates:
+# A COVERAGE PRECONDITION, then FOUR independent gates (the fourth opt-in):
 #
 #  0. Scan coverage. Before either gate runs, assert the new image's Trivy scan
 #     actually looked at the image: an OS was detected, it is not end-of-life,
@@ -123,8 +131,51 @@
 #     and NOT Healthcheck/StopSignal (absent on both sides today; add them here
 #     if that changes rather than carrying a field that is always empty).
 #
-#     Same two policies as gate 2, for the same reason, so the caller's
-#     existing MODULE_DRIFT_POLICY choice governs both:
+#     ONE CLASS OF CONFIG CHANGE IS BLOCKING UNDER BOTH POLICIES: a variable
+#     that redirects the binary's outbound TLS TRUST. A newly-added or modified
+#     SSL_CERT_FILE, SSL_CERT_DIR, AWS_CA_BUNDLE, CURL_CA_BUNDLE,
+#     REQUESTS_CA_BUNDLE, GIT_SSL_CAINFO, NODE_EXTRA_CA_CERTS or GODEBUG is
+#     asserted on regardless of MODULE_DRIFT_POLICY, the way gate 4's
+#     trust-store rows are blocking while ordinary file modification is only
+#     reported.
+#
+#     MATCHED ON THE NAME, NEVER ON THE VALUE, because config_from's `clean`
+#     truncates each entry to 400 characters before this check reads it. A
+#     pattern needing part of the VALUE to survive that cut is fail-open by
+#     construction: the first spelling used GODEBUG=.*x509, and padding the
+#     list with ordinary settings pushed x509usefallbackroots=1 past the cut so
+#     the gate reported "TLS trust env: none" over an image whose container got
+#     the variable in full. GODEBUG therefore blocks WHOLE; see trust_env_of.
+#
+#     AWS_CA_BUNDLE is load-bearing, not prophylactic: Dockerfile.caddy links
+#     caddy-dns/route53, and the AWS SDK reads that variable to override the CA
+#     bundle for its own HTTP client. Go's crypto/x509 reads only the two
+#     SSL_CERT_* names, so it is a separate trust path -- guarding the Route53
+#     DNS-01 credential that issues this fleet's certificates.
+#
+#     Why this one class and not all config drift on releases: making every
+#     config change blocking would forbid the deliberate EXPOSE/WORKDIR edit
+#     that `report` exists to allow. But a release may change configuration
+#     without being allowed to change WHO THE BINARY TRUSTS. SSL_CERT_FILE
+#     pointed at an attacker-controlled path redirects ALL outbound TLS trust
+#     for this binary -- ACME issuance and the DNS provider's API -- with no
+#     filesystem delta at all, so gate 4 cannot see it either: the file it
+#     names can be one the image already legitimately contains. It is the same
+#     silent-MITM outcome gate 4 exists to prevent, reached through
+#     configuration rather than through files. Under `report` alone it would
+#     merely be PRINTED into the summary while gate 1, seeing no new CVE,
+#     passed the release.
+#
+#     None of them is present in the published image today, so this asserts on
+#     keeping it that way. Nothing in the CODE depends on that, though: the
+#     comparison is a whole-line diff against the baseline, so a legitimately
+#     introduced value cancels once published and only a CHANGE to it blocks
+#     thereafter. Accommodate such a value through the diff, never by narrowing
+#     the pattern back toward matching on values.
+#
+#     Otherwise the same two policies as gate 2, for the same reason, so the
+#     caller's existing MODULE_DRIFT_POLICY choice governs the REST of this
+#     gate:
 #
 #       block   (the refresh path) A refresh rebuilds an UNCHANGED
 #               Dockerfile.caddy from a release tag, so the config must come
@@ -138,6 +189,69 @@
 #               and gate 1 decides the verdict. The reviewer approving the
 #               release is the control, and this gate's job is to make sure the
 #               change is in front of them rather than invisible.
+#               EXCEPT for the trust-redirecting variables above, which block
+#               under this policy too. That includes an ordinary GODEBUG: the
+#               variable is matched whole because its value cannot be trusted
+#               to survive truncation, so a release setting one needs a
+#               reviewed decision. Deliberate -- a filter an attacker chooses
+#               whether to satisfy is worse than a slightly broad one.
+#
+#  4. Filesystem delta, from `docker export` of a created (never started)
+#     container. OPT-IN via FS_DELTA=on; see that variable for why this one
+#     gate is not on by default.
+#
+#     Gates 1-3 read packages, linked Go modules and execution configuration.
+#     A file that is simply ADDED to the image and carries no CVE is invisible
+#     to all three: an extra script or binary (`COPY`/`ADD`, or a build-time
+#     `curl | sh`), a root CA dropped into the trust store, or a `chmod u+s` on
+#     a binary that is otherwise unchanged. The package set is identical, the
+#     module set is identical, the config is identical, and no CVE moved.
+#
+#     The added-CA row is the one that matters most for THIS image, for the
+#     same reason gate 3 matters: six public-facing edge proxies that terminate
+#     TLS and hold DNS-provider API credentials for DNS-01. A CA added to the
+#     image's trust store is trusted by every outbound TLS connection those
+#     proxies make, which includes ACME issuance and the DNS provider's API --
+#     so it buys silent interception of both, with nothing for the other three
+#     gates to report.
+#
+#     Asserts on three things rather than on the raw diff being non-empty,
+#     because a base-layer refresh legitimately rewrites every file of every
+#     upgraded package and a raw-diff trigger would fire on every run:
+#       (a) any added or replaced file under the trust stores
+#       (b) any setuid/setgid entry absent from the baseline at that path+mode
+#       (c) any NEW path outside FS_ALLOW_RE
+#     The full diff is still produced and carried into the summary as the
+#     reviewable record behind those three.
+#
+#     The file list is (mode, size, path). TWO KNOWN LIMITS, both deliberate
+#     and both measured rather than supposed:
+#
+#       - Size is not a content hash. A modification that preserves a file's
+#         exact length is invisible to this gate. Hashing would mean extracting
+#         every file of a 133 MB image twice per arch, a different cost class
+#         entirely for an attack that has to hit an exact byte count; size
+#         catches the realistic forms (an appended certificate, a swapped
+#         binary) for free, since tar prints it already.
+#       - Modification outside the trust stores is REPORTED, not asserted on.
+#         It lands in the raw diff, which a reviewer reads; it does not by
+#         itself set the verdict, because `apk upgrade` rewrites hundreds of
+#         files on a legitimate refresh. The trust stores are the exception
+#         precisely because nothing in a base-layer refresh should be editing
+#         them, which is why (a) matches modifications and not just additions.
+#
+#     Both were found by testing rather than reasoning: the first spelling of
+#     this gate omitted size, and a variant that appended one certificate to
+#     the existing /etc/ssl/certs/ca-certificates.crt produced a ZERO-LINE diff
+#     and passed with verdict=unchanged -- the stealthiest form of the exact
+#     attack this gate exists to catch.
+#
+#     Measured before building it, per T-0641: `trivy --scanners
+#     misconfig,secret` (the cheaper route T-0642 proposes) reports ZERO
+#     findings on :stable and on purpose-built variants carrying each of these
+#     shapes -- misconfig finds no config files inside the image to scan, and a
+#     certificate is not a credential pattern. So that scanner pair does not
+#     substitute for this gate.
 set -euo pipefail
 
 die() { echo "::error::$*" >&2; exit 2; }
@@ -186,7 +300,13 @@ mkdir -p "$OUT"
 rm -f "$OUT/verdict" "$OUT/summary.md" \
       "$OUT"/added-*.ids "$OUT"/removed-*.ids \
       "$OUT"/new-*.ids "$OUT"/old-*.ids \
-      "$OUT"/mods-*.txt "$OUT"/cfg-*.txt 2>/dev/null || true
+      "$OUT"/mods-*.txt "$OUT"/cfg-*.txt "$OUT"/fs-*.txt 2>/dev/null || true
+# cfg-trustenv-*.txt is covered by the cfg-*.txt glob above, and the verdict
+# reads its LINE COUNT rather than merely testing the diff, so a stale copy
+# would be counted as this run's finding -- i.e. it would BLOCK a clean image
+# on evidence from a previous run. That makes the clearing above load-bearing
+# for it in a way it is not for the diffs: keep the name prefixed `cfg-` if it
+# is ever renamed.
 
 command -v trivy >/dev/null || die "trivy not found"
 command -v jq    >/dev/null || die "jq not found"
@@ -211,6 +331,118 @@ case "$DRIFT_POLICY" in
   block|report) ;;
   *) die "MODULE_DRIFT_POLICY must be 'block' or 'report' (got: $DRIFT_POLICY)" ;;
 esac
+
+# Gate 4 (filesystem delta) is OPT-IN, unlike the other three.
+#
+# It is the only gate that costs a full image export per side per arch -- four
+# exports of a 133 MB image for a two-arch run -- so T-0641 scoped it to the
+# weekly refresh rather than to every release. Default `off` therefore means
+# "the release path is unchanged by this gate", which is a deliberate choice
+# and not the usual safer-default rule: the three existing gates and the
+# coverage precondition all still run, so turning this one on adds a check
+# rather than removing one.
+#
+# Spelled as its own variable rather than folded into MODULE_DRIFT_POLICY
+# because the two answer different questions -- that one is "how strict", this
+# one is "run it at all". Once on, it follows MODULE_DRIFT_POLICY for
+# block-vs-report exactly as gates 2 and 3 do, so a caller has one strictness
+# dial, not three.
+#
+# Only the two spellings are accepted, same as above: a typo must not fall
+# through to the weaker behaviour silently.
+FS_DELTA="${FS_DELTA:-off}"
+case "$FS_DELTA" in
+  on|off) ;;
+  *) die "FS_DELTA must be 'on' or 'off' (got: $FS_DELTA)" ;;
+esac
+
+# Paths a NEW file may legitimately appear at without the gate objecting.
+#
+# Deliberately short. The refresh path rebuilds an unchanged Dockerfile.caddy,
+# where the only thing that may add files is `apk upgrade` replacing package
+# contents -- and a replaced file is not a NEW PATH, so it is not matched here
+# at all. So this allowlist covers the genuinely unstable paths an export picks
+# up, not "places a release may add things": the point of the gate is that a
+# release adding a file has to be seen.
+#
+# Each entry earns its place:
+#   - apk's own database and cache are rewritten by `apk upgrade`, and its
+#     per-package file lists legitimately gain entries when a package version
+#     changes.
+#   - /etc/ssl/certs is NOT here on purpose: a new file there is the attack
+#     this gate exists to catch, so it is asserted on separately (a) rather
+#     than excused. ca-certificates genuinely being upgraded will show up
+#     there and is expected to be read by a human -- that is the intended
+#     cost, and it is why the trust-store rows are extracted rather than
+#     buried in the diff.
+#   - the machine-id and resolv.conf style runtime files an export captures
+#     from the created container rather than from the image.
+#
+# Overridable so a caller can widen it for a deliberate change without editing
+# this script, but it is NOT meant to grow casually: every addition is a class
+# of file the gate stops looking at.
+#
+# EVERY ENTRY IS FULLY ANCHORED. Both halves of this were real bypasses, both
+# found in review, both reproduced end-to-end, and both are covered by
+# scripts/test-caddy-image-gate-fs-allow.sh:
+#
+#  1. Unbounded bare NAMES. With only a start anchor, `etc/machine-id` matched
+#     `etc/machine-id-EVIL/payload`, and `etc/hosts` -- a file -- matched
+#     `etc/hosts/subdir/evil.sh`, i.e. replace the file with a directory and
+#     get an unlimited allowlisted payload tree. Each file entry is now
+#     terminated with `$`.
+#
+#  2. Whole-SUBTREE prefixes. `etc/apk/`, `lib/apk/` and `var/cache/apk/` were
+#     allowlisted entire, so `etc/apk/.hook.sh`, `lib/apk/db/evilbin` and
+#     `var/cache/apk/payload.sh` were invisible to assertion (c) -- a planted
+#     executable in a directory excused as "package manager noise". The gate
+#     returned verdict=unchanged on an image carrying one.
+#     `etc/apk/protected_paths.d/` was the sharper half: it decides which paths
+#     apk protects, so it is trust-store POLICY, not churn.
+#
+# So the apk entries now name the specific files that actually move during an
+# `apk upgrade`, rather than the directories containing them. The rule for
+# extending this list: name a FILE, anchor it, and never allow a directory that
+# can contain an executable. Every addition is a class of file the gate stops
+# looking at, and these three directories are exactly where an attacker would
+# rather be than /usr/local/bin.
+# The default is assembled in SINGLE quotes so the trailing `$` is a literal
+# dollar in the variable's value, i.e. a real end-of-line anchor when grep reads
+# it. Writing the whole thing double-quoted needs `\$`, and bash then stores the
+# backslash-stripped form -- which works for this script but leaves the SOURCE
+# text reading `...)\$`, where a `\$` is a literal dollar sign and matches
+# nothing. That bit twice over: the regression suite extracts the pattern from
+# this line with sed, and a caller exporting FS_ALLOW_RE copies it from here, so
+# both would get the broken spelling while the script itself looked fine.
+FS_ALLOW_DEFAULT='^/?(lib/apk/db/(installed|scripts\.tar|triggers|lock)|etc/apk/world|var/cache/apk/[^/]*\.(index|tar\.gz)|etc/machine-id|etc/resolv\.conf|etc/hostname|etc/hosts|\.dockerenv)$'
+FS_ALLOW_RE="${FS_ALLOW_RE:-$FS_ALLOW_DEFAULT}"
+
+# VALIDATE IT HERE, because an invalid regex fails OPEN further down.
+#
+# Assertion (c) ends in `grep -Ev "$FS_ALLOW_RE" > file || true`. `grep -E` exits
+# 2 on an invalid pattern, the `|| true` swallows that, the output file is empty,
+# and empty means "0 new paths outside the allowlist" means clean. Measured: with
+# FS_ALLOW_RE='^(unclosed[' an image carrying an added CA passed as exit 0 /
+# verdict=unchanged.
+#
+# That is the same fail-open shape as gate 1 reading an empty findings list as a
+# perfect score -- the thing assert_scan_coverage exists to prevent -- recreated
+# one level down, and reachable by a TYPO in a caller override rather than only
+# by malice. The `|| true` cannot simply be dropped: grep legitimately exits 1
+# when nothing matches, which is the common case.
+#
+# So distinguish grep's exit codes once, up front, where it is still a
+# configuration error rather than a silent clean verdict. Exit 1 (no match) on
+# empty input is the expected answer; only 2+ means the pattern itself is bad.
+# Written as `if ! …; then` rather than running the grep bare and testing `$?`
+# on the next line: `set -e` aborts on the failing grep BEFORE the test runs, so
+# the bare form exits 2 with no message at all -- the right code for the wrong
+# reason, and silent. A command inside `if` is exempt from `set -e`, so this
+# keeps the diagnosis.
+fs_allow_rc=0
+printf '' | grep -Eq "$FS_ALLOW_RE" 2>/dev/null || fs_allow_rc=$?
+[ "$fs_allow_rc" -le 1 ] \
+  || die "FS_ALLOW_RE is not a valid POSIX extended regex (grep exit $fs_allow_rc): $FS_ALLOW_RE"
 
 # A finding is identified by ID *and* package, and DELIBERATELY NOT by the
 # installed version.
@@ -644,6 +876,182 @@ config_from() {
   [ -s "$out" ] || die "no image configuration parsed from $ref"
 }
 
+# The image's FILESYSTEM, as "<path> <mode> <size>" per line, for gate 4.
+#
+# PATH FIRST so the list sorts by path. Sorting by the leading field is what
+# makes the diff readable: with mode or size leading, a single changed file
+# appears as a removed line and an added line hundreds of lines apart, ordered
+# by a number nobody is looking for -- measured on the real v2.68.11 ->
+# v2.68.12 pair, where `1056 var/log/apk.log` sorted into the middle of the
+# Mozilla certificate bundle. Path-first groups every change at the path it
+# happened to, which is the question a reviewer is asking.
+#
+# `docker create` + `docker export` rather than `docker save`. save streams
+# per-layer tars, so a path added in one layer and deleted in a later one is
+# still present in the stream, and a whiteout has to be interpreted by hand --
+# the diff would report files the running container does not have. export
+# streams the FLATTENED filesystem, i.e. exactly what the container sees, which
+# is the thing being gated. The container is created but never started, so
+# nothing in the image under test executes: that matters because the release
+# path builds this image from a Dockerfile the submitter controls, and a gate
+# that ran the artefact it is judging would be the wrong shape entirely.
+#
+# Mode bits are taken from the tar header, which is where the setuid row of
+# this gate's table lives. tar's numeric mode is the full st_mode permission
+# word, so 04755 and 0755 differ textually and a `chmod u+s` on an existing,
+# unchanged binary shows up as a changed line rather than as nothing at all.
+#
+# Why not Trivy. Measured 2026-11-13 against the real images, which is what
+# T-0641 asked to establish before building this: `trivy image --scanners
+# misconfig,secret` reports 0 misconfigurations and 0 secrets on :stable AND on
+# purpose-built variants carrying an added root CA, a setuid busybox copy and a
+# planted shell script. misconfig logs "Detected config files num=0" -- it
+# looks for IaC/Dockerfile sources inside the image, and this image contains
+# none -- and secret matches credential PATTERNS, which a certificate and a
+# `curl | sh` script are not. So [[T-0642]] does not subsume this gate; the two
+# cover different things and neither is a cheaper spelling of the other.
+#
+# Paths are sorted with LC_ALL=C so the ordering does not depend on the
+# runner's locale; a locale-dependent sort would produce spurious diff hunks
+# between two machines that agree about the files.
+fs_from() {
+  local ref="$1" arch="$2" out="$3" cid=""
+
+  # --platform so the created container matches the arch being gated, exactly
+  # as modules_from does. The refs passed in are already per-arch digests, but
+  # being explicit costs nothing and keeps the two paths reading alike.
+  if ! cid="$(docker create --platform "linux/$arch" "$ref" 2>/dev/null)" || [ -z "$cid" ]; then
+    die "cannot create a container from $ref ($arch) to export its filesystem; refusing to guess the file list"
+  fi
+
+  # Remove the container whatever happens below, including on a `die` in the
+  # pipeline: an aborted gate must not leave created containers behind on a
+  # self-hosted runner or a local run.
+  #
+  # EXIT as well as RETURN, deliberately. `die` calls `exit`, which unwinds
+  # past a RETURN trap without running it, so a RETURN-only trap would leak a
+  # created container on exactly the failure paths below -- the ones most
+  # likely to be hit. Both are set, and `docker rm` of an already-removed id
+  # is a harmless no-op, so the double fire costs nothing.
+  # shellcheck disable=SC2064
+  trap "docker rm -f '$cid' >/dev/null 2>&1 || true" RETURN EXIT
+
+  # `tar -tv` gives mode, owner, SIZE, date and path. Fields are fixed-position
+  # up to the name, so awk reconstructs the path from field 6 onward to survive
+  # a filename containing spaces. Directories are dropped: their presence is
+  # implied by their contents and they add ~200 lines of noise to every diff.
+  # Symlink and hardlink TARGETS are kept on the line, because a link repointed
+  # at a different file is precisely the kind of change this gate exists to see.
+  #
+  # OUTPUT IS TAB-SEPARATED COLUMNS: path<TAB>mode<TAB>size<TAB>linktarget.
+  # The separator is the whole point, so it is a contract rather than a format
+  # choice, and every consumer below splits on tab instead of counting fields.
+  #
+  # It used to be space-separated with tar's ` -> target` suffix left inside
+  # the path field, and both downstream helpers rebuilt "the path" as
+  # all-but-the-last-two fields. That made the comparison key for a symlink
+  # `path + target`, with three consequences, all measured (T-0784):
+  #
+  #  1. REPOINTING AN EXISTING SYMLINK READ AS ONE REMOVED PATH PLUS ONE ADDED
+  #     PATH. On this image that is not a corner case: 236 of the 237 entries
+  #     under `etc/ssl/certs/` are symlinks, so the trust store is almost
+  #     entirely links. Assertion (c) is the one that catches the `COPY`/`ADD`
+  #     row, and teaching a reviewer that add+remove pairs are ordinary churn
+  #     in the one directory that matters most is how (c) stops being read.
+  #     With columns, a repoint is a changed TARGET on one path: (c) sees no
+  #     new path, and the raw diff shows one changed line at the path it
+  #     happened to.
+  #
+  #  2. A path containing a literal ` -> ` could forge a benign-looking key.
+  #     A tab cannot be smuggled in: it is outside the path character class
+  #     below and is replaced with `?`, which is what makes splitting on it
+  #     safe rather than merely tidier.
+  #
+  #  3. The sharper half was in `suid_of`. A path with a space before the mode
+  #     (`bin/evil tool\t-rwsr-xr-x\t1234` in the old spelling, i.e. the
+  #     space-separated `bin/evil tool -rwsr-xr-x 1234 -rwsr-xr-x 1234`) put a
+  #     forged `-rwsr-xr-x 1234` INSIDE the rebuilt path, so the setuid
+  #     comparison key was partly attacker-controlled. Columns end that: the
+  #     mode is read from its own column and cannot be spelled into a filename.
+  #
+  # A LINK TARGET IS ITS OWN COLUMN, not a suffix, so it is compared as data
+  # rather than as part of the name. Non-links get an empty fourth column.
+  #
+  # SIZE IS ON THE LINE, and it is load-bearing rather than informational.
+  # Without it the list is (mode, path) only, so MODIFYING an existing file
+  # changes nothing: the path already existed and the mode did not move.
+  # Measured on a variant that appends a certificate to the existing
+  # /etc/ssl/certs/ca-certificates.crt -- gate 4 produced a ZERO-LINE diff and
+  # the whole gate returned verdict=unchanged, exit 0. That is the single most
+  # important shape this gate exists to catch (a trusted root reaching a
+  # TLS-terminating proxy) in its stealthiest form, and the first spelling of
+  # this function missed it completely.
+  #
+  # Size is not a content hash and does not pretend to be: a same-length edit
+  # still reads as unchanged. A real hash would mean extracting every file of a
+  # 133 MB image twice per arch, which is a different cost class. Size catches
+  # the realistic version of this attack (a certificate appended or a binary
+  # swapped both change length) and costs nothing, since tar already prints it.
+  # The residual same-length gap is recorded as a known limit rather than
+  # papered over -- see the gate 4 block in the header.
+  #
+  # The date field is deliberately NOT included: it moves on every rebuild for
+  # ordinary reasons and would make this gate fire on every single run.
+  #
+  # A path is attacker-chosen on the release path, same as every other value
+  # documented above, and it lands in summary.md and both heredocs. So the
+  # character class is restricted here, at the single point of entry, for the
+  # same reason and in the same way as ids_from/safe_text/config_from.
+  # Status is read from PIPESTATUS, not from the pipeline's own exit code.
+  # `cmd | tar | awk | sort` reports only `sort`'s status, and sort succeeds
+  # perfectly well on a truncated stream -- so a `docker export` that died
+  # halfway, or a `tar` that gave up on a malformed archive, would produce a
+  # SHORT file list and exit 0. That is the fail-open direction: a short list
+  # compares as "no new paths" and the gate passes because it could not see.
+  # The 100-file floor below is the backstop, but a failure should be reported
+  # as a failure rather than inferred from the size of its output.
+  local st
+  docker export "$cid" 2>/dev/null \
+     | tar -tv 2>/dev/null \
+     | awk '$1 !~ /^d/ {
+         mode = $1
+         size = $3
+         path = $6
+         for (i = 7; i <= NF; i++) path = path " " $i
+         # Split tar s ` -> target` suffix off into its own column. Only tar
+         # produces this separator, and only for a link, so it is matched at
+         # the LAST occurrence: a path may legitimately contain the string.
+         target = ""
+         if (match(path, /^.* -> /)) {
+           target = substr(path, RLENGTH + 1)
+           path   = substr(path, 1, RLENGTH - 4)
+         }
+         gsub(/[^A-Za-z0-9._:\/@+=,() \[\]{}"'"'"'*?!#$^&~`|<>-]/, "?", path)
+         gsub(/[^A-Za-z0-9._:\/@+=,() \[\]{}"'"'"'*?!#$^&~`|<>-]/, "?", target)
+         gsub(/[^A-Za-z0-9.+-]/, "?", mode)
+         gsub(/[^0-9]/, "?", size)
+         printf "%s\t%s\t%s\t%s\n", substr(path, 1, 300), substr(mode, 1, 16), \
+                                    substr(size, 1, 20), substr(target, 1, 300)
+       }' \
+     | LC_ALL=C sort -u > "$out"
+  st="${PIPESTATUS[*]}"
+  case "$st" in
+    '0 0 0 0') ;;
+    *) die "cannot export the filesystem of $ref ($arch) (export|tar|awk|sort exited: $st); refusing to guess the file list" ;;
+  esac
+
+  # A real image has thousands of files, so a short list means the export or
+  # the tar read degraded rather than that the image is small. An empty or
+  # near-empty file list would compare as "no new paths" and pass this gate
+  # silently -- the same fail-open shape assert_scan_coverage exists to close
+  # for gate 1, so it gets the same treatment here.
+  local n
+  n="$(wc -l < "$out")"
+  if [ "$n" -lt 100 ]; then
+    die "the export of $ref ($arch) yielded only $n file(s): that is a degraded read, not a small image, and an empty file list would compare as 'no new paths'. Refusing to gate on it."
+  fi
+}
+
 for arch in $ARCHES; do
   echo "::group::gate: linux/$arch"
 
@@ -757,6 +1165,289 @@ for arch in $ARCHES; do
   diff -u "$OUT/cfg-old-$arch.txt" "$OUT/cfg-new-$arch.txt" \
     > "$OUT/cfg-diff-$arch.txt" || true
 
+  # The ONE class of config change that blocks under BOTH policies: a variable
+  # that redirects where the Caddy binary looks for its TLS trust roots.
+  #
+  # Extracted SEPARATELY from the diff above, and asserted on, for exactly the
+  # reason gate 4 extracts its trust-store rows rather than leaning on the raw
+  # diff: under `report` the diff is only PRINTED, and a reader approving a
+  # release that legitimately moved EXPOSE has no reason to treat one more
+  # added Env line as different in kind. It is different in kind. Pointed at an
+  # attacker-controlled path, SSL_CERT_FILE redirects every outbound TLS
+  # connection this binary makes -- ACME issuance and the DNS provider's API --
+  # and does it with NO filesystem delta, because the file it names can be one
+  # the image already legitimately contains. Gates 1, 2 and 4 are all blind to
+  # it: same packages, same modules, no CVE moved, no file added.
+  #
+  # Read from the two cfg-*.txt files rather than from a fresh inspect, so this
+  # sees exactly the values gate 3 compared -- already sanitized and already
+  # one-variable-per-line by config_from. Note what that view COSTS, and why
+  # the match below is on names only: `clean` truncates each entry to 400
+  # characters, so the value is not reliable evidence here.
+  #
+  # MATCHED ON THE VARIABLE NAME ALONE, never on the value.
+  #
+  # The name is the only part of the line truncation cannot reach, and that is
+  # load-bearing rather than tidy. A pattern needing a substring of the VALUE
+  # to survive the cut is fail-open by construction. The first spelling of this
+  # check used `GODEBUG=.*x509`, and a code review broke it end-to-end: GODEBUG
+  # is a comma-separated list whose entries reorder freely, so
+  #
+  #   GODEBUG=<29x "http2client=0,">x509usefallbackroots=1
+  #
+  # cuts at char 400 with the `x509` gone. Measured on this host: trustenv
+  # lines 0, trustenv_total 0, summary printing "TLS trust env: none" and the
+  # quiet line claiming the trust environment was unchanged -- over an image
+  # whose container gets the variable in full, because `clean` only truncates
+  # the GATE'S VIEW. That is T-0786 reproduced against the fix for T-0786.
+  #
+  # So GODEBUG blocks WHOLE and the x509 narrowing is gone. The cost is
+  # accepted deliberately: a release setting an ordinary GODEBUG (http2client,
+  # madvdontneed) now blocks and needs a reviewed decision. That is the right
+  # trade, because the alternative is a filter an attacker chooses whether to
+  # satisfy. GODEBUG is absent from the published image, so it costs nothing
+  # today, and a legitimate future one is accommodated the same way every other
+  # value is -- it lands on both sides and cancels (see the comm note below) --
+  # not by narrowing the match again.
+  #
+  # Anchored after the `Env\t` prefix and terminated by `=`, so a variable
+  # merely CONTAINING one of these names (`MY_SSL_CERT_FILE_NOTE`) does not
+  # match, and so a value mentioning one cannot satisfy it either. An empty
+  # value still matches, which is correct: `SSL_CERT_DIR=` is not harmless, it
+  # drops the default search path.
+  #
+  # AWS_CA_BUNDLE is here because Dockerfile.caddy links
+  # caddy-dns/route53@v1.6.2, and the AWS SDK for Go reads that variable to
+  # override the CA bundle for ITS OWN HTTP client, on top of Go's defaults.
+  # Go's crypto/x509 loadSystemRoots() consults only SSL_CERT_FILE and
+  # SSL_CERT_DIR (root_unix.go), so the SDK's knob is a genuinely separate
+  # trust path, not a duplicate of them -- and the credential it protects is
+  # the Route53 DNS-01 API key that issues this fleet's certificates, i.e.
+  # exactly the asset this whole check exists for. Found by security review;
+  # the first spelling missed it.
+  #
+  # The remaining four are prophylactic, for a future `--with`: CURL_CA_BUNDLE,
+  # REQUESTS_CA_BUNDLE, GIT_SSL_CAINFO and NODE_EXTRA_CA_CERTS are the
+  # conventional CA-bundle overrides of the other runtimes a plugin could pull
+  # in. None can false-positive: the published image's entire environment is
+  # PATH, CADDY_VERSION, XDG_CONFIG_HOME and XDG_DATA_HOME.
+  #
+  # ONE grep producing ONE globally sorted stream, deliberately, not several
+  # appended. `comm` below requires its inputs sorted as a WHOLE, and
+  # separately-sorted groups are not: `Env\tAWS_CA_BUNDLE=` sorts before
+  # `Env\tSSL_CERT_FILE=`, so emitting groups in pattern order would hand comm
+  # an out-of-order file and it would silently miss lines rather than fail.
+  #
+  # `|| true` on the grep because no match is the NORMAL case here -- none of
+  # these is present in the published image -- and grep exits 1 for it. Under
+  # `set -e` an unguarded non-match would abort the gate on every healthy run.
+  # Note this also swallows grep's exit 2 for a BAD PATTERN, which would be
+  # fail-open; that is why the pattern is a literal here and not caller-
+  # overridable, unlike FS_ALLOW_RE, which needed an explicit validation step
+  # for exactly that reason.
+  #
+  # A LITERAL TAB, via $'...', NOT the two characters \t. POSIX ERE has no \t
+  # escape and GNU grep -E does not add one: in a `grep -E '^Env\t…'` pattern
+  # the backslash is dropped and it matches the literal letter `t`, i.e.
+  # `Envt…`, which matches NOTHING against config_from's `Env<TAB>NAME=VALUE`
+  # lines. That failure is SILENT and fail-open -- the extract comes out empty,
+  # comm reports nothing, and the gate prints "TLS trust env: none" over an
+  # image that just added SSL_CERT_FILE. Verified on this host before fixing.
+  # If this pattern is ever rewritten, keep the tab literal; do not "tidy" it
+  # into \t.
+  #
+  # LC_ALL=C on BOTH the sort here and the comm below, for the reason T-0785
+  # established for gate 4: comm only WARNS about disorder, so an input sorted
+  # under one collation and validated under another is a correctness problem it
+  # reports rather than enforces. Pinning both ends keeps them in agreement
+  # whatever locale the runner has.
+  trust_env_of() {
+    { grep -E $'^Env\t(SSL_CERT_FILE|SSL_CERT_DIR|AWS_CA_BUNDLE|CURL_CA_BUNDLE|REQUESTS_CA_BUNDLE|GIT_SSL_CAINFO|NODE_EXTRA_CA_CERTS|GODEBUG)=' "$1" || true; } \
+      | LC_ALL=C sort -u
+  }
+  trust_env_of "$OUT/cfg-new-$arch.txt" > "$OUT/cfg-trustenv-new-$arch.txt" || true
+  trust_env_of "$OUT/cfg-old-$arch.txt" > "$OUT/cfg-trustenv-old-$arch.txt" || true
+
+  # COMPARED on the whole line (name and value), even though the MATCH above is
+  # on the name alone. The two are deliberately different: matching on the name
+  # is what makes the check un-evadable by truncation, while diffing the whole
+  # line is what catches a MODIFIED value as well as a newly-added variable.
+  # `comm -23` reports any line present on the new side and not on the
+  # baseline's.
+  #
+  # This is also what makes the check survive its own premise changing. Nothing
+  # in the CODE depends on these variables being absent: the day one is
+  # legitimately introduced and published, it sits on both sides, cancels, and
+  # only a CHANGE to it blocks thereafter. Do not re-narrow the pattern to
+  # accommodate such a value; let the diff do it.
+  #
+  # A truncated value is compared truncated on BOTH sides, since both come
+  # through the same `clean`. So truncation can no longer hide a variable (the
+  # name is matched), and it cannot make an unchanged one look changed either
+  # -- only a change within the first 400 characters is visible, which is a
+  # reporting limit of gate 3 as a whole rather than of this check.
+  LC_ALL=C comm -23 "$OUT/cfg-trustenv-new-$arch.txt" "$OUT/cfg-trustenv-old-$arch.txt" \
+    > "$OUT/cfg-trustenv-$arch.txt" || true
+
+  if [ -s "$OUT/cfg-trustenv-$arch.txt" ]; then
+    echo "::warning::trust-redirecting environment variable introduced or changed (linux/$arch): $(wc -l < "$OUT/cfg-trustenv-$arch.txt" | tr -d ' ') line(s) -- blocking under both drift policies"
+  fi
+
+  # Gate 4: the filesystem delta. Off by default -- it costs a full image
+  # export per side per arch, which is why T-0641 scoped it to the weekly
+  # refresh rather than to every release. Same resolved per-arch refs as the
+  # other three gates.
+  if [ "$FS_DELTA" = on ]; then
+    fs_from "$new_ref"  "$arch" "$OUT/fs-new-$arch.txt"
+    fs_from "$base_ref" "$arch" "$OUT/fs-old-$arch.txt"
+    diff -u "$OUT/fs-old-$arch.txt" "$OUT/fs-new-$arch.txt" \
+      > "$OUT/fs-diff-$arch.txt" || true
+
+    # The three assertions T-0641 names, computed from the two file lists.
+    #
+    # Kept SEPARATE from the raw diff on purpose. The raw diff of a base-layer
+    # refresh is legitimately long -- an `apk upgrade` rewrites every file of
+    # every upgraded package -- so a reviewer handed only that diff reads a few
+    # hundred lines of ordinary churn and learns nothing. These three extracts
+    # are the rows that cannot be ordinary, and they are what the gate asserts
+    # on; the full diff is kept as the reviewable record behind them.
+
+    # a) New or changed files under the trust stores. This is the row that
+    #    matters most for this image: six public-facing edge proxies that
+    #    terminate TLS and call a DNS provider's API for DNS-01, so a root CA
+    #    added here buys silent MITM of both. Any added OR modified line under
+    #    either store counts -- a REPLACED ca-certificates.crt is the same
+    #    attack as an added one, and only the added side of the diff would miss
+    #    it being swapped rather than appended.
+    #    NOTE THE ABSENT LEADING SLASH. `tar -tv` emits archive member names
+    #    relative to the archive root -- `etc/ssl/certs/foo`, not
+    #    `/etc/ssl/certs/foo`. An anchored `/etc/ssl/certs/` pattern therefore
+    #    matches NOTHING, which is a silently empty assertion rather than a
+    #    failure: measured on the added-CA variant, this row reported 0 while
+    #    the certificate was plainly in the diff, and only the new-path check
+    #    (c) caught it. A REPLACED ca-certificates.crt is not a new path, so
+    #    with that spelling it would have passed the whole gate. The optional
+    #    leading slash keeps the intent if the list is ever produced some
+    #    other way.
+    #
+    #    The diff line is `+<path> <mode> <size>`, so the path follows the `+`
+    #    directly. Anchored there rather than matched loosely, so a path that
+    #    merely CONTAINS one of these strings further along cannot satisfy it.
+    #
+    #    THE PATH SET IS THE WHOLE ASSERTION, AND IT WAS WRONG ONCE. On this
+    #    image `/etc/ssl/certs/*.pem` are SYMLINKS; the certificate bytes live
+    #    in `/usr/share/ca-certificates/mozilla/` (237 entries, measured on
+    #    :stable). An earlier spelling covered only etc/ssl/certs,
+    #    usr/local/share/ca-certificates and etc/ca-certificates, so
+    #    overwriting a Mozilla root in place -- the real trust anchor, reached
+    #    through both `/etc/ssl/certs/ca-cert-<name>.pem` and the `<hash>.0`
+    #    links -- changed no watched path, added no path, and the gate returned
+    #    exit 0 / verdict=unchanged while the summary stated the filesystem was
+    #    unchanged. Found by security review with a working end-to-end fixture.
+    #    That is worse than having no gate, because the summary affirms a
+    #    property that does not hold.
+    #
+    #    So: enumerate every location that can supply a trust anchor to this
+    #    image, not the ones a cert is conventionally INSTALLED to.
+    #      usr/share/ca-certificates/        where the bytes actually are
+    #      etc/ssl/certs/                    the symlink farm + the bundle
+    #      etc/ssl/cert.pem                  symlink, in Go's x509 fallback list
+    #      etc/ssl/ca-bundle.pem, etc/ssl1.1/, etc/pki/   other distro spellings
+    #      usr/local/share/ca-certificates/  the admin drop-in dir
+    #      etc/ca-certificates.conf, etc/ca-certificates/  which certs are TRUSTED
+    #    The last pair is policy rather than material: editing the .conf alone
+    #    changes what the bundle is rebuilt from.
+    #
+    #    THE THREE WHOLE-FILE ENTRIES ARE TERMINATED WITH A TAB, the directory
+    #    prefixes are not. Since fs_from emits `path<TAB>mode<TAB>size<TAB>target`
+    #    (T-0784), the tab is the end of the path, so `etc/ssl/cert\.pem\t`
+    #    cannot also be satisfied by `etc/ssl/cert.pem.attacker-suffix`. Under
+    #    the old space-separated format these three were unterminated, which is
+    #    the same unbounded-bare-name shape that was a real bypass in
+    #    FS_ALLOW_DEFAULT above -- harmless in an allowlist's mirror image
+    #    (it over-matches INTO the assertion, i.e. toward blocking) but wrong,
+    #    and worth fixing while the format is changing anyway.
+    #    The tab is spelled as a LITERAL via $'...' so this stays `grep -E`.
+    #    `\t` is a PCRE escape, not a POSIX ERE one: `grep -E '\t'` matches a
+    #    literal `t` on a GNU grep, so the pattern would have silently matched
+    #    nothing after the path -- a quietly empty assertion, which is the one
+    #    failure shape this gate is most carefully hardened against.
+    grep -E '^\+' "$OUT/fs-diff-$arch.txt" | grep -v '^+++' \
+      | grep -E $'^\\+/?(usr/share/ca-certificates/|usr/local/share/ca-certificates/|etc/ssl/certs/|etc/ssl/cert\\.pem\t|etc/ssl/ca-bundle\\.pem\t|etc/ssl1\\.1/|etc/pki/|etc/ca-certificates\\.conf\t|etc/ca-certificates/)' \
+      > "$OUT/fs-ca-$arch.txt" || true
+
+    # b) Any setuid/setgid bit on the new side that the baseline does not have
+    #    at the same path. tar renders these as `s` or `S` in the user/group
+    #    execute position, so the MODE field is matched rather than the path.
+    #
+    #    The size field is stripped before comparing. A setuid binary that is
+    #    legitimately rebuilt changes length, and keeping size on the line
+    #    would make that read as "a new setuid entry" every time -- the
+    #    always-on signal that gets a check ignored. Mode+path is the question
+    #    being asked here; the size change is still in the raw diff.
+    #
+    #    PATH AND MODE ARE READ AS TAB COLUMNS ($1 and $2), not reconstructed
+    #    by counting fields from the end. The field-counting spelling put a
+    #    forged mode inside the rebuilt path on any filename containing a
+    #    space -- see the contract note on fs_from (T-0784). A tab cannot
+    #    appear in either column, so the split is unambiguous.
+    #
+    #    MATCHES BOTH MODE RENDERINGS. GNU tar prints symbolic modes
+    #    (-rwsr-xr-x) and that is what ubuntu-latest gives us, but a `[sS]`
+    #    test against a tar that prints the NUMERIC permission word (04755)
+    #    matches nothing -- and an assertion that matches nothing reports zero
+    #    setuid entries, i.e. it reads as clean rather than as broken. That is
+    #    the silent-empty-assertion shape this script is hardened against
+    #    elsewhere, so the numeric form is matched too: a leading 2, 4 or 6 in
+    #    the four/five-digit word is setgid/setuid/both.
+    suid_of() {
+      awk -F'\t' '{
+        path = $1
+        mode = $2
+        if (mode !~ /[sS]/ && mode !~ /^0?[2467][0-7][0-7][0-7]$/) next
+        printf "%s\t%s\n", path, mode
+      }' "$1" | LC_ALL=C sort -u
+    }
+    suid_of "$OUT/fs-new-$arch.txt" > "$OUT/fs-suid-new-$arch.txt" || true
+    suid_of "$OUT/fs-old-$arch.txt" > "$OUT/fs-suid-old-$arch.txt" || true
+    # LC_ALL=C ON THE COMM, NOT JUST THE SORT. The inputs above are built with
+    # `LC_ALL=C sort`, but `comm` inherits the runner's locale, and it requires
+    # input sorted in ITS OWN collation. C and en_US.UTF-8 order real paths from
+    # this image differently (punctuation-leading names such as `.dockerenv`
+    # move), and on mis-ordered input comm SILENTLY DROPS entries rather than
+    # failing -- so a genuinely new setuid entry can vanish from the difference.
+    # Not hypothetical: runs of this gate emitted "comm: file 1 is not in sorted
+    # order" / "comm: input is not in sorted order" to stderr, where the `|| true`
+    # meant nothing acted on it. Pinning both sides to C makes the sort that
+    # produces the file and the comm that reads it agree by construction.
+    LC_ALL=C comm -23 "$OUT/fs-suid-new-$arch.txt" "$OUT/fs-suid-old-$arch.txt" \
+      > "$OUT/fs-suid-$arch.txt" || true
+
+    # c) New paths outside the allowlist. Compared on PATH only, so a file the
+    #    baseline already has whose contents changed is not reported here --
+    #    that is base-layer churn, and it is caught by the size field in the
+    #    raw diff and by assertion (a) when it is a trust-store file.
+    #    A genuinely NEW path is the `COPY`/`ADD`/`curl | sh` row.
+    #
+    #    The path is the FIRST TAB COLUMN. It is taken as a column rather than
+    #    rebuilt from all-but-the-last-two fields, because the latter folded a
+    #    symlink's target into the key: repointing one of the 236 symlinks
+    #    under etc/ssl/certs/ then read as one removed path plus one added
+    #    path, which trains a reviewer to skim exactly this assertion. A
+    #    repoint is now a target-column change on an unchanged path, so it is
+    #    correctly absent here and visible in the raw diff (T-0784).
+    paths_of() {
+      awk -F'\t' '{ print $1 }' "$1" | LC_ALL=C sort -u
+    }
+    paths_of "$OUT/fs-new-$arch.txt" > "$OUT/fs-paths-new-$arch.txt"
+    paths_of "$OUT/fs-old-$arch.txt" > "$OUT/fs-paths-old-$arch.txt"
+    # Same collation pinning as (b) above, for the same reason.
+    LC_ALL=C comm -23 "$OUT/fs-paths-new-$arch.txt" "$OUT/fs-paths-old-$arch.txt" \
+      | grep -Ev "$FS_ALLOW_RE" > "$OUT/fs-newpaths-$arch.txt" || true
+
+    echo "filesystem delta (linux/$arch): $(wc -l < "$OUT/fs-newpaths-$arch.txt" | tr -d ' ') new path(s) outside the allowlist, $(wc -l < "$OUT/fs-suid-$arch.txt" | tr -d ' ') new setuid/setgid entr(ies), $(wc -l < "$OUT/fs-ca-$arch.txt" | tr -d ' ') trust-store change(s)"
+  fi
+
   echo "::endgroup::"
 done
 
@@ -767,12 +1458,32 @@ added_total=0
 removed_total=0
 moddrift=0
 cfgdrift=0
+trustenv_total=0
+fsdrift=0
+fs_newpaths_total=0
+fs_suid_total=0
+fs_ca_total=0
 for arch in $ARCHES; do
   added_total=$(( added_total + $(wc -l < "$OUT/added-$arch.ids") ))
   removed_total=$(( removed_total + $(wc -l < "$OUT/removed-$arch.ids") ))
   [ -s "$OUT/mods-diff-$arch.txt" ] && moddrift=1
   [ -s "$OUT/cfg-diff-$arch.txt" ] && cfgdrift=1
+  trustenv_total=$(( trustenv_total + $(wc -l < "$OUT/cfg-trustenv-$arch.txt") ))
+  # Gate 4 keys on the three ASSERTIONS, not on the raw diff being non-empty.
+  # A base-layer refresh legitimately rewrites hundreds of files, so a raw-diff
+  # trigger would fire on every single run and the gate would be switched off
+  # inside a month -- the same reasoning the package-count floor uses for being
+  # deliberately loose.
+  if [ "$FS_DELTA" = on ]; then
+    fs_newpaths_total=$(( fs_newpaths_total + $(wc -l < "$OUT/fs-newpaths-$arch.txt") ))
+    fs_suid_total=$((     fs_suid_total     + $(wc -l < "$OUT/fs-suid-$arch.txt") ))
+    fs_ca_total=$((       fs_ca_total       + $(wc -l < "$OUT/fs-ca-$arch.txt") ))
+  fi
 done
+if [ "$FS_DELTA" = on ] \
+   && { [ "$fs_newpaths_total" -gt 0 ] || [ "$fs_suid_total" -gt 0 ] || [ "$fs_ca_total" -gt 0 ]; }; then
+  fsdrift=1
+fi
 
 # Gates 2 and 3 contribute to the verdict only under the block policy. Under
 # report the drift is still measured, still diffed and still printed below — it
@@ -787,7 +1498,27 @@ if [ "$cfgdrift" -eq 1 ] && [ "$DRIFT_POLICY" = block ]; then
   cfg_blocks=1
 fi
 
-if [ "$added_total" -gt 0 ] || [ "$drift_blocks" -eq 1 ] || [ "$cfg_blocks" -eq 1 ]; then
+# The trust-redirecting subset of gate 3 blocks under BOTH policies, so it is
+# NOT gated on $DRIFT_POLICY. This is the only assertion in the script that
+# ignores the caller's strictness dial, and it does so deliberately: `report`
+# exists to let a release change configuration, not to let it change who the
+# binary trusts. See the trust_env_of block above and gate 3's header.
+#
+# Kept as its own variable rather than folded into cfg_blocks so the verdict
+# reason stays legible in the summary below -- a reader needs to know that the
+# block came from this specific class and not from config drift generally,
+# because the remedy is completely different.
+trustenv_blocks=0
+if [ "$trustenv_total" -gt 0 ]; then
+  trustenv_blocks=1
+fi
+fs_blocks=0
+if [ "$fsdrift" -eq 1 ] && [ "$DRIFT_POLICY" = block ]; then
+  fs_blocks=1
+fi
+
+if [ "$added_total" -gt 0 ] || [ "$drift_blocks" -eq 1 ] || [ "$cfg_blocks" -eq 1 ] \
+   || [ "$trustenv_blocks" -eq 1 ] || [ "$fs_blocks" -eq 1 ]; then
   verdict=blocked
 elif [ "$removed_total" -gt 0 ]; then
   verdict=improved
@@ -845,6 +1576,38 @@ fi
     fi
   done
   echo "$row"
+  # The trust-redirecting subset gets its OWN row rather than being folded into
+  # the config row above, because it carries a different verdict rule: that row
+  # reads "yes (review)" under `report`, and this one never does. A reader
+  # scanning the table must not have to know that one of the lines inside a
+  # "review" diff was in fact blocking.
+  row='| TLS trust env |'
+  for arch in $ARCHES; do
+    if [ -s "$OUT/cfg-trustenv-$arch.txt" ]; then
+      row+=' **yes (blocking)** |'
+    else
+      row+=' none |'
+    fi
+  done
+  echo "$row"
+  # Only emit the filesystem row when the gate actually ran. A row reading
+  # "none" for a check that was never performed is worse than no row: it is an
+  # assurance the gate did not earn, and this summary is the artifact a
+  # reviewer approves from.
+  if [ "$FS_DELTA" = on ]; then
+    row='| filesystem delta |'
+    for arch in $ARCHES; do
+      if [ -s "$OUT/fs-newpaths-$arch.txt" ] || [ -s "$OUT/fs-suid-$arch.txt" ] \
+         || [ -s "$OUT/fs-ca-$arch.txt" ]; then
+        if [ "$DRIFT_POLICY" = block ]; then row+=' **yes** |'; else row+=' yes (review) |'; fi
+      else
+        row+=' none |'
+      fi
+    done
+    echo "$row"
+  else
+    echo "| filesystem delta | $(for _ in $ARCHES; do printf 'not checked |'; done)"
+  fi
   echo
 
   if [ "$added_total" -gt 0 ]; then
@@ -894,6 +1657,47 @@ fi
     done
   fi
 
+  # Printed BEFORE the general config section, and unconditionally on both
+  # policies, because it is the one config finding whose verdict does not
+  # depend on the path. Under `report` the section below it opens with "this is
+  # allowed to ship", and a reader who met that sentence first would carry the
+  # wrong frame into this one.
+  if [ "$trustenv_blocks" -eq 1 ]; then
+    echo "**Gate 3 FAILED — the image introduces or changes a variable that redirects TLS trust.** This blocks under BOTH drift policies, including on the release path."
+    echo
+    echo "\`SSL_CERT_FILE\` and \`SSL_CERT_DIR\` decide where this binary looks for its trust roots; \`AWS_CA_BUNDLE\` does the same for the AWS SDK linked by \`caddy-dns/route53\`, which holds the DNS-01 credential that issues this fleet's certificates; and \`GODEBUG\` can change how the root pool is built at all. Pointed at a path an attacker controls, they redirect **every outbound TLS connection this image makes** — ACME issuance and the DNS provider's API — with **no filesystem delta at all**, because the file named can be one the image already legitimately contains. Gate 1 sees no new CVE, gate 2 sees no module change, and gate 4 sees no added file, so nothing else here reports it."
+    echo
+    echo "That is the same silent-interception outcome the trust-store rows of gate 4 exist to prevent, reached through configuration instead of through files — so it is asserted on the same way, rather than merely printed. A release is allowed to change \`EXPOSE\`, \`WORKDIR\` or an ordinary \`ENV\`; it is not allowed to change who the binary trusts."
+    echo
+    # DERIVED, not asserted. The code deliberately outlives the claim that
+    # these variables are absent: `comm -23` compares whole lines, so a
+    # legitimately-introduced and published variable lands on both sides,
+    # cancels, and only a CHANGE to it blocks thereafter. A hardcoded "none of
+    # these is present" would keep printing after that day and tell the
+    # approver a modification was an addition -- in the one artifact they
+    # approve the release from. So ask the baseline extract instead.
+    baseline_had_any=no
+    for arch in $ARCHES; do
+      [ -s "$OUT/cfg-trustenv-old-$arch.txt" ] && baseline_had_any=yes
+    done
+    if [ "$baseline_had_any" = no ]; then
+      echo "**None of these variables is present in the published image**, so there is no legitimate existing value being compared against: any line below is new. If this was deliberate, it needs a reviewed decision of its own and a change to this gate — not a tag move."
+    else
+      echo "The published image already carries at least one of these variables, so a line below is either a NEW variable or a CHANGE to an existing one — check which against the baseline extract in the artifacts. Either way it needs a reviewed decision of its own, not a tag move."
+    fi
+    echo
+    for arch in $ARCHES; do
+      if [ -s "$OUT/cfg-trustenv-$arch.txt" ]; then
+        echo "Introduced or changed, linux/$arch:"
+        echo
+        echo '```'
+        cat "$OUT/cfg-trustenv-$arch.txt"
+        echo '```'
+        echo
+      fi
+    done
+  fi
+
   if [ "$cfgdrift" -eq 1 ] && [ "$DRIFT_POLICY" = block ]; then
     echo "**Gate 3 FAILED — the image's execution configuration changed.** A refresh may change the OS layer and nothing else."
     echo
@@ -902,7 +1706,9 @@ fi
   elif [ "$cfgdrift" -eq 1 ]; then
     echo "**Image configuration changed — reported, not blocked.** This is the release path, where a deliberate \`EXPOSE\`, \`WORKDIR\` or \`ENV\` edit is allowed to ship."
     echo
-    echo "Read this one closely even so. Gates 1 and 2 cover the image's *contents* — its packages and its linked Go modules — and neither sees how those contents are **executed**. \`USER root\`, an \`ENTRYPOINT\` repointed at a wrapper that runs something before exec'ing caddy, or an added \`HTTP_PROXY\`/\`SSL_CERT_FILE\` passes both of them untouched: same packages, same modules, no CVE moved. If you did not intend a line below, do not move \`:stable\`."
+    echo "Read this one closely even so. Gates 1 and 2 cover the image's *contents* — its packages and its linked Go modules — and neither sees how those contents are **executed**. \`USER root\`, an \`ENTRYPOINT\` repointed at a wrapper that runs something before exec'ing caddy, or an added \`HTTP_PROXY\` passes both of them untouched: same packages, same modules, no CVE moved. If you did not intend a line below, do not move \`:stable\`."
+    echo
+    echo "The trust-redirecting variables (\`SSL_CERT_FILE\`, \`SSL_CERT_DIR\`, \`AWS_CA_BUNDLE\`, \`CURL_CA_BUNDLE\`, \`REQUESTS_CA_BUNDLE\`, \`GIT_SSL_CAINFO\`, \`NODE_EXTRA_CA_CERTS\`, \`GODEBUG\`) are the exception to this section: they are **blocking** on this path too, and are reported separately above rather than left in this diff for a reader to notice."
     echo
   fi
 
@@ -921,20 +1727,110 @@ fi
     done
   fi
 
+  if [ "$fsdrift" -eq 1 ] && [ "$DRIFT_POLICY" = block ]; then
+    echo "**Gate 4 FAILED — the image's filesystem gained files the published image does not have.** A refresh may change the OS layer and nothing else."
+    echo
+    echo "Gates 1-3 read the image's packages, its linked Go modules and its execution configuration. None of them sees a file that is simply **added** and carries no CVE: an extra script or binary, a root CA dropped into the trust store, or a setuid bit. This gate diffs the flattened filesystem (\`docker export\`) of both sides and asserts on the three shapes that cannot be ordinary base-layer churn."
+    echo
+  elif [ "$fsdrift" -eq 1 ]; then
+    echo "**Filesystem changed — reported, not blocked.** This is the release path, where adding a file can be a deliberate part of a release."
+    echo
+    echo "Read the rows below regardless. A new root CA under \`/etc/ssl/certs\` is the one that matters most for this image: these are TLS-terminating edge proxies that call a DNS provider's API for DNS-01, so a CA added here buys silent interception of both ACME issuance and that API traffic — with no CVE, no module change and no config change to show for it."
+    echo
+  fi
+
+  if [ "$fsdrift" -eq 1 ]; then
+    for arch in $ARCHES; do
+      # fs_from emits tab-separated columns (T-0784), so these two extracts
+      # carry tabs. Rendered through `column -t` with an explicit header, since
+      # a raw tab inside a code fence lands wherever the next tab stop happens
+      # to be and the whole point of the column format is that a reviewer can
+      # see WHICH field moved. `column` is from util-linux and is present on
+      # ubuntu-latest; if it is ever missing, `|| cat` keeps the rows rather
+      # than emitting an empty block over a non-empty assertion.
+      if [ -s "$OUT/fs-ca-$arch.txt" ]; then
+        echo "**Trust store changed, linux/$arch** — an added or replaced CA here is trusted by every outbound TLS connection this proxy makes:"
+        echo
+        echo '```'
+        { printf '%s\t%s\t%s\t%s\n' 'PATH' 'MODE' 'SIZE' 'LINK-TARGET'
+          cat "$OUT/fs-ca-$arch.txt"
+        } | column -t -s $'\t' 2>/dev/null || cat "$OUT/fs-ca-$arch.txt"
+        echo '```'
+        echo
+      fi
+      if [ -s "$OUT/fs-suid-$arch.txt" ]; then
+        echo "**New setuid/setgid entries, linux/$arch** — present in the rebuild, absent from the published image at the same path and mode:"
+        echo
+        echo '```'
+        { printf '%s\t%s\n' 'PATH' 'MODE'
+          cat "$OUT/fs-suid-$arch.txt"
+        } | column -t -s $'\t' 2>/dev/null || cat "$OUT/fs-suid-$arch.txt"
+        echo '```'
+        echo
+      fi
+      if [ -s "$OUT/fs-newpaths-$arch.txt" ]; then
+        echo "<details><summary>New paths outside the allowlist, linux/$arch ($(wc -l < "$OUT/fs-newpaths-$arch.txt" | tr -d ' '))</summary>"
+        echo
+        echo '```'
+        cat "$OUT/fs-newpaths-$arch.txt"
+        echo '```'
+        echo
+        echo "</details>"
+        echo
+      fi
+      if [ -s "$OUT/fs-diff-$arch.txt" ]; then
+        echo "<details><summary>Full filesystem diff, linux/$arch (published → rebuilt) — includes ordinary <code>apk upgrade</code> churn</summary>"
+        echo
+        echo '```diff'
+        cat "$OUT/fs-diff-$arch.txt"
+        echo '```'
+        echo
+        echo "</details>"
+        echo
+      fi
+    done
+  fi
+
   if [ "$verdict" != blocked ]; then
     # Say which of the two drift gates were quiet, rather than asserting both.
     # The old wording claimed "the module set is unchanged" whenever gate 2 was
     # quiet, which under `report` would now be printed over an unmentioned
     # config change -- a reassurance the gate had not actually earned.
-    if [ "$moddrift" -eq 1 ] && [ "$cfgdrift" -eq 1 ]; then
-      echo "No new findings: every vulnerability in the new image is already present in the baseline image, against the same package. The module set and the image configuration both changed; both are diffed above and both need reading."
-    elif [ "$moddrift" -eq 1 ]; then
-      echo "No new findings: every vulnerability in the new image is already present in the baseline image, against the same package. The module set changed, which is expected here and is diffed above; the image configuration is unchanged."
-    elif [ "$cfgdrift" -eq 1 ]; then
-      echo "No new findings, and the module set is unchanged: every vulnerability in the rebuilt image is already present in the published image, against the same package. The image **configuration** changed, which is diffed above and needs reading."
-    else
-      echo "No new findings, and neither the module set nor the image configuration changed: every vulnerability in the rebuilt image is already present in the published image, against the same package."
+    # Name every gate that was quiet, and never claim a gate was quiet when it
+    # did not run. The reassurance is assembled from the gates that actually
+    # reported, for the reason the old two-gate wording was fixed in 29de334:
+    # a blanket "nothing changed" printed over an unmentioned change is a
+    # reassurance the gate has not earned, and under `report` this summary is
+    # the whole basis for approving the release.
+    quiet=""
+    [ "$moddrift" -eq 0 ] && quiet="$quiet the module set,"
+    # Named separately from "the image configuration" because it is checked
+    # separately: under `report` the config diff can be non-empty (so not
+    # listed as quiet) while this assertion still passed, and that IS a
+    # reassurance worth stating -- the release changed config but did not touch
+    # TLS trust. Only claimed when the assertion actually came out empty.
+    #
+    # Not mirrored on the `noisy` side below: this block only runs when the
+    # verdict is NOT blocked, and a non-empty trust-env extract forces
+    # `blocked` under both policies, so trustenv_total is necessarily 0 here.
+    # A `noisy` entry for it would be unreachable rather than merely redundant.
+    [ "$trustenv_total" -eq 0 ] && quiet="$quiet the TLS trust environment,"
+    [ "$cfgdrift" -eq 0 ] && quiet="$quiet the image configuration,"
+    [ "$FS_DELTA" = on ] && [ "$fsdrift" -eq 0 ] && quiet="$quiet the filesystem,"
+    noisy=""
+    [ "$moddrift" -eq 1 ] && noisy="$noisy the module set,"
+    [ "$cfgdrift" -eq 1 ] && noisy="$noisy the image configuration,"
+    [ "$FS_DELTA" = on ] && [ "$fsdrift" -eq 1 ] && noisy="$noisy the filesystem,"
+    quiet="${quiet# }"; quiet="${quiet%,}"
+    noisy="${noisy# }"; noisy="${noisy%,}"
+
+    printf '%s' "No new findings: every vulnerability in the rebuilt image is already present in the published image, against the same package."
+    [ -n "$quiet" ] && printf ' Unchanged: %s.' "$quiet"
+    [ -n "$noisy" ] && printf ' **Changed and diffed above, needs reading: %s.**' "$noisy"
+    if [ "$FS_DELTA" != on ]; then
+      printf '%s' " The filesystem was **not checked** (\`FS_DELTA=off\`), so this verdict says nothing about files added to the image."
     fi
+    printf '\n'
     echo
 
     # What "no new findings" is NOT evidence of.
@@ -1023,6 +1919,17 @@ if [ -n "${GITHUB_OUTPUT:-}" ]; then
     echo "removed_count=$removed_total"
     echo "module_drift=$moddrift"
     echo "config_drift=$cfgdrift"
+    # A COUNT, not a 0/1 flag, and reported separately from config_drift: a
+    # caller must be able to tell "config changed but trust did not" from
+    # "trust was redirected", because only the second one is blocking under
+    # `report`. Folding it into config_drift would lose exactly the
+    # distinction this check exists to draw.
+    echo "trust_env_changes=$trustenv_total"
+    echo "fs_delta=$FS_DELTA"
+    echo "fs_drift=$fsdrift"
+    echo "fs_new_paths=$fs_newpaths_total"
+    echo "fs_new_suid=$fs_suid_total"
+    echo "fs_ca_changes=$fs_ca_total"
     echo "module_drift_policy=$DRIFT_POLICY"
     echo "summary<<$SUMMARY_DELIM"
     cat "$OUT/summary.md"
