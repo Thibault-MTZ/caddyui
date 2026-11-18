@@ -1,0 +1,1050 @@
+# Rebuild applegater/caddyui-caddy on a schedule so Alpine security fixes
+# actually ship, and publish the result only after a human looks at it.
+#
+# Why this exists
+# ---------------
+# release-docker.yml rebuilds the Caddy image only when Dockerfile.caddy
+# changed since the previous release tag. That is the right rule for the
+# *module set* — a blind rebuild can bump xcaddy plugins under everyone who
+# pulls :stable — but it means the image's Alpine layer only moves when
+# someone edits that file. Dockerfile.caddy's final stage runs
+# `apk upgrade --no-cache`, so between releases the fix exists upstream and
+# is never built: available, but unshipped. This workflow closes that gap on
+# a timer instead of waiting for an unrelated code change.
+#
+# What -pN means, precisely
+# -------------------------
+# A refresh publishes vX.Y.Z-pN, where vX.Y.Z is the newest release tag and N
+# counts refreshes of that release (p1, p2, …). N is monotonic and
+# collision-free, which a date is not — two builds on one day collide, and a
+# republish after a failed push needs a suffix anyway. The build date lives in
+# the OCI label org.opencontainers.image.created, where it belongs.
+#
+# -pN is built from the vX.Y.Z TAG, not from the branch: both jobs check out
+# that tag, so the Dockerfile that produced vX.Y.Z is the Dockerfile that
+# produces its refreshes. Building main's file and labelling it "identical to
+# vX.Y.Z" would be a lie as soon as Dockerfile.caddy moved on main.
+#
+# "Only the base layer moved" is ENFORCED, not assumed. Every --with argument
+# in Dockerfile.caddy now carries a version (pinned in v2.68.9), so plugins no
+# longer resolve to latest on each build. That removes the drift at its source
+# but does not make the check redundant: a resolver, toolchain or xcaddy change
+# can still move a module without changing any CVE, and a CVE-ID comparison
+# would not notice, because a plugin bump with no new CVE looks clean. So the
+# gate independently diffs
+# `caddy list-modules --versions` between the published image and the rebuild
+# and BLOCKS on any difference. A plugin bump is then a deliberate act —
+# edit Dockerfile.caddy and cut a release, which is what release-docker.yml
+# is for — rather than something this workflow does by accident.
+#
+# PINNING HAS A SECOND HALF, and it is the watch-pins job below. A pin that
+# never moves also never receives a plugin's security fix: while a --with was
+# unpinned it at least picked one up by accident on the next rebuild. Nothing
+# else in this repo watches those pins — Dependabot's `docker` ecosystem sees
+# only `FROM` lines and its `gomod` ecosystem only `go.mod`, so neither parses
+# an xcaddy `--with` argument out of a `RUN` line. That gap was not
+# theoretical: caddy-l4 was already a release behind on the day it was pinned.
+# watch-pins reports staleness and advisories and deliberately changes
+# nothing, because a plugin bump belongs in a reviewed release (T-0622).
+#
+# NOT reproducible builds. `apk upgrade --no-cache` is unpinned by design, so
+# two runs a week apart produce different images from the same source. The
+# image is reproducible *by digest* — a digest names exactly one artifact —
+# but it is not bit-for-bit rebuildable from the Dockerfile alone. That
+# stronger property needs explicit Alpine package pinning, which is separate
+# and much larger work.
+#
+# Four jobs, four concerns
+# ------------------------
+#   build-scan  Scheduled. NO secrets, no registry credentials, no write
+#               permissions. Rebuilds both arches and runs Trivy on both.
+#               Clean + nothing new = ends silently. A workflow with no
+#               secrets is the one that can be trusted to run unattended;
+#               keep it that way.
+#   publish     Gated on the `caddy-image-publish` environment (required
+#               reviewer). Holds the Hub credentials. It necessarily BUILDS
+#               AGAIN — a reviewer may approve days later, and `apk upgrade`
+#               is unpinned, so the second build can differ from the scanned
+#               one. It therefore RE-RUNS the full gate against the pushed
+#               digest before moving :stable/:latest, and aborts leaving only
+#               the immutable -pN tag behind if that build regressed. The
+#               moving tags are then only ever moved to bytes that passed the
+#               gate, which is the property that actually protects the boxes.
+#   watch-pins  Scheduled, NO secrets, independent of the build. Checks every
+#               pinned --with argument against proxy.golang.org and OSV. It
+#               never blocks publish: a stale plugin is not a reason to refuse
+#               an Alpine security fix, and conflating the two would mean one
+#               stale pin held every future refresh hostage.
+#   alert       Opens exactly ONE issue when a human is needed, and comments
+#               on it instead of opening a second.
+#
+# The strict-subset gate
+# ----------------------
+# Publish requires the new image's findings to be a SUBSET of the
+# currently-published image's findings. Not "zero findings" — the published
+# image has always carried GO-2026-5932 (x/crypto/openpgp unmaintained, no
+# fix available, not reached by the binary), and a zero-findings rule would
+# mean this pipeline could never publish anything. The rule is "no NEW
+# findings": a rebuild that *removes* CVEs publishes, a rebuild that
+# *introduces* one stops and alerts. That is the whole point — an unattended
+# rebuild of an unpinned `apk upgrade` can regress, and the gate is what
+# makes that safe to automate.
+#
+# Setup, once, by a repo admin
+# ----------------------------
+# Settings -> Environments -> New environment:
+#   Name:              caddy-image-publish
+#   Required reviewers: @X4Applegate  (tick "Required reviewers")
+#   Secrets (on the environment, not the repo):
+#     DOCKERHUB_TOKEN      Docker Hub PAT, scope "Read & Write"
+#
+# DOCKERHUB_USERNAME is NOT here. It is a repository VARIABLE
+# (Settings -> Secrets and variables -> Actions -> Variables), shared with
+# release-docker.yml, because a public namespace is not a secret and
+# classifying it as one is what made GitHub mask it - see the `IMAGE` note
+# below and T-0777. A repo variable resolves inside an environment job, so the
+# publish job below reads it with no per-environment copy; keeping one copy
+# also removes the chance of the two drifting apart.
+#
+# Until the environment exists, build-scan still runs and scans on schedule;
+# publish is never reachable without a manual dispatch, and would fail at the
+# login step rather than push anything.
+#
+# Every `uses:` is pinned to a commit SHA with its release as a trailing
+# comment, matching release-docker.yml. Dependabot's github-actions ecosystem
+# moves the SHA and the comment together.
+name: Caddy image refresh
+
+on:
+  schedule:
+    # Mondays 07:00 UTC — after the week's Alpine/Caddy updates have landed
+    # and before Dependabot's Monday gomod PR, so a human reviewing one is
+    # looking at the other's result too.
+    - cron: "0 7 * * 1"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Request publish (still waits for the environment reviewer)"
+        required: false
+        type: boolean
+        default: false
+      force_alert:
+        description: "Open/comment on the alert issue even if the scan is clean (test the alert path)"
+        required: false
+        type: boolean
+        default: false
+
+# Default-deny. Each job widens only what it needs.
+permissions:
+  contents: read
+
+concurrency:
+  group: caddy-image-refresh
+  cancel-in-progress: false
+
+env:
+  # The published image name, spelled out literally rather than built from
+  # DOCKERHUB_USERNAME. The original reason was that GitHub drops any job
+  # output containing a secret value and "applegater" WAS that secret, so a
+  # tag list built from it arrived empty in the next job; T-0777 made the
+  # username a variable, so that no longer applies. Kept literal anyway: it
+  # is a constant that belongs in one obvious place, and it keeps this value
+  # independent of whether a variable happens to be set on a given run.
+  # release-docker.yml documents the original trap.
+  IMAGE: applegater/caddyui-caddy
+  TRIVY_SEVERITY: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1. build-scan — unattended, no secrets, no credentials, read-only token.
+  # ---------------------------------------------------------------------------
+  build-scan:
+    name: Build and scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      patch_tag: ${{ steps.plan.outputs.patch_tag }}
+      baseline: ${{ steps.plan.outputs.baseline }}
+      verdict: ${{ steps.gate.outputs.verdict }}
+      summary: ${{ steps.gate.outputs.summary }}
+    steps:
+      # Full history and tags: the release tag is needed to work out the
+      # version, and the build then re-checks-out that exact tag.
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      # Work out which release this refresh belongs to and what the next -pN
+      # is, by reading the registry rather than guessing: N is derived from the
+      # tags that already exist, so a re-run after a failed push picks the same
+      # number and a successful one moves on.
+      - name: Work out version and next -pN
+        id: plan
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          stable_re='^v[0-9]+\.[0-9]+\.[0-9]+$'
+          version="$(git tag --list 'v*' | grep -E "$stable_re" | sort -V | tail -1)"
+          if [ -z "$version" ]; then
+            echo "::error::no vX.Y.Z release tag found; nothing to refresh"
+            exit 1
+          fi
+
+          # Highest existing -pN for this version, from Docker Hub's tag list.
+          # A missing repo/tag page is not an error here: p1 is then correct.
+          page="https://hub.docker.com/v2/repositories/${IMAGE}/tags?page_size=100"
+          highest=0
+          for _ in 1 2 3 4 5; do
+            body="$(curl -fsS "$page" 2>/dev/null || true)"
+            [ -n "$body" ] || break
+            while read -r n; do
+              [ -n "$n" ] || continue
+              if [[ "$n" =~ ^${version}-p([0-9]+)$ ]]; then
+                cur="${BASH_REMATCH[1]}"
+                [ "$cur" -gt "$highest" ] && highest="$cur"
+              fi
+            done < <(jq -r '.results[]?.name // empty' <<<"$body")
+            page="$(jq -r '.next // empty' <<<"$body")"
+            [ -n "$page" ] || break
+          done
+
+          next=$((highest + 1))
+          patch_tag="${version}-p${next}"
+
+          {
+            echo "version=$version"
+            echo "patch_tag=$patch_tag"
+            echo "baseline=${IMAGE}:stable"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "refreshing $version -> $patch_tag (highest existing -pN: $highest)"
+
+      # The BUILD INPUTS come from the tag; the TOOLING comes from this ref.
+      #
+      # Those are two different things and conflating them is a bug: -pN claims
+      # "same source as vX.Y.Z", so Dockerfile.caddy must be the tag's, but the
+      # gate script only exists on the branch that introduces it — no release
+      # tag cut before this workflow contains it. Checking out the tag over the
+      # whole tree therefore DELETES the gate, and the job would fail on every
+      # run until some future release happened to carry it.
+      #
+      # So the script is copied to RUNNER_TEMP first and invoked from there,
+      # outside the working tree the tag checkout rewrites.
+      - name: Stage the gate script outside the working tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          [ -x scripts/caddy-image-gate.sh ] \
+            || { echo "::error::scripts/caddy-image-gate.sh is missing or not executable on this ref"; exit 1; }
+          cp scripts/caddy-image-gate.sh "$RUNNER_TEMP/caddy-image-gate.sh"
+          chmod +x "$RUNNER_TEMP/caddy-image-gate.sh"
+
+      - name: Check out the release tag being refreshed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout --quiet --detach "refs/tags/${{ steps.plan.outputs.version }}"
+          echo "building $(git rev-parse --short HEAD) = ${{ steps.plan.outputs.version }}"
+          git --no-pager log -1 --format='%H %s' -- Dockerfile.caddy
+
+      # QEMU only for the final stage's `apk upgrade` inside the arm64 alpine
+      # image; Caddy itself cross-compiles natively. Same privileged binfmt
+      # image and digest pin as release-docker.yml.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+        with:
+          image: tonistiigi/binfmt:qemu-v10.2.3@sha256:400a4873b838d1b89194d982c45e5fb3cda4593fbfd7e08a02e76b03b21166f0
+          platforms: arm64
+          cache-image: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          driver-opts: image=moby/buildkit:v0.33.1@sha256:cec9f139f45e93c5c69c60f8b07cfad9f43f4ef6b6a6cd917527fea5ff2e3dea
+
+      # Built per-arch and loaded locally so Trivy can scan each architecture's
+      # real filesystem. A multi-arch manifest cannot be `load`ed into the
+      # daemon, and scanning only amd64 would miss an arm64-only package
+      # regression — which is exactly what the subset gate is meant to catch.
+      - name: Build linux/amd64 (local, scannable)
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: Dockerfile.caddy
+          platforms: linux/amd64
+          tags: caddy-refresh:amd64
+          load: true
+          push: false
+          provenance: false
+          sbom: false
+
+      - name: Build linux/arm64 (local, scannable)
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: Dockerfile.caddy
+          platforms: linux/arm64
+          tags: caddy-refresh:arm64
+          load: true
+          push: false
+          provenance: false
+          sbom: false
+
+      - name: Install Trivy
+        uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
+        with:
+          version: v0.76.2
+          cache: true
+
+      # One vulnerability DB download, reused by every scan below, so the four
+      # scans cannot disagree because the DB moved between them. A subset
+      # comparison against a different DB version is meaningless.
+      - name: Download Trivy databases once
+        shell: bash
+        run: |
+          set -euo pipefail
+          trivy image --download-db-only
+          trivy image --download-java-db-only || true
+
+      # Both arches, both sides, both gates — in scripts/caddy-image-gate.sh so
+      # the publish job can re-run the IDENTICAL check after approval. Two
+      # copies of a gate drift; one copy cannot.
+      - name: Gate — vulnerability subset and module set
+        id: gate
+        shell: bash
+        env:
+          # Gate 4, the filesystem delta (T-0641). ON for the refresh and off by
+          # default everywhere else: it is the only gate that costs a full image
+          # export per side per arch, and a refresh is weekly while a release is
+          # not. It is also where the gate is most meaningful — a refresh
+          # rebuilds an UNCHANGED Dockerfile.caddy, so a new file, a new setuid
+          # bit or a changed trust store is impossible-unless-something-is-wrong
+          # rather than merely unexpected.
+          #
+          # Measured noise on exactly these two shapes, so it does not get
+          # switched off for crying wolf: a simulated `apk upgrade` refresh
+          # asserts 0/0/0 (11 raw diff lines, all modifications), and a real
+          # v2.68.11 -> v2.68.12 bump asserts only a benign libnghttp2 soname
+          # pair. The raw diff is still carried into the summary either way.
+          FS_DELTA: "on"
+        run: |
+          set -euo pipefail
+          gate="$RUNNER_TEMP/caddy-image-gate.sh"
+          # Fail loudly rather than letting a missing script become a generic
+          # "error" verdict: the two are very different problems and the alert
+          # should say which one happened.
+          [ -x "$gate" ] || { echo "::error::staged gate script missing at $gate"; exit 1; }
+
+          # `|| true` is deliberate HERE and only here: a blocked verdict is
+          # exit 1 and is a RESULT, not a failure, and both arches must be
+          # gated before the combined verdict is worked out. The staged-script
+          # check above is what keeps this from swallowing a real breakage.
+          "$gate" caddy-refresh:amd64 "${{ steps.plan.outputs.baseline }}" scan amd64 || true
+          # A single-arch run cannot speak for the other arch, so each arch is
+          # gated in its own directory and the verdicts are combined below.
+          "$gate" caddy-refresh:arm64 "${{ steps.plan.outputs.baseline }}" scan-arm64 arm64 || true
+
+          a="$(cat scan/verdict 2>/dev/null || echo error)"
+          b="$(cat scan-arm64/verdict 2>/dev/null || echo error)"
+          echo "amd64=$a arm64=$b"
+
+          # The combined verdict is the WORST of the two: an arm64 regression
+          # must block an amd64-clean refresh, because one manifest ships both.
+          if [ "$a" = error ] || [ "$b" = error ]; then
+            verdict=error
+          elif [ "$a" = blocked ] || [ "$b" = blocked ]; then
+            verdict=blocked
+          elif [ "$a" = improved ] || [ "$b" = improved ]; then
+            verdict=improved
+          else
+            verdict=unchanged
+          fi
+
+          {
+            echo "## linux/amd64"
+            cat scan/summary.md 2>/dev/null || echo "_gate did not run_"
+            echo
+            echo "## linux/arm64"
+            cat scan-arm64/summary.md 2>/dev/null || echo "_gate did not run_"
+          } > scan/combined.md
+
+          # Random delimiter, same reason as in the gate script: combined.md is
+          # built from scan-derived text, so a fixed token could be closed early
+          # by the scanned image and the remainder parsed as further step
+          # outputs. GitHub takes the LAST value for a duplicated key, so that
+          # would forge this step's own verdict output. The gate sanitizes the
+          # fields that reach the summary; this is the second layer.
+          delim="SUMMARY_EOF_$(od -An -tx1 -N16 /dev/urandom | tr -d ' \n')"
+          if grep -qxF "$delim" scan/combined.md; then
+            echo "::error::the combined summary contains the generated output delimiter"; exit 1
+          fi
+          {
+            echo "verdict=$verdict"
+            echo "summary<<$delim"
+            cat scan/combined.md
+            echo "$delim"
+          } >> "$GITHUB_OUTPUT"
+
+          cat scan/combined.md >> "$GITHUB_STEP_SUMMARY"
+
+          [ "$verdict" != error ] || { echo "::error::the gate could not run"; exit 1; }
+
+      - name: Upload scan artifacts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: trivy-${{ steps.plan.outputs.patch_tag }}
+          path: |
+            scan/
+            scan-arm64/
+          retention-days: 30
+
+      # An improvement nobody publishes is the failure mode this pipeline is
+      # meant to fix, so say so out loud on a scheduled run. "unchanged" ends
+      # silently, as designed.
+      - name: Note that a publish is available
+        if: steps.gate.outputs.verdict == 'improved'
+        shell: bash
+        run: |
+          echo "::notice::rebuild closes findings and introduces none - run this workflow with publish=true to ship ${{ steps.plan.outputs.patch_tag }}"
+
+  # ---------------------------------------------------------------------------
+  # 1b. watch-pins — the other half of pinning. No secrets, no build, and
+  #     deliberately NOT a dependency of publish.
+  #
+  # Independent of build-scan on purpose. The two answer different questions:
+  # build-scan asks "is the rebuilt image safe to ship", watch-pins asks "has
+  # upstream moved past what we pinned". Wiring the second into the first
+  # would mean a plugin being one release behind blocks an Alpine CVE fix from
+  # publishing, which inverts the priority — the stale plugin is the lesser
+  # problem and the one that is safe to leave until a human reviews it. Run as
+  # its own job it also still reports when the build is broken.
+  #
+  # It never opens a PR and never edits the Dockerfile. A plugin bump is a
+  # module-set change: caddy-l4 v0.1.3 needed Go 1.26, re-architected packet
+  # serving and pulled in a brand-new third-party module (T-0620). That is a
+  # reviewed release with the full e2e comparison, not something a timer does
+  # unattended.
+  # ---------------------------------------------------------------------------
+  watch-pins:
+    name: Watch pinned plugin versions
+    runs-on: ubuntu-latest
+    # Every failure mode in this job is a network call, and the default job
+    # timeout is six hours. A proxy that accepts the connection and then never
+    # answers would hold a runner for a whole working day and report nothing,
+    # which reads as "the watch is fine, it just hasn't finished". Ten minutes
+    # is ~20x the observed runtime of a full live run over fifteen pins; past
+    # that, a timeout is the honest answer and an absent verdict now reports a
+    # failure rather than an all-clear.
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      verdict: ${{ steps.check.outputs.verdict }}
+      report: ${{ steps.check.outputs.report }}
+      # Exposed so `alert` can distinguish "could not establish whether an
+      # advisory applies" from an ordinary could-not-run; see that job's `if`.
+      advisory_unknown: ${{ steps.check.outputs.advisory_unknown }}
+      # The image sweep (T-0669). `image_unswept` is the one that must not be
+      # ignored: it counts components of the image whose advisory status was
+      # never established, which is the condition the `--with`-only watch was
+      # silently in for its whole life.
+      image_findings: ${{ steps.check.outputs.image_findings }}
+      image_unswept: ${{ steps.check.outputs.image_unswept }}
+      # Reported, never alerted on: see the `alert` job's `if`. A module with
+      # no per-repository advisory endpoint is a permanent limit of the second
+      # index, not a sweep that failed.
+      image_out_of_scope: ${{ steps.check.outputs.image_out_of_scope }}
+      image_base: ${{ steps.check.outputs.image_base }}
+      image_graph: ${{ steps.check.outputs.image_graph }}
+    steps:
+      # main's checkout, not the release tag's: this asks whether the pins we
+      # ship TODAY are current, and the script only exists on main. Checking
+      # the tag would also freeze the question to whatever the last release
+      # pinned, which is the opposite of a staleness watch.
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check pins against proxy.golang.org, OSV and GitHub advisories
+        id: check
+        shell: bash
+        env:
+          # Only to lift the advisory-API rate limit from 60/hour per runner IP
+          # to 5000/hour. The endpoint the script calls
+          # (/repos/{owner}/{repo}/security-advisories) is public, so
+          # `contents: read` already suffices and no extra permission is
+          # granted here; without the token the cross-check simply reports
+          # itself as unavailable on a busy runner rather than appearing to
+          # find nothing. A rate-limit body is a JSON object, and the script
+          # refuses to read a non-array as an empty advisory list.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          [ -x scripts/check-pinned-modules.sh ] \
+            || { echo "::error::scripts/check-pinned-modules.sh is missing or not executable"; exit 1; }
+
+          # Exit status is a RESULT here (0 ok / 1 behind / 2 advisory /
+          # 3 could-not-run), so it must not fail the step; the verdict is
+          # read from the output instead. A status this script never emits
+          # would be a real crash, and is surfaced below.
+          # `--binary image:…` adds the IMAGE to the sweep, which the `--with`
+          # list structurally cannot cover (trap 5 in the script's header):
+          #
+          #   - the `FROM caddy:<ver>` base, which was swept by NOTHING until
+          #     T-0669 and carried five live CVE-less advisories at the 2.11.7
+          #     this image shipped;
+          #   - the transitive graph, i.e. the engine behind a thin wrapper pin
+          #     (`corazawaf/coraza` has 14 advisories; the `coraza-caddy` pin
+          #     that wraps it has 0).
+          #
+          # The PUBLISHED `:stable` is read rather than a freshly built image,
+          # because this job deliberately has no build step and `:stable` is
+          # what the fleet is actually running — the question worth asking is
+          # about the image in service, not one that exists only in CI. The
+          # module graph comes from `go version -m` on the extracted binary, so
+          # it is what shipped rather than what a list says shipped.
+          #
+          # A failure to read it is reported as NOT SWEPT and reaches
+          # verdict=error; it never reads as a clean graph. So dropping this
+          # flag would be visible in the verdict rather than silently halving
+          # what the job checks.
+          set +e
+          # `--gomod` adds the THIRD input (T-0676): caddyui's own Go
+          # dependencies. `--binary` above covers the published Caddy image,
+          # which is a different program built from Dockerfile.caddy; go.mod
+          # builds the caddyui server. Nothing asked the per-repository
+          # endpoint for it, so a CVE-less advisory there was invisible to
+          # every check -- go-jose/v4 sat at 4.1.6 with five live ones while
+          # Dependabot, OSV and govulncheck all reported clean.
+          #
+          # GITHUB_TOKEN is already exported for this step, which matters: the
+          # module set adds ~20 unique github.com repos to the sweep, and the
+          # unauthenticated 60/hour budget would leave the remainder reported
+          # as unswept.
+          ./scripts/check-pinned-modules.sh --out-dir pinwatch \
+            --binary image:applegater/caddyui-caddy:stable \
+            --gomod go.mod
+          rc=$?
+          set -e
+          case "$rc" in
+            0|1|2|3) ;;
+            *) echo "::error::check-pinned-modules.sh exited unexpectedly ($rc)"; exit 1 ;;
+          esac
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+
+      - name: Upload the pin report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: pinned-module-watch
+          path: pinwatch/
+          retention-days: 90
+
+      # An advisory against a version the fleet is running is the case this job
+      # exists for, so it is loud. Staleness is a notice: it is real work, but
+      # it is not urgent, and an issue every week for a patch bump is how a
+      # report gets ignored.
+      # `ok` is matched EXPLICITLY and the default arm is the failure message,
+      # not the success one. The obvious shape — success in `*)` — inverts the
+      # whole control: a precondition failure produces no verdict at all, and
+      # an empty string would then fall through to "every pin is current",
+      # announcing an all-clear for a run that checked nothing. Any verdict
+      # this job does not recognise is treated as a problem.
+      - name: Flag the result
+        env:
+          VERDICT: ${{ steps.check.outputs.verdict }}
+          ADV_UNKNOWN: ${{ steps.check.outputs.advisory_unknown }}
+          ADV_PARTIAL: ${{ steps.check.outputs.advisory_partial }}
+          FLOORS_EXPIRED: ${{ steps.check.outputs.floors_expired }}
+          GITHUB_ONLY: ${{ steps.check.outputs.github_only }}
+          IMAGE_FINDINGS: ${{ steps.check.outputs.image_findings }}
+          IMAGE_UNSWEPT: ${{ steps.check.outputs.image_unswept }}
+          IMAGE_OUT_OF_SCOPE: ${{ steps.check.outputs.image_out_of_scope }}
+          IMAGE_BASE: ${{ steps.check.outputs.image_base }}
+          IMAGE_GRAPH: ${{ steps.check.outputs.image_graph }}
+          GOMOD: ${{ steps.check.outputs.gomod }}
+          GOMOD_FINDINGS: ${{ steps.check.outputs.gomod_findings }}
+          GOMOD_UNSWEPT: ${{ steps.check.outputs.gomod_unswept }}
+        shell: bash
+        run: |
+          case "$VERDICT" in
+            advisory)
+              echo "::error::a published advisory matches a PINNED plugin version - see the job summary" ;;
+            attention)
+              echo "::notice::a pinned plugin is behind upstream, or an advisory needs a human read - see the job summary" ;;
+            ok)
+              echo "::notice::every pin is current, and both the version-scoped and commit-scoped advisory queries came back clean" ;;
+            '')
+              echo "::warning::the pin check produced no verdict, so nothing was verified; an unchecked pin is not a clean pin" ;;
+            *)
+              echo "::warning::the pin check could not complete (verdict: $VERDICT); an unchecked pin is not a clean pin" ;;
+          esac
+
+          # Called out separately from the verdict because "could not establish"
+          # is the failure mode this watch is least able to afford and the
+          # easiest to skim past: the advisory column prints a dash for a pin
+          # OSV cleared, and anything that is NOT such a dash has to be visible
+          # in the log and not only in the summary. See T-0634.
+          case "$ADV_UNKNOWN" in
+            ''|0) ;;
+            *) echo "::warning::advisory status could not be established for $ADV_UNKNOWN pin(s); those rows say nothing about whether an advisory applies" ;;
+          esac
+          case "$ADV_PARTIAL" in
+            ''|0) ;;
+            *) echo "::warning::$ADV_PARTIAL pin(s) were checked by only one of the two advisory queries, so the result is narrower than a clean dash" ;;
+          esac
+          case "$GITHUB_ONLY" in
+            ''|0) ;;
+            *) echo "::warning::GitHub's advisory database lists $GITHUB_ONLY advisory record(s) that OSV did not report for these pins; the ranges are free text and need a human read" ;;
+          esac
+
+          # An EXPIRED intentional floor is called out separately for the same
+          # reason as the unknowns above: it is already inside the `behind`
+          # count, so the verdict alone cannot distinguish "a pin drifted" from
+          # "a decision we recorded no longer rests on facts that hold". The
+          # second needs the decision re-taken, not a version bump, and a
+          # re-armed acknowledgement that reads as ordinary drift is the
+          # failure this mechanism exists to avoid (T-0651).
+          case "$FLOORS_EXPIRED" in
+            ''|0) ;;
+            *) echo "::warning::$FLOORS_EXPIRED intentional floor(s) have EXPIRED: upstream moved past the version the decision was recorded against, so the acknowledgement no longer holds and the pin counts as behind again" ;;
+          esac
+
+          # THE IMAGE ITSELF (T-0669). The three states below are reported
+          # separately from the pin verdict on purpose: for its whole life this
+          # job could print "every pin is current" while the base image carried
+          # five unswept advisories, because the watch only ever described the
+          # `--with` list. A subset all-clear that is silent about the rest is
+          # the exact failure this adds coverage for, so the base image's own
+          # swept/not-swept state is stated in the log every run and not left
+          # to be inferred from the absence of a finding.
+          case "$IMAGE_BASE" in
+            swept) ;;
+            '') echo "::warning::the image sweep reported nothing about the FROM caddy:<version> base image, so its advisory status is unknown" ;;
+            *) echo "::warning::the FROM caddy:<version> base image was NOT swept for advisories; it is the core of this image and an unswept component is not a clean one" ;;
+          esac
+          case "$IMAGE_GRAPH" in
+            ok) ;;
+            not-run) echo "::warning::the built image's module graph was not swept, so the engines behind thin wrapper pins (e.g. corazawaf/coraza behind coraza-caddy) were not checked" ;;
+            *) echo "::warning::the built image's module graph could not be read (state: $IMAGE_GRAPH); the transitive graph was NOT checked" ;;
+          esac
+          case "$IMAGE_UNSWEPT" in
+            ''|0) ;;
+            *) echo "::warning::$IMAGE_UNSWEPT component(s) of the image were NOT swept for advisories; an unswept component is not a clean component" ;;
+          esac
+          case "$IMAGE_FINDINGS" in
+            ''|0) ;;
+            *) echo "::warning::$IMAGE_FINDINGS advisory record(s) cover a version this image actually ships (base image or module graph); the ranges are GitHub free text and need a human read - see the job summary" ;;
+          esac
+          # A notice, not a warning, and never an alert: this is how much of the
+          # graph GitHub's repository-keyed index cannot answer for at all. It
+          # is a standing property of the index (~74 of 236 modules here), so
+          # treating it as a problem would make every run look broken. Stated
+          # every run so the sweep's coverage is never overstated by silence.
+          # CADDYUI'S OWN go.mod (T-0676). Stated in the log every run, for the
+          # same reason as the base image above: this is a THIRD program --
+          # `--binary` covers the published Caddy image, go.mod builds the
+          # caddyui server -- and nothing had ever asked the per-repository
+          # endpoint about it, which is how go-jose/v4 sat at 4.1.6 with five
+          # live CVE-less advisories while Dependabot, OSV and govulncheck all
+          # reported clean. A run that did not ask must say so rather than let
+          # silence read as a clean module set.
+          case "$GOMOD" in
+            ok) ;;
+            '') echo "::warning::the pin check reported nothing about caddyui's own go.mod, so its advisory status is unknown" ;;
+            not-run) echo "::warning::caddyui's own go.mod was NOT swept for advisories (no --gomod); a CVE-less advisory against a caddyui dependency is invisible to Dependabot, OSV and govulncheck, so an unswept go.mod is not a clean one" ;;
+            not-swept) echo "::warning::caddyui's go.mod was read but NOT ONE of its modules was actually queried (sweep disabled, or the GitHub budget was exhausted); the module list parsing is not the check, so this says nothing about advisories" ;;
+            *) echo "::warning::caddyui's own go.mod could not be read (state: $GOMOD); its dependencies were NOT checked for advisories" ;;
+          esac
+          case "$GOMOD_UNSWEPT" in
+            ''|0) ;;
+            *) echo "::warning::$GOMOD_UNSWEPT module(s) of caddyui's go.mod were NOT swept; an unswept module is not a clean module" ;;
+          esac
+          case "$GOMOD_FINDINGS" in
+            ''|0) ;;
+            *) echo "::warning::$GOMOD_FINDINGS advisory record(s) cover a version caddyui's own go.mod selects; the ranges are GitHub free text and need a human read - see the job summary" ;;
+          esac
+
+          case "$IMAGE_OUT_OF_SCOPE" in
+            ''|0) ;;
+            *) echo "::notice::$IMAGE_OUT_OF_SCOPE module(s) are outside GitHub's repository-keyed advisory index (not on github.com, or no comparable version); they are covered by the OSV queries where pinned, and this is a known limit rather than a failed sweep" ;;
+          esac
+
+  # ---------------------------------------------------------------------------
+  # 2. publish — gated, credential-holding, publishes by digest.
+  # ---------------------------------------------------------------------------
+  publish:
+    name: Publish ${{ needs.build-scan.outputs.patch_tag }}
+    needs: build-scan
+    # Three independent conditions, all required:
+    #   - a human asked (never on the schedule),
+    #   - the gate did not block,
+    #   - there is something to ship.
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      inputs.publish &&
+      needs.build-scan.outputs.verdict == 'improved'
+    runs-on: ubuntu-latest
+    # The required-reviewer gate. Everything above this line runs unattended;
+    # nothing below it runs without a human clicking Approve.
+    environment: caddy-image-publish
+    permissions:
+      contents: read
+    steps:
+      # Two checkouts, for the same reason build-scan stages the script: the
+      # gate tooling lives on this ref, the build inputs live on the tag, and
+      # no release tag cut before this workflow contains the gate script.
+      - name: Checkout this ref (for the gate script)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Stage the gate script outside the working tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          [ -x scripts/caddy-image-gate.sh ] \
+            || { echo "::error::scripts/caddy-image-gate.sh is missing or not executable on this ref"; exit 1; }
+          cp scripts/caddy-image-gate.sh "$RUNNER_TEMP/caddy-image-gate.sh"
+          chmod +x "$RUNNER_TEMP/caddy-image-gate.sh"
+
+      # -pN claims the source is vX.Y.Z's, so it must actually be. `clean: true`
+      # (the default) replaces the tree with the tag's contents, which is why
+      # the script was staged above first.
+      - name: Checkout the release tag being refreshed
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/tags/${{ needs.build-scan.outputs.version }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+        with:
+          image: tonistiigi/binfmt:qemu-v10.2.3@sha256:400a4873b838d1b89194d982c45e5fb3cda4593fbfd7e08a02e76b03b21166f0
+          platforms: arm64
+          cache-image: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          driver-opts: image=moby/buildkit:v0.33.1@sha256:cec9f139f45e93c5c69c60f8b07cfad9f43f4ef6b6a6cd917527fea5ff2e3dea
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Push the -pN tag ONLY. :stable and :latest are moved in the next step
+      # by digest, from this build's manifest, so the moving tags can only ever
+      # point at bytes that already exist under an immutable tag.
+      #
+      # org.opencontainers.image.created carries the build date — that is where
+      # the date belongs, instead of in the tag name.
+      # github.event.repository.updated_at is the REPO's last-touched time, not
+      # this build's, so the date is taken from the clock at build time.
+      - name: Record the build timestamp
+        id: now
+        shell: bash
+        run: echo "iso=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push ${{ needs.build-scan.outputs.patch_tag }}
+        id: push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: Dockerfile.caddy
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ env.IMAGE }}:${{ needs.build-scan.outputs.patch_tag }}
+          push: true
+          provenance: mode=max
+          sbom: generator=docker.io/docker/buildkit-syft-scanner:1.12.0@sha256:ae4f3b554449e7e25548e7d8ccc029d17357348e30c6e3df01b92bc93654d6a9
+          labels: |
+            org.opencontainers.image.created=${{ steps.now.outputs.iso }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ needs.build-scan.outputs.patch_tag }}
+            org.opencontainers.image.description=Caddy with CaddyUI's plugin set; base-layer refresh of ${{ needs.build-scan.outputs.version }}
+
+      # The gate again, on the bytes that were actually pushed.
+      #
+      # This is not belt-and-braces. build-scan scanned a DIFFERENT build: it
+      # never pushes, and a reviewer may approve days later, by which time
+      # `apk upgrade` (unpinned, by design) can resolve differently. The plugin
+      # versions themselves are pinned now, so that is no longer the likeliest
+      # source of a difference, but the base image, the toolchain and every
+      # Alpine package still move underneath an unchanged Dockerfile. Without
+      # this step the verdict a human approved would describe an image nobody
+      # ships, and :stable/:latest would move to an unscanned one. The script
+      # is the same file build-scan ran, so the standard cannot drift between
+      # the two.
+      - name: Install Trivy
+        uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
+        with:
+          version: v0.76.2
+          cache: true
+
+      - name: Download Trivy databases once
+        shell: bash
+        run: |
+          set -euo pipefail
+          trivy image --download-db-only
+          trivy image --download-java-db-only || true
+
+      - name: Re-gate the pushed digest before moving :stable
+        id: regate
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+          # Must match the scan job's setting exactly. The whole point of one
+          # gate script is that the check giving a reviewer their verdict is the
+          # check guarding the moving tags; leaving gate 4 off here would mean
+          # approving on a filesystem-checked verdict and publishing on an
+          # unchecked one.
+          FS_DELTA: "on"
+        shell: bash
+        run: |
+          set -euo pipefail
+          [ -n "$DIGEST" ] || { echo "::error::build-push-action reported no digest"; exit 1; }
+
+          gate="$RUNNER_TEMP/caddy-image-gate.sh"
+          [ -x "$gate" ] || { echo "::error::staged gate script missing at $gate"; exit 1; }
+
+          fail=0
+          "$gate" "${IMAGE}@${DIGEST}" "${IMAGE}:stable" verify amd64     || fail=1
+          "$gate" "${IMAGE}@${DIGEST}" "${IMAGE}:stable" verify-arm64 arm64 || fail=1
+
+          if [ "$fail" -ne 0 ]; then
+            {
+              echo "### ⛔ Publish aborted after the push"
+              echo
+              echo "\`${{ needs.build-scan.outputs.patch_tag }}\` was pushed and is immutable, but it did NOT pass the gate when re-checked, so \`:stable\` and \`:latest\` were left where they were."
+              echo
+              echo "This means the build made at approval time differs from the one that was scanned — expected occasionally, since \`apk upgrade\` moves the base layer between builds. Nothing that the six boxes pull has moved."
+              echo
+              echo "Delete the \`-pN\` tag from Docker Hub if you do not want it kept as a record."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::the pushed image did not pass the gate; :stable and :latest were NOT moved"
+            exit 1
+          fi
+
+      # By digest, deliberately. `imagetools create` copies the manifest list
+      # rather than rebuilding, so :stable, :latest and :vX.Y.Z-pN are the same
+      # bytes by construction — a second build could differ and the tags would
+      # silently diverge from the image that just passed the gate above.
+      - name: Move :stable and :latest to that digest
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+          PATCH_TAG: ${{ needs.build-scan.outputs.patch_tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [ -n "$DIGEST" ] || { echo "::error::build-push-action reported no digest"; exit 1; }
+          echo "publishing ${IMAGE}@${DIGEST}"
+          docker buildx imagetools create \
+            --tag "${IMAGE}:stable" \
+            --tag "${IMAGE}:latest" \
+            "${IMAGE}@${DIGEST}"
+
+      - name: Verify all three tags are one multi-arch image at that digest
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+          PATCH_TAG: ${{ needs.build-scan.outputs.patch_tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for tag in "$PATCH_TAG" stable latest; do
+            out="$(docker buildx imagetools inspect "${IMAGE}:${tag}")"
+            for plat in linux/amd64 linux/arm64; do
+              grep -Eq "Platform:[[:space:]]+${plat}\$" <<<"$out" \
+                || { echo "::error::${IMAGE}:${tag} is missing $plat"; exit 1; }
+            done
+            got="$(awk '/^Digest:/{print $2; exit}' <<<"$out")"
+            [ "$got" = "$DIGEST" ] \
+              || { echo "::error::${IMAGE}:${tag} is $got, expected $DIGEST"; exit 1; }
+            echo "ok  ${IMAGE}:${tag}  $got"
+          done
+
+          {
+            echo "### Published"
+            echo
+            echo "\`${IMAGE}:${PATCH_TAG}\`, \`:stable\` and \`:latest\` all at:"
+            echo
+            echo "\`\`\`"
+            echo "$DIGEST"
+            echo "\`\`\`"
+            echo
+            echo "Base-layer refresh of ${{ needs.build-scan.outputs.version }}. App code and plugin set unchanged."
+            echo
+            echo "The six boxes that pull this image are NOT updated by this workflow."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------------------
+  # 3. alert — exactly ONE issue, ever. Comment on it, never open a second.
+  # ---------------------------------------------------------------------------
+  alert:
+    name: Alert
+    needs: [build-scan, watch-pins]
+    # Only when the gate blocked, when build-scan itself failed, when a
+    # published advisory matches a PINNED plugin version, or when explicitly
+    # testing the alert path.
+    #
+    # watch-pins contributes ONLY its `advisory` verdict. Staleness is
+    # deliberately excluded: some plugin is behind most weeks, so alerting on
+    # that would open or comment on an issue nearly every run and train the
+    # reader to skip it — the exact failure this job's single-issue design
+    # exists to avoid. An improved-but-unpublished rebuild is excluded for the
+    # same reason. An advisory against a version the six boxes are running is
+    # the opposite case: rare, and worth interrupting someone for.
+    #
+    # `advisory_unknown` alerts for the same reason, and it is the condition
+    # T-0634 was filed about: a pin whose advisory status could not be
+    # ESTABLISHED is indistinguishable, from the report alone, from a pin that
+    # was checked and is clean. It stays quiet in the common case (it is 0
+    # whenever both queries could be asked, which is every pin today), so it
+    # does not re-introduce the weekly noise the paragraph above rejects — but
+    # when it does fire, nobody learns anything from a verdict buried in a log
+    # line. Note this is the COUNT, not the verdict: `error` also covers
+    # ordinary proxy hiccups, which are not worth an issue.
+    #
+    # `image_findings` alerts on the same grounds, and it is the condition
+    # T-0669 was filed about. An advisory whose range covers the Caddy version
+    # in the base image, or a module actually linked into the shipped binary,
+    # is the T-0660 case: five live advisories sat on the base at 2.11.7, every
+    # one invisible to OSV because none carries a CVE id, while this job
+    # reported every pin current. That is rarer than staleness, not more
+    # frequent — it is 0 on a current base, as it is at 2.11.9 today — so it
+    # does not re-introduce the weekly noise rejected above.
+    #
+    # `image_unswept` alerts for the reason `advisory_unknown` does: a
+    # component whose advisory status was never ESTABLISHED is
+    # indistinguishable, from the report alone, from one that was checked and
+    # is clean. It is the state the `--with`-only watch was silently in for
+    # its whole life, so it must be loud rather than inferred.
+    #
+    # It is quiet in the common case, and getting it there took two fixes worth
+    # not undoing. `image_unswept` counts ONLY "this could have been swept and
+    # was not" -- a budget cap, or an endpoint that did not answer. Modules
+    # this index structurally cannot answer for are counted as
+    # `image_out_of_scope` instead: 74 of the 236 modules in this image's graph
+    # are not on github.com (cel.dev, cloud.google.com, golang.org/x/...) and
+    # so have no per-repository advisory endpoint, ever. That counter is
+    # reported and deliberately NOT alerted on. The graph cap is also derived
+    # from the API budget rather than fixed, so the ~162 sweepable modules fit
+    # inside the 5000/hour this job's GITHUB_TOKEN buys.
+    #
+    # With a fixed cap of 60 and those two states merged, this condition was
+    # true on EVERY run -- the weekly noise the paragraph above rejects,
+    # reintroduced in a new place. If it ever starts firing every week again,
+    # that is the regression to look for, not a reason to delete the condition.
+    #
+    # `image_graph` is deliberately NOT in this list: `not-run` is a narrower
+    # run rather than a broken one, it is already a log warning and a report
+    # sentence, and this job passes `--binary`, so a graph that stops being
+    # read surfaces as `image_unswept` or as a read error instead.
+    if: >-
+      always() && (
+        needs.build-scan.result == 'failure' ||
+        needs.build-scan.outputs.verdict == 'blocked' ||
+        needs.watch-pins.outputs.verdict == 'advisory' ||
+        (needs.watch-pins.outputs.advisory_unknown != '0' &&
+         needs.watch-pins.outputs.advisory_unknown != '') ||
+        (needs.watch-pins.outputs.image_findings != '0' &&
+         needs.watch-pins.outputs.image_findings != '') ||
+        (needs.watch-pins.outputs.image_unswept != '0' &&
+         needs.watch-pins.outputs.image_unswept != '') ||
+        (github.event_name == 'workflow_dispatch' && inputs.force_alert)
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Open or update the single alert issue
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          VERDICT: ${{ needs.build-scan.outputs.verdict }}
+          RESULT: ${{ needs.build-scan.result }}
+          PATCH_TAG: ${{ needs.build-scan.outputs.patch_tag }}
+          SUMMARY: ${{ needs.build-scan.outputs.summary }}
+          PIN_VERDICT: ${{ needs.watch-pins.outputs.verdict }}
+          PIN_REPORT: ${{ needs.watch-pins.outputs.report }}
+        with:
+          script: |
+            const LABEL = 'caddy-image-refresh';
+            const TITLE = 'Caddy image refresh needs a look';
+            const { VERDICT, RESULT, PATCH_TAG, SUMMARY, PIN_VERDICT, PIN_REPORT } = process.env;
+            const runUrl =
+              `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}` +
+              `/actions/runs/${context.runId}`;
+
+            const pinAdvisory = PIN_VERDICT === 'advisory';
+
+            // More than one of these can be true at once, so they are
+            // collected rather than selected: an advisory must not hide a
+            // failed build, and a failed build must not hide an advisory.
+            const reasons = [];
+            if (RESULT === 'failure') {
+              reasons.push('The build-and-scan job **failed**, so nothing was compared and nothing can publish. The scheduled refresh is not running until this is fixed.');
+            }
+            if (VERDICT === 'blocked') {
+              reasons.push('The gate **blocked publish**: either the rebuild introduces a vulnerability the published image does not have, or the Caddy module set changed (a plugin re-resolved, which is a release-level change rather than a base-layer refresh). The per-arch detail is below.');
+            }
+            if (pinAdvisory) {
+              reasons.push('A **published advisory matches a pinned plugin version** — i.e. the version the six boxes are running, not merely something in that module\'s history. Pins do not move on their own, so this needs a deliberate bump in `Dockerfile.caddy` and a release. The pin table is below.');
+            }
+            if (reasons.length === 0) {
+              reasons.push('Alert path exercised by hand (`force_alert`). Nothing is wrong.');
+            }
+
+            const body = [
+              `**${PATCH_TAG || 'refresh'}** — [run](${runUrl})`,
+              '',
+              reasons.map((r) => `- ${r}`).join('\n'),
+              '',
+              SUMMARY || '_No scan summary was produced._',
+              ...(pinAdvisory && PIN_REPORT ? ['', PIN_REPORT] : []),
+              '',
+              '---',
+              '',
+              'This is the one standing issue for Caddy image refreshes. Later runs **comment here** rather than opening another, so close it once the cause is resolved and the next problem will open a fresh one.',
+            ].join('\n');
+
+            // The label may not exist yet on a first run; create it rather
+            // than letting the search silently match nothing.
+            try {
+              await github.rest.issues.getLabel({ ...context.repo, name: LABEL });
+            } catch (e) {
+              if (e.status !== 404) throw e;
+              await github.rest.issues.createLabel({
+                ...context.repo,
+                name: LABEL,
+                color: 'b60205',
+                description: 'Scheduled applegater/caddyui-caddy base-layer refresh needs a human',
+              });
+            }
+
+            // Listed by label, not searched: code search is eventually
+            // consistent and would open a duplicate on a close-following run.
+            const open = await github.paginate(github.rest.issues.listForRepo, {
+              ...context.repo, state: 'open', labels: LABEL, per_page: 100,
+            });
+
+            if (open.length > 0) {
+              const issue = open[0];
+              await github.rest.issues.createComment({
+                ...context.repo, issue_number: issue.number, body,
+              });
+              core.notice(`commented on existing alert issue #${issue.number}`);
+              if (open.length > 1) {
+                core.warning(
+                  `${open.length} open '${LABEL}' issues exist; commented on the oldest (#${issue.number}). ` +
+                  'Close the extras so this stays a single standing issue.');
+              }
+              return;
+            }
+
+            const created = await github.rest.issues.create({
+              ...context.repo, title: TITLE, body, labels: [LABEL],
+            });
+            core.notice(`opened alert issue #${created.data.number}`);

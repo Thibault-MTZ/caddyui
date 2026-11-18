@@ -156,6 +156,10 @@ func (s *Server) getAnalyticsRequests(w http.ResponseWriter, r *http.Request) {
 		ClientIP: f.ClientIP,
 		UASearch: f.UA,
 		ServerID: serverScopeID,
+		// v2.68.3: a viewer's total, status mix and facets count only their
+		// own hosts. Filtering the rows afterwards left the counts fleet-wide.
+		Scoped:    !isAdmin,
+		OnlyHosts: allowedHosts,
 	}
 
 	var (
@@ -173,8 +177,8 @@ func (s *Server) getAnalyticsRequests(w http.ResponseWriter, r *http.Request) {
 		total, _ = models.SearchRequestCount(s.DB, filter)
 		facets, _ = models.SearchHostFacets(s.DB, filter, 12)
 		mix, _ = models.SearchStatusMix(s.DB, filter)
-		// A viewer's unscoped search must not list other tenants' hosts.
-		if !isAdmin && f.Host == "" {
+		// Belt and braces: a viewer's SQL is already scoped to these hosts.
+		if !isAdmin {
 			rows = filterRowsToHosts(rows, allowedHosts)
 			facets = filterFacetsToHosts(facets, allowedHosts)
 		}
@@ -219,20 +223,13 @@ func windowLabelFor(token string) string {
 	}
 }
 
-// filterRowsToHosts drops rows for hosts the caller may not see. Belt and
-// braces: the SQL is already scoped by host when one is given, but an
-// unscoped search has no host to scope by.
+// filterRowsToHosts drops rows for hosts the caller may not see, matching
+// wildcard hosts the same way the SQL does. An empty allowed list keeps
+// nothing (v2.68.3: it used to keep everything).
 func filterRowsToHosts(rows []models.RequestRow, allowed []string) []models.RequestRow {
-	if allowed == nil {
-		return rows
-	}
-	set := make(map[string]bool, len(allowed))
-	for _, h := range allowed {
-		set[h] = true
-	}
 	out := rows[:0]
 	for _, r := range rows {
-		if set[r.Host] {
+		if eventHostAllowed(r.Host, allowed) {
 			out = append(out, r)
 		}
 	}
@@ -240,16 +237,9 @@ func filterRowsToHosts(rows []models.RequestRow, allowed []string) []models.Requ
 }
 
 func filterFacetsToHosts(facets []models.HostFacet, allowed []string) []models.HostFacet {
-	if allowed == nil {
-		return facets
-	}
-	set := make(map[string]bool, len(allowed))
-	for _, h := range allowed {
-		set[h] = true
-	}
 	out := facets[:0]
 	for _, f := range facets {
-		if set[f.Host] {
+		if eventHostAllowed(f.Host, allowed) {
 			out = append(out, f)
 		}
 	}

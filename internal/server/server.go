@@ -370,6 +370,8 @@ func parseTemplates(tplFS fs.FS) (map[string]*template.Template, error) {
 			return (a * b) / c
 		},
 		"subInt64": func(a, b int64) int64 { return a - b },
+		// ssoLabel shortens an issuer URL for a badge. v2.68.0.
+		"ssoLabel": ssoProviderLabel,
 		// addInt64 lets a chart bar compute its own bucket's end time
 		// (bucket start + bucket seconds) for an exact drill-through link.
 		// v2.66.0 (issue #145).
@@ -1207,6 +1209,12 @@ func (s *Server) render(w http.ResponseWriter, r *http.Request, name string, dat
 	}
 	// Always inject app version.
 	data["AppVersion"] = s.Version
+	// v2.68.3 (issue #150): a save whose copy did not reach every fleet target
+	// says so on the page it lands on (withDeployProblems); the pages that
+	// receive those redirects render it with {{template "deployError" .}}.
+	if _, ok := data["DeployError"]; !ok && r != nil {
+		data["DeployError"] = r.URL.Query().Get("deploy_error")
+	}
 	// v2.62.0 (issue #128): the page's language and the strings the browser-side
 	// scripts may need (window.CADDYUI_I18N in layout.html).
 	if _, ok := data["Lang"]; !ok {
@@ -2024,18 +2032,26 @@ func (s *Server) getLogin(w http.ResponseWriter, r *http.Request) {
 	if oc := s.oidcConfig(); oc.ready() {
 		data["OIDCEnabled"] = true
 		data["OIDCButtonLabel"] = oc.ButtonLabel
+		// Translate only the built-in fallback, never an administrator's label.
+		if strings.TrimSpace(mustGetSetting(s.DB, settingOIDCButtonLabel)) == "" {
+			data["OIDCButtonLabel"] = s.tr(r, "login.sso_default")
+		}
 	}
 	if e := r.URL.Query().Get("error"); strings.HasPrefix(e, "sso") {
-		msg := "Single sign-on failed. Try again or use your password."
+		key := "login.error.sso_failed"
 		switch e {
 		case "sso_nouser":
-			msg = "No CaddyUI account matches your SSO identity. Ask an admin to add you."
+			key = "login.error.sso_no_user"
 		case "sso_email":
-			msg = "Your identity provider didn't return a verified email address."
+			key = "login.error.sso_email"
 		case "sso_denied":
-			msg = "Single sign-on was cancelled."
+			key = "login.error.sso_cancelled"
+		case "sso_domain":
+			// Deliberately does not name the permitted domains: this page is
+			// reachable by anyone, and the list is configuration.
+			key = "login.error.sso_domain"
 		}
-		data["Error"] = msg
+		data["Error"] = s.tr(r, key)
 	}
 	s.render(w, r, "login.html", data)
 }
@@ -2203,7 +2219,7 @@ func (s *Server) postLogin(w http.ResponseWriter, r *http.Request) {
 		s.render(w, r, "login.html", data)
 	}
 	if ok, err := verifyCaptcha(captchaCfg, r); err != nil || !ok {
-		renderLoginErr("Security check failed. Please try again.")
+		renderLoginErr(s.tr(r, "login.error.security_check"))
 		return
 	}
 
@@ -2228,7 +2244,7 @@ func (s *Server) postLogin(w http.ResponseWriter, r *http.Request) {
 				time.Now().UTC().Add(-loginFailureWindow),
 			).Scan(&failCount)
 			if failCount >= maxAttempts {
-				renderLoginErr("Too many failed login attempts. Please wait 15 minutes and try again.")
+				renderLoginErr(s.tr(r, "login.error.login_limit"))
 				return
 			}
 		}
@@ -2239,12 +2255,12 @@ func (s *Server) postLogin(w http.ResponseWriter, r *http.Request) {
 	u, err := models.GetUserByEmail(s.DB, email)
 	if err != nil || !auth.CheckPassword(u.PasswordHash, pw) {
 		_ = models.LogActivity(s.DB, 0, email, "login_fail", "ip:"+clientIP, "invalid credentials", false)
-		renderLoginErr("Invalid email or password")
+		renderLoginErr(s.tr(r, "login.error.invalid_credentials"))
 		return
 	}
 	if u.TOTPEnabled && u.TOTPSecret != "" {
 		if s.totpLockedOut(u.Email) {
-			renderLoginErr("Too many failed verification attempts for this account. Please wait 15 minutes and try again.")
+			renderLoginErr(s.tr(r, "login.error.totp_limit"))
 			return
 		}
 		// Generate a pre-auth token and redirect to TOTP verification.
@@ -3236,10 +3252,11 @@ func (s *Server) createRedirectionHost(w http.ResponseWriter, r *http.Request) {
 	}
 	_ = models.LogActivity(s.DB, s.currentServerID(r), s.currentUserEmail(r), "redirect_create", fmt.Sprintf("redirect:%d", id), rh.Domains, true)
 	s.trySyncCaddy(s.currentServerID(r), rh.CertificateID != 0)
+	var deployProblems []string
 	if len(deployTo) > 0 {
-		s.crossDeployRedirectionHost(s.currentUserEmail(r), s.currentServerID(r), rh, deployTo)
+		deployProblems = s.crossDeployRedirectionHost(s.currentUserEmail(r), s.currentServerID(r), rh, deployTo)
 	}
-	http.Redirect(w, r, "/redirection-hosts", http.StatusSeeOther)
+	http.Redirect(w, r, withDeployProblems("/redirection-hosts", deployProblems), http.StatusSeeOther)
 }
 
 func (s *Server) editRedirectionHost(w http.ResponseWriter, r *http.Request) {
@@ -3362,10 +3379,11 @@ func (s *Server) updateRedirectionHost(w http.ResponseWriter, r *http.Request) {
 	_ = models.LogActivity(s.DB, s.currentServerID(r), s.currentUserEmail(r), "redirect_update", fmt.Sprintf("redirect:%d", id), rh.Domains, true)
 	forceTLS := old != nil && old.CertificateID != rh.CertificateID
 	s.trySyncCaddy(s.currentServerID(r), forceTLS)
+	var deployProblems []string
 	if len(deployTo) > 0 {
-		s.crossDeployRedirectionHost(s.currentUserEmail(r), s.currentServerID(r), rh, deployTo)
+		deployProblems = s.crossDeployRedirectionHost(s.currentUserEmail(r), s.currentServerID(r), rh, deployTo)
 	}
-	http.Redirect(w, r, "/redirection-hosts", http.StatusSeeOther)
+	http.Redirect(w, r, withDeployProblems("/redirection-hosts", deployProblems), http.StatusSeeOther)
 }
 
 func (s *Server) deleteRedirectionHost(w http.ResponseWriter, r *http.Request) {
@@ -5756,7 +5774,10 @@ func (s *Server) buildHTTPRoutes(proxies []models.ProxyHost, redirs []models.Red
 	}
 	routes := s.buildMergedRoutes(httpProxies, httpRedirs, httpRaws)
 	if redirect := buildHTTPSRedirectRoute(forcedDomains); redirect != nil {
-		routes = append(routes, redirect)
+		// v2.68.3 (issue #149): after the last host-matched route, but before
+		// any catch-all that follows it. Appended at the end, a catch-all
+		// Advanced route served on :80 answered every Force SSL host first.
+		routes = insertAfterLastHostRoute(routes, redirect)
 	}
 	// The HTTPS redirect for forced hosts must also beat a wildcard host that
 	// is served on :80 (issue #129).
@@ -5764,6 +5785,25 @@ func (s *Server) buildHTTPRoutes(proxies []models.ProxyHost, redirs []models.Red
 	// The fallback goes after the HTTPS redirect, so a forced-SSL host is
 	// redirected rather than answered with the fallback 404 (issue #123).
 	return s.withFallbackRoute(routes)
+}
+
+// insertAfterLastHostRoute returns routes with route placed just after the
+// last route that matches on hostnames, or first when none does, so no
+// catch-all after the host routes can shadow it. Caddy's automatic HTTPS puts
+// the redirects it adds to an existing :80 server at the same place
+// (caddyserver/caddy#3212). Inserted at a host-route position, the redirect
+// still takes part in sortRoutesBySpecificity.
+func insertAfterLastHostRoute(routes []any, route any) []any {
+	at := 0
+	for i, r := range routes {
+		if _, ok := routeSpecificity(r); ok {
+			at = i + 1
+		}
+	}
+	out := make([]any, 0, len(routes)+1)
+	out = append(out, routes[:at]...)
+	out = append(out, route)
+	return append(out, routes[at:]...)
 }
 
 func buildHTTPSRedirectRoute(domains []string) map[string]any {

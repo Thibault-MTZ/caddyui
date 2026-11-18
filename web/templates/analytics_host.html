@@ -104,11 +104,11 @@
     </div>
   </div>
   {{if .Buckets}}
-  {{/* v2.66.0 (issue #145 items 2 and 3): each bar is split by response class
-       so a rise in errors is visible without opening another page, and each
-       bar links into the explorer bounded to that exact bucket — which is how
-       "what happened during that spike" gets answered in one click rather
-       than by reconstructing a time range by hand. */}}
+  {{/* v2.68.2 (issue #145 follow-up): stacked by response class rather than
+       one red "errors" band. Lumping 4xx with 5xx made a scanner's 404s look
+       identical to the backend being down, which is the opposite of useful.
+       Colours match the status-mix chips used everywhere else. Each bar still
+       links to its own time bucket. */}}
   {{$srv := "all"}}{{if ne .SelectedServerID 0}}{{$srv = printf "%d" .SelectedServerID}}{{end}}
   {{$bs := .BucketSeconds}}
   <svg viewBox="0 0 {{len .Buckets}} 40" preserveAspectRatio="none" class="w-full h-32">
@@ -116,23 +116,29 @@
     {{range .Buckets}}{{if gt .Views $max}}{{$max = .Views}}{{end}}{{end}}
     {{if eq $max 0}}{{$max = 1}}{{end}}
     {{range $i, $b := .Buckets}}
-      {{$h := 0}}{{if gt $b.Views 0}}{{$h = mulDivInt $b.Views 38 $max}}{{end}}
       {{$key := $b.Hour.Unix}}
       {{$mix := index $.StatusMixByBucket $key}}
-      {{$err := addInt $mix.S4xx $mix.S5xx}}
-      {{$errH := 0}}{{if gt $err 0}}{{$errH = mulDivInt $err 38 $max}}{{end}}
-      {{if gt $errH $h}}{{$errH = $h}}{{end}}
       <a href="/analytics/requests?host={{urlquery $.Host}}&amp;from={{$key}}&amp;to={{addInt64 $key $bs}}&amp;server={{$srv}}">
-        <title>{{$b.Hour.Format "2 Jan 15:04"}} — {{$b.Views}} requests{{if gt $err 0}}, {{$err}} errors{{end}}</title>
-        {{/* Full bar, then the 4xx+5xx portion drawn over its base. */}}
-        <rect x="{{$i}}" y="{{subInt 40 $h}}" width="0.85" height="{{$h}}" fill="#3b82f6" opacity="0.75"/>
-        {{if gt $errH 0}}<rect x="{{$i}}" y="{{subInt 40 $errH}}" width="0.85" height="{{$errH}}" fill="#ef4444" opacity="0.95"/>{{end}}
+        <title>{{$b.Hour.Format "2 Jan 15:04"}} — {{$b.Views}} requests{{if gt $mix.S4xx 0}} · {{$mix.S4xx}}×4xx{{end}}{{if gt $mix.S5xx 0}} · {{$mix.S5xx}}×5xx{{end}}</title>
+        {{/* Stacked from the baseline up, so each class keeps its own colour
+             and a 5xx band is never hidden behind a 4xx one. */}}
+        {{$y := 40}}
+        {{$h2 := mulDivInt $mix.S2xx 38 $max}}{{if gt $h2 0}}<rect x="{{$i}}" y="{{subInt $y $h2}}" width="0.85" height="{{$h2}}" fill="#10b981" opacity="0.85"/>{{$y = subInt $y $h2}}{{end}}
+        {{$h3 := mulDivInt $mix.S3xx 38 $max}}{{if gt $h3 0}}<rect x="{{$i}}" y="{{subInt $y $h3}}" width="0.85" height="{{$h3}}" fill="#0ea5e9" opacity="0.85"/>{{$y = subInt $y $h3}}{{end}}
+        {{$h4 := mulDivInt $mix.S4xx 38 $max}}{{if gt $h4 0}}<rect x="{{$i}}" y="{{subInt $y $h4}}" width="0.85" height="{{$h4}}" fill="#f59e0b" opacity="0.95"/>{{$y = subInt $y $h4}}{{end}}
+        {{$h5 := mulDivInt $mix.S5xx 38 $max}}{{if gt $h5 0}}<rect x="{{$i}}" y="{{subInt $y $h5}}" width="0.85" height="{{$h5}}" fill="#ef4444" opacity="0.95"/>{{$y = subInt $y $h5}}{{end}}
+        {{$ho := mulDivInt $mix.Other 38 $max}}{{if gt $ho 0}}<rect x="{{$i}}" y="{{subInt $y $ho}}" width="0.85" height="{{$ho}}" fill="#94a3b8" opacity="0.85"/>{{$y = subInt $y $ho}}{{end}}
+        {{/* No status rows for this bucket (older data predating the mix
+             query) — draw the plain total so the chart has no holes. */}}
+        {{if eq $mix.Total 0}}{{$h := mulDivInt $b.Views 38 $max}}{{if gt $h 0}}<rect x="{{$i}}" y="{{subInt 40 $h}}" width="0.85" height="{{$h}}" fill="#3b82f6" opacity="0.6"/>{{end}}{{end}}
       </a>
     {{end}}
   </svg>
   <div class="flex items-center gap-3 mt-2 text-[10px] text-ink-500">
-    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#3b82f6"></span>all requests</span>
-    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#ef4444"></span>4xx / 5xx</span>
+    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#10b981"></span>2xx</span>
+    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#0ea5e9"></span>3xx</span>
+    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#f59e0b"></span>4xx</span>
+    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#ef4444"></span>5xx</span>
     <span class="text-ink-400">· click a bar to list that period's requests</span>
   </div>
   {{else}}

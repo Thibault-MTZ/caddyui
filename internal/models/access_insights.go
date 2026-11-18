@@ -31,6 +31,12 @@ type InsightFilter struct {
 	// UASearch matches a substring of the user agent, case-insensitively.
 	UASearch string
 	ServerID int64
+	// Scoped limits the filter to OnlyHosts (exact names or "*.example.com"
+	// wildcards): the hosts a non-admin may see. Scoped with no hosts matches
+	// nothing. Without it, a viewer's search with no host picked counted
+	// everyone's requests in its total and status mix (v2.68.3).
+	Scoped    bool
+	OnlyHosts []string
 }
 
 // where builds the SQL fragment and arguments for the filter. The leading
@@ -70,6 +76,20 @@ func (f InsightFilter) where() (string, []any) {
 	if clause, serverArgs := serverMatchClause(f.ServerID); clause != "" {
 		b.WriteString(clause)
 		args = append(args, serverArgs...)
+	}
+	if f.Scoped {
+		var alts []string
+		for _, h := range f.OnlyHosts {
+			if clause, hostArgs := hostMatchClause(h); clause != "" {
+				alts = append(alts, strings.TrimPrefix(clause, " AND "))
+				args = append(args, hostArgs...)
+			}
+		}
+		if len(alts) == 0 {
+			b.WriteString(" AND 1=0")
+		} else {
+			b.WriteString(" AND (" + strings.Join(alts, " OR ") + ")")
+		}
 	}
 	return b.String(), args
 }

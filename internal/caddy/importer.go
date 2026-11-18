@@ -110,6 +110,13 @@ func parseConfig(cfg map[string]any) *ImportResult {
 		if srvName == "remaining_auto_https_redirects" {
 			continue
 		}
+		// v2.68.3 (issue #149): so is CaddyUI's own :80 server, rebuilt from
+		// the database on every sync. Importing it duplicated the plain-HTTP
+		// hosts, stored the fallback as an Advanced route, and turned the Force
+		// SSL redirect into a Redirection host that claimed the forced hosts.
+		if srvName == "caddyui_http" {
+			continue
+		}
 		// v2.36.1 (issue #64): a server on a non-standard port keeps that port
 		// on every route it contributes. Proxy hosts and redirects have no
 		// notion of a listen port, so such routes are always imported as raw.
@@ -121,6 +128,13 @@ func parseConfig(cfg map[string]any) *ImportResult {
 			label := strings.Join(hosts, ",")
 			if label == "" {
 				label = fmt.Sprintf("%s route[%d] (no host match)", srvName, i)
+			}
+			// v2.68.3 (issue #149): CaddyUI adds its fallback to every sync
+			// itself. Stored as an Advanced route it was served on :80 too, in
+			// front of the Force SSL redirects.
+			if isCaddyUIFallback(route) {
+				r.Skipped = append(r.Skipped, label+": CaddyUI's own fallback page (Settings), added on every sync")
+				continue
 			}
 
 			kind, proxy, redir := classifyRoute(route, hosts)
@@ -148,6 +162,42 @@ func parseConfig(cfg map[string]any) *ImportResult {
 		}
 	}
 	return r
+}
+
+// isCaddyUIFallback reports whether route is the catch-all CaddyUI appends to
+// its servers (v2.59.4, issue #123): no matcher, terminal, and one error
+// handler or the custom fallback page's static_response, optionally behind
+// the CrowdSec guard that protectRoutesWithCrowdSec puts in front.
+func isCaddyUIFallback(route map[string]any) bool {
+	if len(route) != 2 || route["terminal"] != true {
+		return false
+	}
+	handle, _ := route["handle"].([]any)
+	if len(handle) == 2 {
+		guard, _ := handle[0].(map[string]any)
+		b, _ := json.Marshal(guard)
+		if guard["handler"] != "crowdsec" && (guard["handler"] != "subroute" || !strings.Contains(string(b), `"handler":"crowdsec"`)) {
+			return false
+		}
+		handle = handle[1:]
+	}
+	if len(handle) != 1 {
+		return false
+	}
+	h, _ := handle[0].(map[string]any)
+	if _, ok := h["status_code"].(float64); !ok {
+		return false
+	}
+	switch h["handler"] {
+	case "error":
+		return len(h) == 2
+	case "static_response":
+		body, _ := h["body"].(string)
+		headers, _ := h["headers"].(map[string]any)
+		ct, _ := headers["Content-Type"].([]any)
+		return len(h) == 4 && body != "" && len(headers) == 1 && len(ct) == 1 && ct[0] == "text/html; charset=utf-8"
+	}
+	return false
 }
 
 type routeKind int

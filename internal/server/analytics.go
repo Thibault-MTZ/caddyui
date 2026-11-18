@@ -324,7 +324,9 @@ func (s *Server) scopedHostsForAnalytics(u *models.User, serverID int64) ([]stri
 	// teammate's proxy host, they should also see its traffic.
 	peers, _ := models.GroupPeerIDs(s.DB, u.ID)
 
-	var hosts []string
+	// Never nil for a non-admin: callers read nil as "admin, no host filter",
+	// so a viewer who could see no hosts was shown the whole fleet (v2.68.3).
+	hosts := []string{}
 	seen := make(map[string]bool)
 	add := func(raw string) {
 		d := strings.ToLower(strings.TrimSpace(raw))
@@ -415,16 +417,12 @@ func (s *Server) getAnalytics(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	isAdmin := u != nil && u.Role == models.RoleAdmin
-	// If we have a concrete scope — either non-admin anywhere or admin
-	// picking a specific server — treat it as per-host filter mode. The
-	// hot "nil allowedHosts = no filter" path only kicks in for admin
-	// viewing the full fleet.
-	//
-	// When an admin picks a server that has no routes at all, allowedHosts
-	// comes back as an empty non-nil slice. We still want the totals to
-	// show 0 rather than all-fleet, so "scoped" stays true and the per-host
-	// loops below execute with an empty list (zero iterations, zero sums).
-	scoped := allowedHosts != nil
+	// A non-admin is always in per-host filter mode; with no visible hosts
+	// the loops below run zero times and every figure is 0. An admin takes
+	// the single-query hot path, narrowed by access_events.server_id when a
+	// server is picked. v2.68.3: decided by role, not by allowedHosts being
+	// nil — a viewer with no hosts used to fall through to the fleet view.
+	scoped := !isAdmin
 	allServers, _ := models.ListCaddyServers(s.DB)
 
 	now := time.Now()
@@ -521,6 +519,14 @@ func (s *Server) getAnalytics(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	sparkline := fillBuckets(rawBuckets, twentyFourHoursAgo, now, bucketSec)
+	// v2.68.2 (issue #145 follow-up): colour the fleet chart by response class
+	// and make each bar drill through, matching the per-host chart. Scoped the
+	// same way the sparkline is, so a viewer never sees other tenants' errors.
+	var mixHosts []string
+	if scoped {
+		mixHosts = allowedHosts
+	}
+	mainStatusMix := s.statusMixByBucket(twentyFourHoursAgo, now, bucketSec, mixHosts, serverScopeID)
 
 	// Bandwidth (bytes_out) sparkline — same window and bucket as request sparkline.
 	var bwBuckets []models.BandwidthBucket
@@ -620,6 +626,8 @@ func (s *Server) getAnalytics(w http.ResponseWriter, r *http.Request) {
 		"LiveVisitors":       liveVisitors,
 		"Hosts":              hostRows,
 		"Sparkline":          sparkline,
+		"StatusMixByBucket":  mainStatusMix, // issue #145 follow-up
+		"BucketSeconds":      bucketSec,
 		"BandwidthSparkline": bwSparkline,
 		"BandwidthTotal":     bwTotal,
 		"BandwidthMax":       bwMax,
@@ -756,11 +764,7 @@ func (s *Server) getAnalyticsHost(w http.ResponseWriter, r *http.Request) {
 	if errLat != nil {
 		log.Printf("analytics: LatencySummary(%s): %v", host, errLat)
 	}
-	statusMix, _ := models.StatusMixBuckets(s.DB, insight, bucketSec)
-	mixByBucket := map[int64]models.StatusMixBucket{}
-	for _, b := range statusMix {
-		mixByBucket[b.Hour.Unix()] = b
-	}
+	mixByBucket := s.statusMixByBucket(since, now, bucketSec, []string{host}, serverScopeID)
 	serverScopeName := "All servers"
 	if serverScopeID > 0 {
 		serverScopeName = fmt.Sprintf("Server %d", serverScopeID)
@@ -872,6 +876,44 @@ func (s *Server) resolveAnalyticsScope(w http.ResponseWriter, r *http.Request) (
 		Since:           now.Add(-window),
 		Now:             now,
 	}, true
+}
+
+// statusMixByBucket returns the per-bucket status breakdown keyed by bucket
+// start, for colouring a request chart by response class.
+//
+// hosts nil means fleet-wide; a non-nil list restricts to those hosts and
+// merges their buckets, which is what a non-admin viewer needs — otherwise
+// the chart above their own hosts would be coloured by everyone's errors.
+//
+// v2.68.2 (issue #145 follow-up).
+func (s *Server) statusMixByBucket(from, to time.Time, bucketSec int64, hosts []string, serverID int64) map[int64]models.StatusMixBucket {
+	out := map[int64]models.StatusMixBucket{}
+	add := func(buckets []models.StatusMixBucket) {
+		for _, b := range buckets {
+			key := b.Hour.Unix()
+			m := out[key]
+			m.Hour = b.Hour
+			m.S2xx += b.S2xx
+			m.S3xx += b.S3xx
+			m.S4xx += b.S4xx
+			m.S5xx += b.S5xx
+			m.Other += b.Other
+			out[key] = m
+		}
+	}
+	if hosts == nil {
+		mix, err := models.StatusMixBuckets(s.DB, models.InsightFilter{From: from, To: to, ServerID: serverID}, bucketSec)
+		if err != nil {
+			log.Printf("analytics: StatusMixBuckets(unscoped): %v", err)
+		}
+		add(mix)
+		return out
+	}
+	for _, h := range hosts {
+		mix, _ := models.StatusMixBuckets(s.DB, models.InsightFilter{From: from, To: to, Host: h, ServerID: serverID}, bucketSec)
+		add(mix)
+	}
+	return out
 }
 
 // getAnalyticsVisitor renders the per-visitor drill-down for a single client IP

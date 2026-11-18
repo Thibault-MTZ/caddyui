@@ -2406,6 +2406,16 @@ func migrate(db *sql.DB) error {
 		migrationStep(db, `ALTER TABLE proxy_hosts ADD COLUMN rate_limit_window_sec INTEGER NOT NULL DEFAULT 0`)
 	}
 
+	// v2.68.0: record how an account actually signs in, so the Users page can
+	// show it. Nullable rather than defaulted: "never used SSO" and "used SSO
+	// at the zero time" must stay distinguishable.
+	if !columnExists2(db, "users", "sso_last_login") {
+		migrationStep(db, `ALTER TABLE users ADD COLUMN sso_last_login TIMESTAMP`)
+	}
+	if !columnExists2(db, "users", "sso_issuer") {
+		migrationStep(db, `ALTER TABLE users ADD COLUMN sso_issuer TEXT NOT NULL DEFAULT ''`)
+	}
+
 	// v2.64.0 (discussion #137): client certificate authentication (mTLS).
 	// Empty mode means off, so existing hosts keep asking for no client
 	// certificate after upgrade.
@@ -2485,6 +2495,22 @@ func migrate(db *sql.DB) error {
 	if !columnExists2(db, "users", "locale") {
 		migrationStep(db, `ALTER TABLE users ADD COLUMN locale TEXT NOT NULL DEFAULT ''`)
 	}
+
+	// v2.68.7 (issue #167): fold legacy strip_request_headers into the
+	// canonical strip_req_headers column. Both stripped request headers with
+	// identical semantics, but only strip_req_headers was understood by the
+	// Caddyfile exporter, so a user who filled the wrong box on the host form
+	// got headers stripped live but missing from an export — and filling both
+	// produced two strip directives. Values are merged, never dropped.
+	migrateStripRequestHeaders(db)
+
+	// The response-side twin of the above: fold the legacy v2.9.168
+	// strip_response_headers column into the canonical strip_resp_headers one.
+	// Same duplication, same exporter gap, same merge-never-drop rule. The
+	// legacy column's two extra integrations (the global strip setting and the
+	// SecurityHeaders bundle precedence) were moved onto the canonical field,
+	// so neither behaviour depends on the column this drains.
+	migrateStripResponseHeaders(db)
 
 	// One loud summary rather than leaving the operator to spot individual
 	// failures scattered through a long startup log.

@@ -5,23 +5,83 @@
 #   applegater/caddyui-caddy   only when Dockerfile.caddy changed since the
 #                              previous release tag (or when asked for by hand)
 #
-# The Caddy image is deliberately not rebuilt on every release: xcaddy fetches
-# each plugin at its latest version, so a blind rebuild could silently bump
-# plugins under everyone who pulls :stable. Its :vX.Y.Z tag names the CaddyUI
-# release that last changed the module set.
+# The Caddy image is deliberately not rebuilt on every release. Every --with
+# argument in Dockerfile.caddy now carries a version (pinned in v2.68.9), so a
+# rebuild no longer re-resolves plugins to latest the way it once could; the
+# rule stays because the module set should move only when someone edited the
+# file that defines it, and because the base image and toolchain are still
+# outside those pins. Its :vX.Y.Z tag names the CaddyUI release that last
+# changed the module set.
+#
+# When this workflow DOES rebuild it, the caddy job below gates the pushed
+# digest with scripts/caddy-image-gate.sh before ANY tag is created - the same
+# script and standard caddy-image-refresh.yml uses. Its module-drift policy
+# follows whether Dockerfile.caddy actually changed in this release: `report`
+# when it did, because such a release is allowed to change the module set
+# deliberately, and `block` when it did not. See the long comment on that step.
+#
+# That job pushes BY DIGEST and creates every tag afterwards, :vX.Y.Z included,
+# from the gated digest and only on a PASSING verdict - not merely on the gate
+# step exiting 0, which it also does on the one advisory path. So a release
+# that fails the gate leaves no tag behind at all, on any path. The gate is a
+# precondition for each name, not just for the two moving ones. Docker Hub tags
+# on these repositories are mutable, so "immutable :vX.Y.Z" was only ever a
+# convention; creating it after the verdict is what actually enforces it.
+# A tag-immutability rule on the repository (Settings -> General -> Tag
+# mutability, regex ^v[0-9]+\.[0-9]+\.[0-9]+$) would enforce the other half,
+# that a published version tag can never be overwritten by a later re-run.
+#
+# The flip side of that rule is that the Caddy image's Alpine layer only moves
+# when Dockerfile.caddy is edited, so Alpine security fixes can sit built-but-
+# unshipped between releases. caddy-image-refresh.yml closes that gap on a
+# weekly schedule and publishes those rebuilds as applegater/caddyui-caddy
+# :vX.Y.Z-pN (base-layer refresh N of release vX.Y.Z, same Caddy binary and
+# plugin set), moving :stable and :latest to the newest one. Tagging here is
+# unchanged: this workflow still emits only :vX.Y.Z, :stable and :latest, and
+# a release that does change Dockerfile.caddy publishes a fresh :vX.Y.Z whose
+# -pN counter then restarts at p1. docs/dockerhub.md documents -pN for users.
 #
 # Setup, once, by a repo admin (Settings -> Secrets and variables -> Actions):
 #   DOCKERHUB_USERNAME  Docker Hub account that owns applegater/*  (applegater)
+#                       -> the VARIABLES tab, not Secrets. It is a public
+#                       namespace: it is in every image name users pull, in the
+#                       README and in this file's own comments. Classifying it
+#                       as a secret made GitHub's masking rule apply to it, and
+#                       that rule DROPS any job output containing a secret
+#                       value - which is the only reason the output traps
+#                       documented below exist at all (T-0777).
 #   DOCKERHUB_TOKEN     Docker Hub access token, scope "Read & Write"
+#                       -> the SECRETS tab. This one genuinely is a secret.
 #                       (Docker Hub -> Account settings -> Personal access tokens)
-# Until both secrets exist the workflow still builds both architectures, so a
-# broken multi-arch build is caught, but it pushes nothing.
+# Until both exist the workflow still builds both architectures, so a broken
+# multi-arch build is caught, but it pushes nothing.
 #
 # Manual run (Actions -> Release Docker images -> Run workflow):
 #   version  an existing tag such as v2.56.3 (blank = the branch you ran it on,
 #            which can only ever be a build-only check)
 #   push     off by default; on = publish to Docker Hub
 #   caddy    also rebuild applegater/caddyui-caddy
+#
+# "An existing tag" is ENFORCED, not just advised (T-0755). A release-shaped
+# name that is not a tag in this repository fails the plan job, and a verified
+# release is passed downstream as refs/tags/<version> so no same-named branch
+# can be built in its place. A non-release name is still the documented
+# build-only check and is unaffected. scripts/test-release-plan-version-input.sh
+# covers both, and CI runs it.
+#
+# The build jobs hold the read/write DOCKERHUB_TOKEN, so every action and
+# image this file names is pinned: actions to a full commit SHA (the release
+# in the trailing comment), and the BuildKit, binfmt and SBOM-scanner images
+# to a digest. The runner's own docker/buildx and the Dockerfiles' base
+# images are outside these pins.
+# Dependabot bumps the action SHAs but not the three image digests. Bump those
+# by hand: resolve the moving tag the action would otherwise use, then check
+# with `docker buildx imagetools inspect` that the versioned tag you write has
+# the same digest:
+#   moby/buildkit:buildx-stable-1          -> moby/buildkit:vX.Y.Z
+#   tonistiigi/binfmt:latest               -> tonistiigi/binfmt:qemu-vX.Y.Z
+#   docker/buildkit-syft-scanner:stable-1  -> docker/buildkit-syft-scanner:X.Y.Z
+# Read `gh api repos/moby/buildkit/security-advisories` before moving BuildKit.
 name: Release Docker images
 
 on:
@@ -31,7 +91,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release tag to build, e.g. v2.56.3 (blank = this branch, build only)"
+        description: "Release TAG to build, e.g. v2.56.3 — must be a real tag (blank = this branch, build only)"
         required: false
         type: string
       push:
@@ -62,9 +122,19 @@ jobs:
       kind: ${{ steps.p.outputs.kind }}
       push: ${{ steps.p.outputs.push }}
       caddy: ${{ steps.p.outputs.caddy }}
+      caddy_changed: ${{ steps.p.outputs.caddy_changed }}
     steps:
+      # Deliberately UNQUALIFIED, unlike the `ref` this job hands downstream.
+      # This job must also accept a branch, because a branch dispatch is the
+      # documented build-only check, and it cannot qualify a name it has not
+      # verified yet - the verification is the step below. Which commit is in
+      # this working tree does not affect that step: fetch-depth: 0 brings the
+      # complete tag set either way, and `require_tag` and `git tag --list`
+      # read refs, not the checkout. Once a release name IS verified, the `ref`
+      # output is qualified to refs/tags/<version> so the build jobs cannot be
+      # steered to a same-named branch (T-0755).
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.version || github.ref }}
           fetch-depth: 0
@@ -75,7 +145,7 @@ jobs:
           INPUT_VERSION: ${{ inputs.version }}
           WANT_PUSH: ${{ github.event_name == 'push' || inputs.push }}
           WANT_CADDY: ${{ inputs.caddy }}
-          DH_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          DH_USER: ${{ vars.DOCKERHUB_USERNAME }}
           DH_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         shell: bash
         run: |
@@ -85,15 +155,62 @@ jobs:
           stable_re='^v[0-9]+\.[0-9]+\.[0-9]+$'
           pre_re='^v[0-9]+\.[0-9]+\.[0-9]+-[0-9A-Za-z.-]+$'
 
+          # A RELEASE-SHAPED NAME MUST BE A TAG, AND THE TAG IS WHAT GETS BUILT.
+          #
+          # Everything below decides `kind` from `$version` as a STRING, and
+          # `kind=stable` is what authorises :stable and :latest. So the string
+          # has to be tied to a fact about this repository before it is trusted,
+          # and the ref handed to the build jobs has to be the same object the
+          # decision was made about. Two separate holes, both open (T-0755):
+          #
+          #   1. NOT CHECKED TO BE A TAG. The regexes match any string of the
+          #      right shape. `git tag --list` only ever lists real tags, so a
+          #      BRANCH named vX.Y.Z higher than every tag lands on kind=older
+          #      rather than kind=stable - but a branch named EXACTLY the
+          #      newest release tag compares equal to it and reaches
+          #      kind=stable, with no tag of its own required.
+          #
+          #   2. THE CHECKOUT PREFERS THE BRANCH. `ref:` was an unqualified
+          #      name, and actions/checkout resolves one BRANCH-FIRST --
+          #      getCheckoutInfo() tries refs/remotes/origin/<ref> and only
+          #      falls back to refs/tags/<ref> (actions/checkout src/ref-
+          #      helper.ts). That is the OPPOSITE of plain `git rev-parse`,
+          #      which prefers refs/tags/. So where refs/heads/v2.68.12 and
+          #      refs/tags/v2.68.12 both exist, this shell reads the tag while
+          #      the build jobs check out the branch.
+          #
+          # Together: `refs/heads/<newest release tag>` pushed once is
+          # kind=stable computed from the real tag, applied to branch content.
+          # The caddy job's compare-and-swap re-reads origin's tags at move
+          # time and would still refuse, but applegater/caddyui has no such
+          # second check - it trusts `kind` - so :stable and :latest would be
+          # built from the branch. It needs push access, so it is hardening,
+          # not an incident; it is closed because this was the one guard rail
+          # that was a string match rather than a fact about the repository.
+          #
+          # Hole 1 is closed here. Hole 2 is closed by emitting a FULLY
+          # QUALIFIED refs/tags/<version> as the `ref` output below, which
+          # takes actions/checkout's unqualified branch-first path out of play
+          # for every downstream job. fetch-depth: 0 is already set, so the
+          # tags are present to verify against.
+          require_tag() {
+            git rev-parse -q --verify "refs/tags/$1^{commit}" >/dev/null && return 0
+            echo "::error::'$1' matches a release tag pattern but is not a tag in this repository. Release-shaped names must be tags; a branch of that name is not a release. Push the tag, or dispatch without a version to run a build-only check."
+            exit 1
+          }
+
           # Only a real release tag may publish. :stable and :latest move only
           # for a plain vX.Y.Z that is the newest release, so re-running an old
           # tag by hand can never roll them backwards; anything else gets just
           # its own :vX.Y.Z tag.
           kind=none
           if [[ "$version" =~ $stable_re ]]; then
+            require_tag "$version"
             newest="$(git tag --list 'v*' | grep -E "$stable_re" | sort -V | tail -1)"
             if [ "$version" = "$newest" ]; then kind=stable; else kind=older; fi
-          elif [[ "$version" =~ $pre_re ]]; then kind=pre
+          elif [[ "$version" =~ $pre_re ]]; then
+            require_tag "$version"
+            kind=pre
           else version=dev
           fi
 
@@ -102,39 +219,177 @@ jobs:
             if [ -n "$DH_USER" ] && [ -n "$DH_TOKEN" ]; then
               push=true
             else
-              echo "::notice::DOCKERHUB_USERNAME / DOCKERHUB_TOKEN are not set - building both architectures but not pushing."
+              echo "::notice::DOCKERHUB_USERNAME (variable) / DOCKERHUB_TOKEN (secret) are not set - building both architectures but not pushing."
             fi
           fi
 
           # Rebuild the Caddy image when asked, or when Dockerfile.caddy differs
           # from the previous release tag (nearest tag before this commit).
+          # caddy          = rebuild the image at all.
+          # caddy_changed   = Dockerfile.caddy ACTUALLY differs from the previous
+          #                   release. These are not the same question, and the
+          #                   gate's module-drift policy depends on the second,
+          #                   not the first. A hand-dispatched `caddy=true` with
+          #                   the file unchanged must still be held to "the
+          #                   module set may not move", because nothing in the
+          #                   source asked it to; treating that run as a release
+          #                   that intends drift would let a re-resolved plugin
+          #                   reach :stable with no reviewer, which is exactly
+          #                   what caddy-image-refresh.yml blocks.
           caddy=false
-          if [ "$WANT_CADDY" = "true" ]; then
-            caddy=true
-          elif [ "$kind" != none ]; then
+          caddy_changed=false
+          if [ "$kind" != none ]; then
             prev="$(git describe --tags --abbrev=0 "${version}^" 2>/dev/null || true)"
             if [ -z "$prev" ]; then
+              # No previous release to compare against: treat the module set as
+              # newly defined rather than drifted.
               caddy=true
+              caddy_changed=true
             elif ! git diff --quiet "$prev" "$version" -- Dockerfile.caddy; then
               caddy=true
+              caddy_changed=true
             fi
+          fi
+          # Asked for by hand: rebuild, but do NOT inherit "drift is expected"
+          # unless the diff above already established it.
+          if [ "$WANT_CADDY" = "true" ]; then
+            caddy=true
           fi
 
           # Only the version and release kind cross to the build jobs — never the
           # image names. GitHub silently DROPS any job output that contains the
-          # value of a secret, and "applegater" is the DOCKERHUB_USERNAME secret,
-          # so a tag list like applegater/caddyui:v1.2.3 would arrive empty
-          # ("tag is needed when pushing to registry"). Each build job builds its
-          # own tags from these two values instead.
+          # value of a secret. "applegater" USED TO BE the DOCKERHUB_USERNAME
+          # SECRET, so a tag list like applegater/caddyui:v1.2.3 arrived empty
+          # ("tag is needed when pushing to registry"). It is now a repository
+          # VARIABLE (T-0777) and variables are never masked, so that specific
+          # trap is disarmed.
+          #
+          # The split is KEPT anyway, and is not merely historical: the rule
+          # still applies to DOCKERHUB_TOKEN and to any secret added later, and
+          # a build job that derives its own tags cannot be handed a blank one.
+          # Each build job builds its own tags from these two values instead.
+          #
+          # `ref` is FULLY QUALIFIED for a release (T-0755). Every kind other
+          # than `none` has just been asserted to be a tag, so name it as one:
+          # refs/tags/<version> sends actions/checkout down its explicit
+          # refs/tags/ branch instead of the unqualified path that prefers
+          # refs/remotes/origin/<name>. Without this the plan job can verify a
+          # tag and the build jobs still check out a same-named branch.
+          #
+          # kind=none keeps the old value: that is the build-only branch
+          # dispatch the header documents, where a branch ref is the point and
+          # nothing publishes ($push stays false).
+          #
+          # THE kind=none VALUE IS VALIDATED BEFORE IT IS WRITTEN, because it is
+          # the one output on this path that is still raw dispatch input. A
+          # workflow_dispatch string may contain NEWLINES (the REST API and
+          # `gh workflow run -f x=$'a\nb'` both accept them), and every key here
+          # is written as a bare `name=value` line, so an input of
+          #
+          #     feature/x\nkind=stable\npush=true
+          #
+          # appends forged `kind` and `push` lines to $GITHUB_OUTPUT. Two
+          # accidents currently defuse it: a newline can never satisfy the
+          # `$`-anchored regexes above (bash has no multiline flag), so such an
+          # input always lands on kind=none/push=false; and `ref=` is written
+          # FIRST, so the legitimate keys below overwrite the forgeries under
+          # last-writer-wins.
+          #
+          # Neither is a guarantee worth standing on. The second is exactly the
+          # dependency the gate step further down this file refuses to accept -
+          # it uses an EXIT trap specifically so a key is never "written twice
+          # (which would depend on GitHub's undocumented duplicate-key
+          # precedence)". The same standard applies here: reject the value
+          # rather than rely on statement order, so adding an output above this
+          # line, or reordering the block, cannot turn a latent primitive into a
+          # live one.
+          #
+          # Git's own ref-name rules are stricter than this, and `checkout` will
+          # reject anything malformed anyway; this only has to exclude the
+          # characters that let a value forge a line or an argument.
+          if [ "$kind" != none ]; then
+            ref_out="refs/tags/$version"
+          else
+            ref_out="${INPUT_VERSION:-$GITHUB_REF}"
+            case "$ref_out" in
+              -*|*..*|*[!A-Za-z0-9._/-]*)
+                echo "::error::ref '${ref_out}' is not a valid git ref name for a build-only run (allowed: letters, digits, dot, underscore, slash, hyphen; no leading hyphen, no '..')"
+                exit 1 ;;
+            esac
+          fi
+
+          # NO OUTPUT MAY CONTAIN THE DOCKER HUB USERNAME (T-0760).
+          #
+          # GitHub silently DROPS any job output whose value contains the value
+          # of a secret. That rule is why image names never cross between jobs
+          # (see the comment above), but it was only ever applied to the image
+          # NAMES, never to these values.
+          #
+          # `pre_re` allows LETTERS in the prerelease suffix, so a tag such as
+          # v1.0.0-applegater contains the Docker Hub username verbatim, and so
+          # does the refs/tags/<version> built from it. While that username was
+          # a SECRET, both outputs arrived EMPTY at the build jobs.
+          #
+          # It is a repository VARIABLE since T-0777, so this guard is now
+          # belt-and-braces rather than load-bearing. It is KEPT deliberately:
+          # it costs one string comparison, it documents the trap, and it still
+          # fires if the value is ever reclassified as a secret again. DH_USER
+          # below reads `vars.`, so an empty DH_USER now means "variable not
+          # set" and the `-n` test skips the check entirely.
+          #
+          # The two blanked values fail in OPPOSITE ways, which is why BOTH are
+          # checked here rather than just `$version`:
+          #
+          #   version=""  fails CLOSED. The build jobs construct
+          #               "applegater/caddyui:$VERSION" -> "applegater/caddyui:",
+          #               a MALFORMED tag rather than an absent one, which
+          #               docker rejects at argument-parse as "invalid
+          #               reference format" - before login or push. Verified on
+          #               docker 29.9.3 / buildx v0.38.1, for both `build
+          #               --tag` and `imagetools create --tag`. A trailing
+          #               colon is NOT an alias for :latest: the tag is
+          #               optional only when the colon is absent, and the empty
+          #               string fails Docker's [\w][\w.-]{0,127} tag grammar.
+          #               So it cannot collide with :stable or :latest either.
+          #               KIND carries no secret so it survives, but kind=pre
+          #               keeps MOVE_TAGS=false regardless.
+          #
+          #   ref=""      fails OPEN and SILENTLY, which is worse. An empty
+          #               `ref` is not an error in actions/checkout - it is the
+          #               documented default meaning "the ref that triggered the
+          #               workflow, otherwise the default branch". So a
+          #               build-only dispatch of a branch whose name contains
+          #               the username would quietly build the DEFAULT BRANCH
+          #               and report green, telling whoever dispatched it that
+          #               their branch passed when it was never built.
+          #
+          # That second case is reachable ONLY on the kind=none path, where
+          # `version` has already been reassigned to the literal "dev" and so
+          # can never catch it: `ref_out` is built from the raw INPUT_VERSION
+          # independently. Checking the values actually WRITTEN, once both are
+          # final, is what closes it. This sits after kind-resolution, so a
+          # future loosening of stable_re cannot bypass it either.
+          #
+          # The `-n` test matters: an unset DH_USER (a fork, or this repo before
+          # the secrets exist) must not make the empty string match everything.
+          # "$DH_USER" is quoted inside the case pattern, so any glob
+          # metacharacter in it matches literally rather than as a pattern.
+          for guarded in "$version" "$ref_out"; do
+            if [ -n "${DH_USER:-}" ] && case "$guarded" in *"$DH_USER"*) true;; *) false;; esac; then
+              echo "::error::'$guarded' contains the Docker Hub username, so GitHub would silently drop this job's version/ref outputs: the build would either fail later with 'tag is needed when pushing to registry', or silently build the default branch instead of the ref you asked for. Rename the tag or branch."
+              exit 1
+            fi
+          done
           {
-            echo "ref=${INPUT_VERSION:-$GITHUB_REF}"
+            echo "ref=$ref_out"
             echo "version=$version"
             echo "kind=$kind"
             echo "push=$push"
             echo "caddy=$caddy"
+            echo "caddy_changed=$caddy_changed"
           } >> "$GITHUB_OUTPUT"
 
-          echo "version=$version kind=$kind push=$push caddy=$caddy"
+          echo "version=$version kind=$kind push=$push caddy=$caddy caddy_changed=$caddy_changed"
 
   caddyui:
     name: applegater/caddyui
@@ -142,20 +397,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.plan.outputs.ref }}
 
-      # The Dockerfiles cross-compile on the runner's own architecture, so no
-      # QEMU is needed for the arm64 image.
+      # The Dockerfile cross-compiles on the runner's own architecture, so no
+      # QEMU is needed for the arm64 image. The BuildKit image is the release
+      # that buildx-stable-1 pointed at when pinned.
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          driver-opts: image=moby/buildkit:v0.33.1@sha256:cec9f139f45e93c5c69c60f8b07cfad9f43f4ef6b6a6cd917527fea5ff2e3dea
 
       - name: Log in to Docker Hub
         if: needs.plan.outputs.push == 'true'
-        uses: docker/login-action@v4
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Work out image tags
@@ -165,6 +423,26 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
+          # Defence in depth against a DROPPED job output (T-0760). GitHub
+          # silently blanks any output whose value contains a secret. The plan
+          # job refuses a release name containing the Docker Hub username for
+          # that reason; since T-0777 that username is a VARIABLE, so it is no
+          # longer the live cause. This consumer-side assertion is what still
+          # earns its keep: it covers any future cause the plan job cannot
+          # anticipate - a new secret, or a new output added above - and it
+          # does not care which of them blanked the value.
+          #
+          # Without it an empty VERSION builds the tag "applegater/caddyui:",
+          # which docker rejects as "invalid reference format" - so it does
+          # fail closed, but several steps later and with the one word that
+          # explains it masked out of the log.
+          [ -n "$VERSION" ] || {
+            echo "::error::the plan job's 'version' output arrived EMPTY. GitHub drops any job output containing a secret value, so this usually means the release name contains the Docker Hub username. Rename the tag."
+            exit 1
+          }
+          [ -n "$KIND" ] || { echo "::error::the plan job's 'kind' output arrived EMPTY"; exit 1; }
+
           repo=applegater/caddyui
           {
             echo "TAGS<<EOF"
@@ -176,8 +454,10 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_ENV"
 
+      # `sbom: true` would run docker/buildkit-syft-scanner:stable-1, a moving
+      # tag, inside this BuildKit, so the scanner is named by digest instead.
       - name: Build (and push) linux/amd64 + linux/arm64
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: Dockerfile
@@ -187,7 +467,7 @@ jobs:
           tags: ${{ env.TAGS }}
           push: ${{ needs.plan.outputs.push == 'true' }}
           provenance: mode=max
-          sbom: true
+          sbom: generator=docker.io/docker/buildkit-syft-scanner:1.12.0@sha256:ae4f3b554449e7e25548e7d8ccc029d17357348e30c6e3df01b92bc93654d6a9
 
       - name: Verify every pushed tag is one multi-arch image
         if: needs.plan.outputs.push == 'true'
@@ -214,20 +494,64 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.plan.outputs.ref }}
 
+      # Caddy itself still cross-compiles natively; QEMU only runs the final
+      # stage's `apk upgrade` inside the arm64 alpine image. The binfmt image
+      # runs privileged, hence its digest pin. It is pulled every time rather
+      # than restored from the Actions cache, which the action falls back to
+      # when a pull fails.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+        with:
+          image: tonistiigi/binfmt:qemu-v10.2.3@sha256:400a4873b838d1b89194d982c45e5fb3cda4593fbfd7e08a02e76b03b21166f0
+          platforms: arm64
+          cache-image: false
+
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          driver-opts: image=moby/buildkit:v0.33.1@sha256:cec9f139f45e93c5c69c60f8b07cfad9f43f4ef6b6a6cd917527fea5ff2e3dea
 
       - name: Log in to Docker Hub
         if: needs.plan.outputs.push == 'true'
-        uses: docker/login-action@v4
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # NO tag is pushed by the build. The build uploads the manifest under its
+      # DIGEST only; every tag - :vX.Y.Z as much as :stable and :latest - is
+      # created afterwards, from that digest, and only once the gate below has
+      # passed on the bytes that were actually uploaded.
+      #
+      # Why :vX.Y.Z is not pushed by the build either (T-0627). It used to be,
+      # on the reasoning that it is "immutable" and therefore harmless to
+      # publish early. Both are wrong:
+      #
+      #   - A BLOCKED RELEASE KEPT ITS VERSION TAG. The gate holds :stable and
+      #     :latest back, which is what protects the six boxes, but :vX.Y.Z
+      #     already pointed at the image that failed. applegateserver's own
+      #     convention is to pin explicit version tags, so the one consumer
+      #     most likely to be pinned pulled exactly the bytes the gate
+      #     rejected. A blocked release is a NORMAL outcome now that the gate
+      #     exists, so this is a path that gets taken, not a corner case.
+      #   - IT IS NOT IMMUTABLE. Docker Hub tags on this repository are
+      #     overwritable: a re-run, or a workflow_dispatch with caddy=true
+      #     against an existing tag, replaces :vX.Y.Z with fresh ungated bytes,
+      #     and for kind=older that happens with no tag move and no gate
+      #     consequence whatsoever. "Immutable" was true by convention only,
+      #     and the convention was not enforced anywhere.
+      #
+      # Creating every tag after the verdict makes the gate a precondition for
+      # ALL of them rather than just the moving two. Nothing reachable by name
+      # exists until the image has passed.
+      #
+      # KIND is still read here so a non-stable release (an older tag re-run by
+      # hand, or a prerelease) creates only its own :vX.Y.Z and leaves the
+      # moving tags alone.
       - name: Work out image tags
         env:
           VERSION: ${{ needs.plan.outputs.version }}
@@ -235,42 +559,579 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
+          # Defence in depth against a DROPPED job output (T-0760) - see the
+          # same assertion in the caddyui job. Here an empty VERSION would
+          # build VERSION_TAG="applegater/caddyui-caddy:", which the later
+          # `imagetools create --tag` rejects as "invalid reference format":
+          # fail-closed, but only after the image has been built, pushed by
+          # digest and gated, and with the explanation masked from the log.
+          [ -n "$VERSION" ] || {
+            echo "::error::the plan job's 'version' output arrived EMPTY. GitHub drops any job output containing a secret value, so this usually means the release name contains the Docker Hub username. Rename the tag."
+            exit 1
+          }
+          [ -n "$KIND" ] || { echo "::error::the plan job's 'kind' output arrived EMPTY"; exit 1; }
+
           repo=applegater/caddyui-caddy
           {
-            echo "TAGS<<EOF"
-            echo "$repo:$VERSION"
-            if [ "$KIND" = stable ]; then
-              echo "$repo:stable"
-              echo "$repo:latest"
-            fi
-            echo "EOF"
+            echo "IMAGE=$repo"
+            echo "VERSION_TAG=$repo:$VERSION"
+            if [ "$KIND" = stable ]; then echo "MOVE_TAGS=true"; else echo "MOVE_TAGS=false"; fi
           } >> "$GITHUB_ENV"
 
-      - name: Build (and push) linux/amd64 + linux/arm64
-        uses: docker/build-push-action@v7
+      # `outputs:` rather than `tags:` + `push:`.
+      #
+      # push-by-digest=true uploads the manifest with no tag attached, so the
+      # registry holds the bytes and nothing resolves to them by name yet.
+      # name= still has to name the repository - that is where the blobs go -
+      # and name-canonical=true makes the action report repo@sha256:… .
+      #
+      # A BUILD-ONLY RUN (push=false) must not set this exporter at all: the
+      # unpushed case has no registry to upload to, and type=image,push=false
+      # would simply discard the result. The two shapes are therefore selected
+      # by the same needs.plan.outputs.push the old `push:` input used, so a
+      # secrets-less run still builds both architectures and publishes nothing,
+      # exactly as the file's header promises. `cacheonly` is the no-op
+      # exporter for that case; the build itself still runs in full.
+      - name: Build (and push by digest) linux/amd64 + linux/arm64
+        id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: Dockerfile.caddy
           platforms: linux/amd64,linux/arm64
-          tags: ${{ env.TAGS }}
-          push: ${{ needs.plan.outputs.push == 'true' }}
+          outputs: ${{ needs.plan.outputs.push == 'true' && format('type=image,name={0},push-by-digest=true,name-canonical=true,push=true', env.IMAGE) || 'type=cacheonly' }}
           provenance: mode=max
-          sbom: true
+          sbom: generator=docker.io/docker/buildkit-syft-scanner:1.12.0@sha256:ae4f3b554449e7e25548e7d8ccc029d17357348e30c6e3df01b92bc93654d6a9
 
-      - name: Verify every pushed tag is one multi-arch image
+      # ---------------------------------------------------------------------
+      # The release gate. Same script, same standard, as the weekly refresh.
+      #
+      # Why it is HERE and not only in caddy-image-refresh.yml: this workflow
+      # is the one that publishes :vX.Y.Z and MOVES :stable and :latest, and
+      # six boxes track those two tags. Until this gate existed the protection
+      # was backwards — a base-layer refresh (unchanged source, lowest risk)
+      # was gated twice and sat behind a required reviewer, while a release
+      # (which can change the module set arbitrarily, because Dockerfile.caddy
+      # is edited) was gated not at all by CI. The only thing standing in for
+      # it was a human remembering to scan the pushed digest afterwards.
+      #
+      # MODULE_DRIFT_POLICY is conditional, and that is the point. On the
+      # refresh path any module-set drift is wrong by definition. On this path
+      # a changed module set is the expected outcome of a release that EDITS
+      # Dockerfile.caddy — blocking that would forbid the exact route the
+      # refresh gate tells plugin bumps to take — so those runs get `report`:
+      # drift is diffed and recorded, and the verdict is gate 1's alone.
+      #
+      # A release that did NOT touch Dockerfile.caddy gets `block`, the same
+      # standard as the refresh. That covers the hand-dispatched `caddy=true`
+      # rebuild of an unchanged file: nothing in the source asked the module
+      # set to move, so if it moved that is a re-resolved plugin reaching
+      # :stable with no reviewer, which is what the refresh gate exists to
+      # stop. Under either policy a release that introduces a vulnerability
+      # the published image does not have still blocks.
+      #
+      # Order is push-by-digest -> gate -> imagetools create, which is the
+      # refresh path's push -> re-gate -> create with the tag taken off the
+      # first step (T-0627). On any non-passing verdict NO tag exists for this
+      # build at all: the bytes sit in the registry addressable only by digest,
+      # :stable and :latest stay where they were, and :vX.Y.Z still points at
+      # whatever it pointed at before - nothing, for a new release. So nothing
+      # the fleet pulls has changed, and nothing pinned to the version can
+      # reach the rejected image either.
+      #
+      # The steps that create tags key off steps.gate.outputs.passed rather
+      # than off this step succeeding, because the two are NOT the same
+      # question: the advisory path below exits 0 with findings.
+      # ---------------------------------------------------------------------
+      - name: Stage the gate script outside the working tree
+        if: needs.plan.outputs.push == 'true'
+        # Passed through env rather than interpolated into the script body:
+        # ${{ }} inside run: is the shape that becomes script injection, even
+        # where the value is a regex-constrained tag name.
+        env:
+          VERSION: ${{ needs.plan.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The script lives on the ref being released, which for any tag cut
+          # from main after it landed is correct. A tag from before it existed
+          # cannot be gated: say so and fail rather than moving :stable and
+          # :latest unchecked, which is the whole defect this closes.
+          [ -x scripts/caddy-image-gate.sh ] || {
+            echo "::error::scripts/caddy-image-gate.sh is missing or not executable on ${VERSION}; refusing to publish this image ungated"
+            exit 1
+          }
+          cp scripts/caddy-image-gate.sh "$RUNNER_TEMP/caddy-image-gate.sh"
+          chmod +x "$RUNNER_TEMP/caddy-image-gate.sh"
+
+      - name: Install Trivy
+        if: needs.plan.outputs.push == 'true'
+        uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
+        with:
+          version: v0.76.2
+          cache: true
+
+      # Once, so every scan in this run compares against the same DB version.
+      # A subset comparison across two DB versions is meaningless.
+      - name: Download Trivy databases once
         if: needs.plan.outputs.push == 'true'
         shell: bash
         run: |
           set -euo pipefail
-          first=""
-          while read -r tag; do
-            [ -n "$tag" ] || continue
-            out="$(docker buildx imagetools inspect "$tag")"
+          trivy image --download-db-only
+          trivy image --download-java-db-only || true
+
+      - name: Gate the pushed digest against the published image
+        id: gate
+        if: needs.plan.outputs.push == 'true'
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+          # report ONLY when Dockerfile.caddy actually changed in this release.
+          # A hand-dispatched rebuild of an unchanged file gets `block`, the
+          # same standard as the weekly refresh: the module set had no reason
+          # to move, so if it moved that is a fault, not an intention.
+          MODULE_DRIFT_POLICY: ${{ needs.plan.outputs.caddy_changed == 'true' && 'report' || 'block' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [ -n "$DIGEST" ] || { echo "::error::build-push-action reported no digest"; exit 1; }
+
+          gate="$RUNNER_TEMP/caddy-image-gate.sh"
+          [ -x "$gate" ] || { echo "::error::staged gate script missing at $gate"; exit 1; }
+
+          # The baseline is the image the fleet is running right now, which is
+          # what :stable points at until the create step below moves it. On the
+          # very first gated release :stable exists, so this is always
+          # resolvable; if it ever is not, the script hard-stops rather than
+          # comparing against an empty set, which would make every finding new.
+          #
+          # That baseline only MEANS something when this build is about to
+          # become :stable. For an older tag re-run by hand, or a prerelease,
+          # MOVE_TAGS is false and nothing moves whatever the verdict is -- and
+          # :stable has usually closed findings since, so the comparison is
+          # backwards and would fail a build that was never going to publish.
+          # Such a run is gated for its REPORT only: the verdict is recorded in
+          # the summary and the artifacts, and a block does not fail the job,
+          # because there is nothing to hold back.
+
+          # Record what :stable is RIGHT NOW, before gating, so the move step
+          # can confirm it has not moved underneath this run. Captured as the
+          # index digest, which is what imagetools reports for a tag. This is
+          # written to the REAL $GITHUB_OUTPUT, before the redirect below.
+          baseline_digest="$(docker buildx imagetools inspect "${IMAGE}:stable" 2>/dev/null \
+                             | awk '/^Digest:/{print $2; exit}' || true)"
+          echo "baseline_digest=$baseline_digest" >> "$GITHUB_OUTPUT"
+          echo "baseline :stable = ${baseline_digest:-<unresolved>}"
+
+          # `passed` is what authorises tag creation, and it is published from
+          # an EXIT TRAP so that exactly one value is ever written, on every
+          # path, including one this script does not anticipate. It defaults to
+          # false and is only flipped on the single success path below, so a
+          # crash, a `set -e` abort or an early return withholds the tags
+          # rather than leaving the key absent (which an `== 'true'` test would
+          # read correctly, but silently) or written twice (which would depend
+          # on GitHub's undocumented duplicate-key precedence).
+          #
+          # The real output file is captured before the redirect below takes
+          # $GITHUB_OUTPUT away from this shell.
+          REAL_OUTPUT="$GITHUB_OUTPUT"
+          gate_passed=false
+          trap 'echo "passed=$gate_passed" >> "$REAL_OUTPUT"' EXIT
+
+          # The script appends its own per-arch summary to $GITHUB_STEP_SUMMARY
+          # and writes its own $GITHUB_OUTPUT keys. This step publishes the
+          # COMBINED summary instead, so send the script's copies elsewhere:
+          # otherwise each arch prints twice, and the two calls' identical
+          # output keys would append after (and conflict with) baseline_digest
+          # above. The gate's `summary` output also embeds the image name, which
+          # contained the DOCKERHUB_USERNAME SECRET until T-0777 made it a
+          # variable; keeping those writes out of this step's real output file
+          # avoided that trap too, and still isolates the key collision above,
+          # which is reason enough on its own.
+          SUMMARY_OUT="$GITHUB_STEP_SUMMARY"
+          export GITHUB_STEP_SUMMARY=/dev/null
+          export GITHUB_OUTPUT="$RUNNER_TEMP/gate-output.discard"
+
+          # Exit 1 is a VERDICT (blocked); exit 2 means the gate could not run
+          # and must never be collapsed into it. Both deny the tag, but only
+          # the second means the summary below describes nothing that was
+          # actually compared, so it is reported as its own error rather than
+          # as a finding the reader can go and look at. caddy-image-gate.sh
+          # documents these statuses, and the refresh path already separates
+          # them; this is the one place the two standards had drifted.
+          fail=0
+          run_gate() {
+            local out_dir="$1" arch="$2" rc=0
+            "$gate" "${IMAGE}@${DIGEST}" "${IMAGE}:stable" "$out_dir" "$arch" || rc=$?
+            case "$rc" in
+              0) ;;
+              1) fail=1 ;;
+              *) echo "::error::the release gate could not run for linux/${arch} (exit $rc); refusing to create any tag"
+                 exit 1 ;;
+            esac
+          }
+          run_gate release-gate       amd64
+          run_gate release-gate-arm64 arm64
+
+          {
+            echo "## linux/amd64"
+            cat release-gate/summary.md 2>/dev/null || echo "_gate did not run_"
+            echo
+            echo "## linux/arm64"
+            cat release-gate-arm64/summary.md 2>/dev/null || echo "_gate did not run_"
+          } > release-gate-combined.md
+
+          if [ "$fail" -ne 0 ] && [ "$MOVE_TAGS" != true ]; then
+            {
+              echo "### Gate reported findings — no tag was created"
+              echo
+              echo "\`${VERSION_TAG}\` was not becoming \`:stable\`/\`:latest\` on this run (an older tag re-run by hand, or a prerelease), so the gate does not FAIL the job here — there was nothing to hold back. It still withholds the tag: \`${VERSION_TAG}\` was NOT created, and nothing points at this build."
+              echo
+              echo "Compared against the CURRENT \`:stable\`, which is normally NEWER than this build, so findings it has since closed show up as newly introduced. Read the detail below on its own terms — if the findings are only that artefact, re-cut the release rather than tagging this digest by hand."
+            } >> "$SUMMARY_OUT"
+            cat release-gate-combined.md >> "$SUMMARY_OUT"
+            echo "::notice::gate reported findings; the job stays green because MOVE_TAGS=false, but no tag was created"
+            exit 0
+          fi
+
+          if [ "$fail" -ne 0 ]; then
+            {
+              echo "### ⛔ No tag was created"
+              echo
+              echo "The image was uploaded BY DIGEST ONLY and did NOT pass the release gate, so no tag was created for it: \`${VERSION_TAG}\`, \`:stable\` and \`:latest\` were all left exactly as they were. Nothing the six boxes pull has moved, and nothing pinned to that version can reach these bytes."
+              echo
+              # Which causes are possible depends on the drift policy this run
+              # used, so do not describe one policy's rules under the other.
+              # Saying "a module-set change alone does NOT cause this" on a
+              # `block` run would send the reader hunting for a CVE that is not
+              # there, when the drift table below already names the real cause.
+              if [ "${MODULE_DRIFT_POLICY:-block}" = report ]; then
+                echo "A module-set change alone does NOT cause this — this release edited \`Dockerfile.caddy\`, so drift is reported, not blocked. This means the new image carries a vulnerability the published image does not have, against the same package, or the gate could not read one of the two images."
+              else
+                echo "This release did NOT edit \`Dockerfile.caddy\`, so the module set was held to the weekly refresh's standard: it may not move. Either the new image carries a vulnerability the published image does not have, against the same package, or an unexpected module-set change was detected (see the module drift section below), or the gate could not read one of the two images."
+                echo
+                echo "An unexpected module-set change on an unchanged \`Dockerfile.caddy\` usually means a plugin re-resolved. Pin it rather than creating the tags by hand."
+              fi
+              echo
+              echo "Fix forward with a new patch release. Do not create the tags by hand."
+              echo
+              echo "The rejected manifest stays in the registry unreferenced, addressable only as \`${IMAGE}@${DIGEST}\`, so the scan below can be reproduced against the exact bytes that failed."
+            } >> "$SUMMARY_OUT"
+            cat release-gate-combined.md >> "$SUMMARY_OUT"
+            echo "::error::the image did not pass the release gate; NO tag was created (not :vX.Y.Z, :stable or :latest)"
+            exit 1
+          fi
+
+          # The ONLY path that authorises tag creation; the EXIT trap publishes
+          # it.
+          gate_passed=true
+          cat release-gate-combined.md >> "$SUMMARY_OUT"
+
+      - name: Upload gate artifacts
+        if: always() && needs.plan.outputs.push == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: caddy-release-gate-${{ needs.plan.outputs.version }}
+          path: |
+            release-gate/
+            release-gate-arm64/
+            release-gate-combined.md
+          retention-days: 90
+
+      # THE VERSION TAG IS CREATED HERE, not by the build (T-0627).
+      #
+      # Guarded on steps.gate.outputs.passed, NOT merely on the gate step
+      # having succeeded. The gate deliberately exits 0 on one path where it
+      # found something: an older tag re-run by hand or a prerelease, where
+      # MOVE_TAGS is false and the baseline comparison runs backwards, so the
+      # job stays green because there was nothing to hold back. A green step
+      # is therefore NOT the same question as a passing verdict, and only the
+      # verdict may authorise a tag. `passed` is written false up front and set
+      # true on exactly one path, so an unanticipated exit withholds the tag.
+      #
+      # Without that distinction this step reintroduced the very defect the
+      # card is about, just one path over: a gate-blocked `kind=older` rebuild
+      # would have overwritten a published :vX.Y.Z with rejected bytes on a
+      # green job. Found in review, not in production.
+      #
+      # Separate from the move step below BECAUSE the two have different
+      # preconditions. :vX.Y.Z is this build's own name and is correct for
+      # every publishing run, including a prerelease and a deliberate re-run of
+      # an older tag. :stable and :latest are the fleet's names and additionally
+      # require that this really is still the newest release - see the step
+      # after this one. Collapsing them would either withhold the version tag
+      # from a prerelease or hand the moving tags to an older one.
+      - name: Create :vX.Y.Z from the gated digest
+        if: needs.plan.outputs.push == 'true' && steps.gate.outputs.passed == 'true'
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+          VERSION: ${{ needs.plan.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [ -n "$DIGEST" ] || { echo "::error::build-push-action reported no digest"; exit 1; }
+
+          # Overwriting is still possible on this repository - Docker Hub tags
+          # are mutable unless a tag-immutability rule is configured - so say
+          # what the tag pointed at before, if anything. On a normal new
+          # release this resolves to nothing and prints <new>; on a re-run it
+          # names the digest being replaced, which is the fact worth having in
+          # the log when someone asks why a version tag changed.
+          #
+          # "Absent" and "could not ask" are told apart deliberately. Swallowing
+          # every failure into an empty $prior would silence the overwrite
+          # warning exactly when something is already wrong (a 429, an auth
+          # failure, a registry blip), reporting <new> for a tag that does
+          # exist. Only a genuine not-found counts as absent; anything else
+          # stops, because an unanswered question must not be scored as a pass.
+          rc=0
+          inspect_out="$(docker buildx imagetools inspect "${IMAGE}:${VERSION}" 2>&1)" || rc=$?
+          if [ "$rc" -eq 0 ]; then
+            prior="$(awk '/^Digest:/{print $2; exit}' <<<"$inspect_out")"
+          elif grep -qiE 'not found|manifest unknown|no such manifest|NAME_UNKNOWN|MANIFEST_UNKNOWN' <<<"$inspect_out"; then
+            prior=""
+          else
+            echo "::error::could not determine whether ${IMAGE}:${VERSION} already exists (exit $rc); refusing to create the tag blind. Registry said: ${inspect_out}"
+            exit 1
+          fi
+
+          echo "creating ${IMAGE}:${VERSION} -> ${DIGEST} (was: ${prior:-<new>})"
+
+          # IDEMPOTENT, AND IT REFUSES TO REPLACE.
+          #
+          # Three cases, and only the first two write:
+          #
+          #   absent          create it. The normal release.
+          #   same digest     already correct, so do nothing and succeed. This
+          #                   is what makes a re-run recoverable: if the gate
+          #                   passed and this tag was created, but the :stable
+          #                   move then failed on a transient registry error,
+          #                   "Re-run failed jobs" must be able to get back to
+          #                   the move instead of dying here.
+          #   other digest    STOP. A published version tag names one artifact;
+          #                   silently repointing it at different bytes is the
+          #                   other half of the defect this card is about, and
+          #                   it is not made acceptable by the release having
+          #                   passed the gate - anything pinned to ${VERSION}
+          #                   would change underneath it with one ::warning::
+          #                   as the only trace. A rebuild is not the same
+          #                   image: `apk upgrade` is unpinned by design.
+          #                   Fix forward with a new patch version instead.
+          #
+          # The registry-side rule (T-0633) would enforce this independently;
+          # this check does not wait for it, and does not depend on registry
+          # configuration the workflow cannot verify.
+          if [ -z "$prior" ]; then
+            docker buildx imagetools create --tag "${IMAGE}:${VERSION}" "${IMAGE}@${DIGEST}"
+            echo "created ${IMAGE}:${VERSION}"
+          elif [ "$prior" = "$DIGEST" ]; then
+            echo "${IMAGE}:${VERSION} already points at ${DIGEST}; nothing to do"
+          else
+            echo "::error::${IMAGE}:${VERSION} already exists at $prior and this run built $DIGEST. Refusing to repoint a published version tag at different bytes - anything pinned to ${VERSION} would silently change. Fix forward with a new patch version. The gated image remains available as ${IMAGE}@${DIGEST}."
+            exit 1
+          fi
+
+      # By digest, so :stable, :latest and :vX.Y.Z are the same bytes by
+      # construction. A second build could differ (`apk upgrade` is unpinned)
+      # and the tags would silently diverge from the image that just passed.
+      #
+      # RE-CHECKED AT MOVE TIME, not just at plan time. The plan job decided
+      # `kind=stable` by comparing this tag against the newest release, and its
+      # comment promises that re-running an old tag "can never roll them
+      # backwards" — but that comparison is minutes or days stale by the time
+      # this step runs, and GitHub's "Re-run failed jobs" REUSES the original
+      # plan outputs rather than recomputing them. This gate makes a failed
+      # caddy job an expected outcome, so re-running one is now the natural
+      # reaction, which is exactly when the staleness bites:
+      #
+      #   v2.70.0's gate fails -> v2.70.1 is released and takes :stable ->
+      #   someone re-runs v2.70.0's failed job, still carrying kind=stable ->
+      #   :stable and :latest roll BACK to the older release.
+      #
+      # So the two facts the move depends on are verified again here, against
+      # the live registry and the real tag list, immediately before the move.
+      - name: Move :stable and :latest to the gated digest
+        if: needs.plan.outputs.push == 'true' && env.MOVE_TAGS == 'true' && steps.gate.outputs.passed == 'true'
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+          VERSION: ${{ needs.plan.outputs.version }}
+          BASELINE_DIGEST: ${{ steps.gate.outputs.baseline_digest }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [ -n "$DIGEST" ] || { echo "::error::build-push-action reported no digest"; exit 1; }
+
+          # 1. Is this STILL the newest release? Read the tags from the remote,
+          #    not from the plan job's snapshot.
+          stable_re='^v[0-9]+\.[0-9]+\.[0-9]+$'
+          newest="$(git ls-remote --tags --refs origin 'refs/tags/v*' \
+                    | awk '{sub(/^refs\/tags\//,"",$2); print $2}' \
+                    | grep -E "$stable_re" | sort -V | tail -1)"
+          if [ -z "$newest" ]; then
+            echo "::error::could not read the release tag list from origin; refusing to move the moving tags"
+            exit 1
+          fi
+          if [ "$VERSION" != "$newest" ]; then
+            echo "::error::$VERSION is no longer the newest release ($newest). Refusing to move :stable/:latest backwards. ${IMAGE}:${VERSION} was created from the gated digest by the previous step and is unaffected."
+            exit 1
+          fi
+
+          # 2. Compare-and-swap: has :stable moved since the gate read it? If
+          #    another release or an approved -pN refresh took it mid-run, the
+          #    verdict above describes a comparison that no longer applies.
+          #
+          #    Both halves of this check fail CLOSED. An unreadable baseline or
+          #    an unreadable live digest means the question "is the gate's
+          #    comparison still valid?" is unanswered, and an unanswered
+          #    question must not be scored as a pass - that would turn a
+          #    registry timeout, a 429 or an auth hiccup into a silent licence
+          #    to move the fleet's two moving tags on a stale verdict, which is
+          #    the exact failure this step exists to prevent.
+          #
+          #    An empty BASELINE_DIGEST should be unreachable: the gate script
+          #    hard-stops when it cannot resolve :stable, so a MOVE_TAGS=true
+          #    run fails at the gate and never arrives here. It is checked
+          #    anyway rather than trusted, because the cost of being wrong is
+          #    asymmetric and six boxes track these tags.
+          if [ -z "${BASELINE_DIGEST:-}" ]; then
+            echo "::error::the gate reported no :stable baseline digest, so there is nothing to compare against; refusing to move the tags. ${IMAGE}:${VERSION} was created from the gated digest and is unaffected."
+            exit 1
+          fi
+          now="$(docker buildx imagetools inspect "${IMAGE}:stable" 2>/dev/null \
+                 | awk '/^Digest:/{print $2; exit}' || true)"
+          if [ -z "$now" ]; then
+            echo "::error::could not re-read ${IMAGE}:stable to confirm it has not moved since the gate read it; refusing to move the tags. ${IMAGE}:${VERSION} was created from the gated digest and is unaffected."
+            exit 1
+          fi
+          if [ "$now" != "$BASELINE_DIGEST" ]; then
+            echo "::error::${IMAGE}:stable moved from $BASELINE_DIGEST to $now while this run was gating; the verdict describes a stale baseline. Refusing to move the tags. Re-run after checking what took :stable."
+            exit 1
+          fi
+
+          echo "publishing ${IMAGE}@${DIGEST}"
+          docker buildx imagetools create \
+            --tag "${IMAGE}:stable" \
+            --tag "${IMAGE}:latest" \
+            "${IMAGE}@${DIGEST}"
+
+      # The other half of the verdict guard. With every tag-writing step keyed
+      # on `passed`, a REJECTED run would otherwise assert nothing at all, and
+      # ":stable did not move" is exactly the claim such a run needs to be able
+      # to make. So prove it instead of assuming it.
+      #
+      # ONLY :stable is asserted, because only :stable has a recorded baseline
+      # (the gate captures it to drive the compare-and-swap). :latest is
+      # reported for context and explicitly NOT asserted - claiming "unchanged"
+      # for a tag nothing was compared against would be a false all-clear, and
+      # a reassuring line is worse than no line. The two tags always move
+      # together in this file, so :stable standing still is strong evidence for
+      # both, but evidence is not the same as a check and is not labelled as one.
+      #
+      # Advisory by design (no `set -e`, no exit 1): this path is already
+      # reporting a withheld release, and a registry hiccup while
+      # double-checking must not convert that into a different, more confusing
+      # failure. If :stable really did move, that is a loud ::error::.
+      - name: Confirm :stable did not move on a rejected run
+        if: needs.plan.outputs.push == 'true' && steps.gate.outputs.passed != 'true'
+        env:
+          BASELINE_DIGEST: ${{ steps.gate.outputs.baseline_digest }}
+          VERSION: ${{ needs.plan.outputs.version }}
+        shell: bash
+        run: |
+          set -uo pipefail
+          echo "this run created no tag for ${VERSION}; confirming :stable is untouched"
+
+          now="$(docker buildx imagetools inspect "${IMAGE}:stable" 2>/dev/null \
+                 | awk '/^Digest:/{print $2; exit}' || true)"
+          if [ -z "$now" ]; then
+            echo "::warning::could not re-read ${IMAGE}:stable to confirm it is unchanged"
+          elif [ -z "${BASELINE_DIGEST:-}" ]; then
+            echo "::warning::the gate recorded no :stable baseline, so this run cannot prove :stable is unchanged; it is currently $now"
+          elif [ "$now" != "$BASELINE_DIGEST" ]; then
+            echo "::error::${IMAGE}:stable is now $now but the gate recorded $BASELINE_DIGEST. This run did not move it, so something else did - check what published during this run."
+          else
+            echo "ok  ${IMAGE}:stable unchanged at $now"
+          fi
+
+          # Context only. Deliberately not asserted - see the comment above.
+          latest="$(docker buildx imagetools inspect "${IMAGE}:latest" 2>/dev/null \
+                    | awk '/^Digest:/{print $2; exit}' || true)"
+          echo "note  ${IMAGE}:latest is ${latest:-<unreadable>} (no baseline recorded; not asserted)"
+
+      # Same verdict guard as the create steps: when the gate withheld the
+      # tags there is nothing to inspect, and inspecting a tag that was
+      # deliberately not created would fail the job for the wrong reason —
+      # turning a correctly-withheld advisory run red and hiding why.
+      - name: Verify every created tag is one multi-arch image
+        if: needs.plan.outputs.push == 'true' && steps.gate.outputs.passed == 'true'
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+          VERSION: ${{ needs.plan.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [ -n "$DIGEST" ] || { echo "::error::build-push-action reported no digest"; exit 1; }
+          tags="$VERSION"
+          if [ "$MOVE_TAGS" = true ]; then tags="$tags stable latest"; fi
+          for tag in $tags; do
+            out="$(docker buildx imagetools inspect "${IMAGE}:${tag}")"
             for plat in linux/amd64 linux/arm64; do
-              grep -Eq "Platform:[[:space:]]+${plat}\$" <<<"$out" || { echo "::error::$tag is missing $plat"; exit 1; }
+              grep -Eq "Platform:[[:space:]]+${plat}\$" <<<"$out" \
+                || { echo "::error::${IMAGE}:${tag} is missing $plat"; exit 1; }
             done
-            digest="$(awk '/^Digest:/{print $2; exit}' <<<"$out")"
-            first="${first:-$digest}"
-            [ "$digest" = "$first" ] || { echo "::error::$tag digest $digest differs from $first"; exit 1; }
-            echo "ok  $tag  $digest"
-          done <<<"$TAGS"
+            got="$(awk '/^Digest:/{print $2; exit}' <<<"$out")"
+            [ "$got" = "$DIGEST" ] \
+              || { echo "::error::${IMAGE}:${tag} is $got, expected $DIGEST"; exit 1; }
+            echo "ok  ${IMAGE}:${tag}  $got"
+          done
+
+  # Publish the Docker Hub repository overviews.
+  #
+  # WHY THIS JOB EXISTS (T-0708): the overview used to be a MANUAL tail on an automated
+  # pipeline. `dockerhub-description.yml` is `workflow_dispatch:` only and was never invoked
+  # from here, so every release left the registry page showing the previous version until a
+  # human remembered to dispatch it. Nothing reported the omission — the release was green,
+  # the tags moved, and the page silently disagreed with the image it described. v2.68.12
+  # shipped that way and the page was only corrected by a manual run afterwards.
+  #
+  # Mirrors the image jobs' gating: the caddy overview publishes only when the caddy image
+  # was rebuilt, so a CaddyUI-only release does not claim a new Caddy base.
+  overview:
+    name: Publish Docker Hub overviews
+    runs-on: ubuntu-latest
+    needs: [plan, caddyui, caddy]
+    # `caddy` is conditional, so tolerate it being skipped; fail if an upstream job failed.
+    if: always() && needs.caddyui.result == 'success' && needs.caddy.result != 'failure'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Publish caddyui overview
+        env:
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          DOCKERHUB_REPO: applegater/caddyui
+        run: scripts/dockerhub-description.sh publish
+
+      - name: Publish caddyui-caddy overview
+        if: needs.caddy.result == 'success'
+        env:
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          DOCKERHUB_REPO: applegater/caddyui-caddy
+        run: scripts/dockerhub-description.sh publish
+
+      # Report the outcome rather than trusting the publish step. A silent skip is the defect
+      # this job fixes, so say explicitly which pages were published and which were not.
+      - name: Confirm no drift remains
+        env:
+          CADDY_BUILT: ${{ needs.caddy.result }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          DOCKERHUB_REPO=applegater/caddyui scripts/dockerhub-description.sh diff
+          if [ "$CADDY_BUILT" = success ]; then
+            DOCKERHUB_REPO=applegater/caddyui-caddy scripts/dockerhub-description.sh diff
+          else
+            echo "caddy image not rebuilt this release; caddyui-caddy overview left unchanged"
+          fi

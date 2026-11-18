@@ -36,6 +36,27 @@ type User struct {
 	BackupCodes  string // JSON array of SHA-256 hex hashes; empty means no backup codes set
 	ColorTheme   string // v2.12.27: "" = default | "orange" — synced across devices via DB
 	Locale       string // v2.62.0 (issue #128): "" = follow the browser, else a catalog code such as "zh-CN"
+	// v2.68.0: how this account actually signs in. SSOLastLogin is set on
+	// every successful single sign-on, so it reflects real use rather than
+	// how the account happened to be created — an account added by hand and
+	// later used with SSO shows as both.
+	SSOLastLogin sql.NullTime
+	SSOIssuer    string // issuer URL of the provider last used, e.g. https://accounts.google.com
+}
+
+// UsesSSO reports whether this account has ever signed in through SSO.
+func (u User) UsesSSO() bool { return u.SSOLastLogin.Valid }
+
+// CanPasswordLogin reports whether the stored hash is one a password could
+// ever match.
+//
+// v2.68.0: an account provisioned by SSO is given a random non-bcrypt string
+// rather than a hash, precisely so it cannot be password-logged-into. That
+// makes it detectable here — and worth surfacing, because such an account
+// depends entirely on the identity provider: disable SSO and it is locked
+// out with no way back in short of an administrator setting a password.
+func (u User) CanPasswordLogin() bool {
+	return strings.HasPrefix(u.PasswordHash, "$2")
 }
 
 const (
@@ -1001,6 +1022,63 @@ func (p *ProxyHost) StripRespHeaderList() []string {
 	return out
 }
 
+// MergeHeaderNameLists folds a legacy comma-separated header-name list into a
+// canonical one, preserving every distinct name.
+//
+// Shared by the two duplicate-column consolidations: issue #167 on the request
+// side (strip_request_headers -> strip_req_headers) and its response-side twin
+// (strip_response_headers -> strip_resp_headers). Both had identical semantics
+// — a comma-separated list of HTTP header names — so they share one helper
+// rather than carrying two copies of the same merge.
+//
+// Canonical entries keep their order and spelling; legacy entries that are not
+// already present are appended. Comparison is case-insensitive because HTTP
+// header names are, so "Authorization" and "authorization" collapse to one.
+// Blank entries are discarded. The result is a comma-separated list in the
+// same shape the columns already used.
+func MergeHeaderNameLists(canonical, legacy string) string {
+	var out []string
+	seen := map[string]bool{}
+	for _, src := range []string{canonical, legacy} {
+		for _, h := range strings.Split(src, ",") {
+			h = strings.TrimSpace(h)
+			if h == "" {
+				continue
+			}
+			key := strings.ToLower(h)
+			if seen[key] {
+				continue
+			}
+			seen[key] = true
+			out = append(out, h)
+		}
+	}
+	return strings.Join(out, ", ")
+}
+
+// MergeStripRequestHeaders folds the legacy v2.9.250 strip_request_headers
+// value into the canonical strip_req_headers one (issue #167).
+//
+// Retained as the named entry point for the request side; the merge itself is
+// MergeHeaderNameLists, shared with the response-side consolidation.
+func MergeStripRequestHeaders(canonical, legacy string) string {
+	return MergeHeaderNameLists(canonical, legacy)
+}
+
+// MergeStripResponseHeaders folds the legacy v2.9.168 strip_response_headers
+// value into the canonical strip_resp_headers one.
+//
+// The response-side twin of issue #167: strip_resp_headers (v2.9.35) and
+// strip_response_headers (v2.9.168) were two columns with identical semantics,
+// each with its own input on the host form, so whichever box a user filled
+// decided which column was written. strip_resp_headers is canonical — it owns
+// StripRespHeaderList (which canonicalises header names), the Caddyfile
+// exporter support, and the paired strip_req_headers UI — so legacy values are
+// carried over rather than dropped.
+func MergeStripResponseHeaders(canonical, legacy string) string {
+	return MergeHeaderNameLists(canonical, legacy)
+}
+
 // StripReqHeaderList parses the comma-separated strip_req_headers field.
 func (p *ProxyHost) StripReqHeaderList() []string {
 	if p.StripReqHeaders == "" {
@@ -1193,14 +1271,15 @@ func (r RedirectionHost) CustomRespHeaderMap() map[string]string {
 const userCols = `id, email, password_hash, COALESCE(name,''), is_admin,
     COALESCE(role, CASE WHEN is_admin=1 THEN 'admin' ELSE 'view' END), created_at,
     COALESCE(totp_secret,''), COALESCE(totp_enabled,0), COALESCE(totp_backup_codes,''),
-    COALESCE(color_theme,''), COALESCE(locale,'')`
+    COALESCE(color_theme,''), COALESCE(locale,''),
+    sso_last_login, COALESCE(sso_issuer,'')`
 
 func scanUser(s interface {
 	Scan(dest ...any) error
 }) (*User, error) {
 	u := &User{}
 	var isAdmin, totpEnabled int
-	if err := s.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.Name, &isAdmin, &u.Role, &u.CreatedAt, &u.TOTPSecret, &totpEnabled, &u.BackupCodes, &u.ColorTheme, &u.Locale); err != nil {
+	if err := s.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.Name, &isAdmin, &u.Role, &u.CreatedAt, &u.TOTPSecret, &totpEnabled, &u.BackupCodes, &u.ColorTheme, &u.Locale, &u.SSOLastLogin, &u.SSOIssuer); err != nil {
 		return nil, err
 	}
 	u.IsAdmin = isAdmin == 1
@@ -1219,6 +1298,14 @@ func scanUser(s interface {
 // v2.62.0 (issue #128).
 func UpdateUserLocale(db *sql.DB, userID int64, locale string) error {
 	_, err := db.Exec(`UPDATE users SET locale = ? WHERE id = ?`, locale, userID)
+	return err
+}
+
+// RecordSSOLogin marks that this account just signed in through SSO, and
+// which provider it used. v2.68.0.
+func RecordSSOLogin(db *sql.DB, userID int64, issuer string) error {
+	_, err := db.Exec(`UPDATE users SET sso_last_login = ?, sso_issuer = ? WHERE id = ?`,
+		time.Now().UTC(), issuer, userID)
 	return err
 }
 

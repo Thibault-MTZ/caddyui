@@ -312,7 +312,57 @@ func (s *Server) updateServer(w http.ResponseWriter, r *http.Request) {
 	if deployTo := parseDeployTo(r); len(deployTo) > 0 {
 		s.crossDeployLayer4Caddyfile(s.currentUserEmail(r), id, existing.Layer4Caddyfile, deployTo)
 	}
+	if msg := s.newDeployTargetsNotice(previous, *existing); msg != "" {
+		http.Redirect(w, r, "/servers?flash="+url.QueryEscape(msg), http.StatusSeeOther)
+		return
+	}
 	http.Redirect(w, r, "/servers", http.StatusSeeOther)
+}
+
+// newDeployTargetsNotice explains, when a save adds automatic deployment
+// targets, that what already exists on the source was not copied. Targets
+// receive what is saved from then on; existing resources need one Sync from
+// current. Without this, ticking a target looked like it had not worked
+// (issue #150). Empty when no target was added or nothing exists to copy.
+func (s *Server) newDeployTargetsNotice(before, after models.CaddyServer) string {
+	had := before.DefaultDeployTargetSet()
+	var added []string
+	for _, id := range after.DefaultDeployTargetIDs() {
+		if had[id] {
+			continue
+		}
+		if t, err := models.GetCaddyServer(s.DB, id); err == nil && t != nil {
+			added = append(added, t.Name)
+		}
+	}
+	if len(added) == 0 {
+		return ""
+	}
+	existing := 0
+	if rows, err := models.ListProxyHosts(s.DB, after.ID, 0, true, nil); err == nil {
+		for _, p := range rows {
+			if !p.NodeLocal {
+				existing++
+			}
+		}
+	}
+	if rows, err := models.ListRedirectionHosts(s.DB, after.ID, 0, true, nil); err == nil {
+		existing += len(rows)
+	}
+	if rows, err := models.ListRawRoutes(s.DB, after.ID, 0, true, nil); err == nil {
+		for _, rr := range rows {
+			if !rr.NodeLocal {
+				existing++
+			}
+		}
+	}
+	if existing == 0 {
+		return ""
+	}
+	targets := strings.Join(added, ", ")
+	return fmt.Sprintf("Saved. From now on, every proxy host, redirection and advanced route saved on %s is also deployed to %s. "+
+		"The %d that already exist on %s were not copied: select %s as the current server, then use Sync from current on %s once.",
+		after.Name, targets, existing, after.Name, after.Name, targets)
 }
 
 // parseDefaultDeployTargets reads the server form's "default_deploy_targets"

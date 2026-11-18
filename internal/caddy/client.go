@@ -1271,10 +1271,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 							},
 						}},
 					}},
-					"handle": []any{map[string]any{
-						"handler":     "static_response",
-						"status_code": 403,
-					}},
+					"handle":   []any{denyForbidden()},
 					"terminal": true,
 				},
 			},
@@ -1319,7 +1316,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 				"routes": []any{
 					map[string]any{
 						"match":    []any{map[string]any{"method": methods}},
-						"handle":   []any{map[string]any{"handler": "static_response", "status_code": 405}},
+						"handle":   []any{denyResponse(405, "405 Method Not Allowed", nil)},
 						"terminal": true,
 					},
 				},
@@ -1342,12 +1339,8 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 				"handler": "subroute",
 				"routes": []any{
 					map[string]any{
-						"match": []any{map[string]any{"not": []any{map[string]any{"method": allowed}}}},
-						"handle": []any{map[string]any{
-							"handler":     "static_response",
-							"status_code": 405,
-							"headers":     map[string]any{"Allow": []any{strings.Join(methodStrings(allowed), ", ")}},
-						}},
+						"match":    []any{map[string]any{"not": []any{map[string]any{"method": allowed}}}},
+						"handle":   []any{denyResponse(405, "405 Method Not Allowed", map[string]any{"Allow": []any{strings.Join(methodStrings(allowed), ", ")}})},
 						"terminal": true,
 					},
 				},
@@ -1553,18 +1546,19 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 		// the bundle's set re-adds X-Frame-Options (or whatever) right after
 		// the v2.9.168 strip handler tries to remove it. Empty bundle after
 		// filtering = no handler emitted at all (skip the whole block).
-		// v2.45.2: the per-host strip_response_headers list gets the same
-		// treatment. Its delete handler runs *before* the bundle's deferred
-		// set (later handlers wrap the ResponseWriter innermost), so a host
-		// that strips X-Frame-Options while the bundle is on would otherwise
-		// get SAMEORIGIN back. Before v2.45.2 the bundle's own delete hid
-		// this by removing every header anyway.
+		// v2.45.2: the per-host response-strip list gets the same treatment.
+		// Its delete handler runs *before* the bundle's deferred set (later
+		// handlers wrap the ResponseWriter innermost), so a host that strips
+		// X-Frame-Options while the bundle is on would otherwise get
+		// SAMEORIGIN back. Before v2.45.2 the bundle's own delete hid this by
+		// removing every header anyway.
+		//
+		// Reads the canonical strip_resp_headers field. This precedence was
+		// originally wired to the duplicate strip_response_headers column;
+		// consolidating the two columns moved it here, so the behaviour is
+		// unchanged for users of either box.
 		stripNames := append([]string{}, p.GlobalStripHeaders...)
-		for _, h := range strings.Split(p.StripResponseHeaders, ",") {
-			if h = strings.TrimSpace(h); h != "" {
-				stripNames = append(stripNames, h)
-			}
-		}
+		stripNames = append(stripNames, p.StripRespHeaderList()...)
 		for _, name := range stripNames {
 			for k := range secHdrs {
 				if strings.EqualFold(k, name) {
@@ -1909,24 +1903,12 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 			},
 		})
 	}
-	// v2.9.168: strip_response_headers — delete comma-separated list of response headers from upstream replies.
-	if p.StripResponseHeaders != "" {
-		delList := []any{}
-		for _, h := range strings.Split(p.StripResponseHeaders, ",") {
-			h = strings.TrimSpace(h)
-			if h != "" {
-				delList = append(delList, h)
-			}
-		}
-		if len(delList) > 0 {
-			handlers = append(handlers, map[string]any{
-				"handler": "headers",
-				"response": map[string]any{
-					"delete": delList,
-				},
-			})
-		}
-	}
+	// v2.9.168 added a second strip-response-headers handler here, reading the
+	// duplicate strip_response_headers column. Both it and the v2.9.35
+	// strip_resp_headers handler below emitted a deferred response-delete list
+	// ahead of reverse_proxy, so the config carried two directives for one
+	// setting. The columns are consolidated on strip_resp_headers and the
+	// surviving handler is the "Feature B" block further down.
 	// v2.9.169: add_report_to — set Report-To response header (JSON endpoint group for CSP/NEL reporting).
 	if p.AddReportTo != "" {
 		handlers = append(handlers, map[string]any{
@@ -1964,13 +1946,9 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 							map[string]any{"method": []any{method}},
 						},
 						"handle": []any{
-							map[string]any{
-								"handler":     "static_response",
-								"status_code": 405,
-								"headers": map[string]any{
-									"Allow": []any{"GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS"},
-								},
-							},
+							denyResponse(405, "405 Method Not Allowed", map[string]any{
+								"Allow": []any{"GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS"},
+							}),
 						},
 					},
 				},
@@ -2059,10 +2037,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 						},
 					},
 					"handle": []any{
-						map[string]any{
-							"handler":     "static_response",
-							"status_code": 403,
-						},
+						denyForbidden(),
 					},
 				},
 			},
@@ -2203,7 +2178,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 							"User-Agent": map[string]any{"pattern": botRegex},
 						},
 					}},
-					"handle": []any{map[string]any{"handler": "static_response", "status_code": 403}},
+					"handle": []any{denyForbidden()},
 				},
 			},
 		})
@@ -2222,7 +2197,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 						"/phpmyadmin*", "/myadmin*", "/.svn*", "/.hg*",
 						"/.aws*", "/.ssh*", "/admin/config.php*",
 					}}},
-					"handle": []any{map[string]any{"handler": "static_response", "status_code": 404}},
+					"handle": []any{denyResponse(404, "404 Not Found", nil)},
 				},
 			},
 		})
@@ -2271,24 +2246,13 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 			"method":  "{http.request.header.X-Http-Method-Override}",
 		})
 	}
-	// v2.9.250: strip_request_headers — delete listed request headers before forwarding.
-	if p.StripRequestHeaders != "" {
-		delList := []any{}
-		for _, h := range strings.Split(p.StripRequestHeaders, ",") {
-			h = strings.TrimSpace(h)
-			if h != "" {
-				delList = append(delList, h)
-			}
-		}
-		if len(delList) > 0 {
-			handlers = append(handlers, map[string]any{
-				"handler": "headers",
-				"request": map[string]any{
-					"delete": delList,
-				},
-			})
-		}
-	}
+	// issue #167: the v2.9.250 strip_request_headers block used to emit a
+	// second request-delete handler here. It duplicated strip_req_headers
+	// (same semantics, different column), so a host with both columns set got
+	// two strip directives while only strip_req_headers survived an export.
+	// strip_req_headers is now canonical and emits the single directive in the
+	// custom-request-headers block above; legacy values are merged into it by
+	// the migration in internal/db.
 	// v2.9.251: add_x_forwarded_method — forward HTTP method as X-Forwarded-Method.
 	if p.AddXForwardedMethod {
 		handlers = append(handlers, map[string]any{
@@ -2413,7 +2377,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 							},
 						},
 					},
-					"handle": []any{map[string]any{"handler": "static_response", "status_code": 403}},
+					"handle": []any{denyForbidden()},
 				},
 			},
 		})
@@ -2494,7 +2458,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 				"routes": []any{
 					map[string]any{
 						"match":  []any{map[string]any{"path": globs}},
-						"handle": []any{map[string]any{"handler": "static_response", "status_code": 403}},
+						"handle": []any{denyForbidden()},
 					},
 				},
 			})
@@ -2691,10 +2655,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 						},
 					},
 					"handle": []any{
-						map[string]any{
-							"handler":     "static_response",
-							"status_code": 403,
-						},
+						denyForbidden(),
 					},
 				},
 			},
@@ -3437,11 +3398,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 								"User-Agent": "(?i)(" + combined + ")",
 							},
 						}},
-						"handle": []any{map[string]any{
-							"handler":     "static_response",
-							"status_code": 403,
-							"body":        "Access denied.\n",
-						}},
+						"handle":   []any{denyResponse(403, "Access denied.", nil)},
 						"terminal": true,
 					},
 				},
@@ -3459,11 +3416,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 							"User-Agent": p.BlockUARegexp,
 						},
 					}},
-					"handle": []any{map[string]any{
-						"handler":     "static_response",
-						"status_code": 403,
-						"body":        "Access denied.\n",
-					}},
+					"handle":   []any{denyResponse(403, "Access denied.", nil)},
 					"terminal": true,
 				},
 			},
@@ -3480,11 +3433,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 							"Referer": p.BlockRefererRegexp,
 						},
 					}},
-					"handle": []any{map[string]any{
-						"handler":     "static_response",
-						"status_code": 403,
-						"body":        "Access denied.\n",
-					}},
+					"handle":   []any{denyResponse(403, "Access denied.", nil)},
 					"terminal": true,
 				},
 			},
@@ -3527,11 +3476,7 @@ func BuildProxyRoute(p models.ProxyHost, advancedHandlers []any) map[string]any 
 						"header": map[string]any{"Referer": []any{"*"}},
 					}},
 				}},
-				"handle": []any{map[string]any{
-					"handler":     "static_response",
-					"status_code": 403,
-					"body":        "Access denied.\n",
-				}},
+				"handle":   []any{denyResponse(403, "Access denied.", nil)},
 				"terminal": true,
 			}},
 		})
@@ -4037,7 +3982,7 @@ func ipAllowlistSubroute(cidrList []string) map[string]any {
 						"client_ip": map[string]any{"ranges": ranges},
 					}},
 				}},
-				"handle":   []any{map[string]any{"handler": "static_response", "status_code": 403}},
+				"handle":   []any{denyForbidden()},
 				"terminal": true,
 			},
 		},
@@ -4058,7 +4003,7 @@ func ipBlocklistSubroute(cidrList []string) map[string]any {
 				"match": []any{map[string]any{
 					"client_ip": map[string]any{"ranges": ranges},
 				}},
-				"handle":   []any{map[string]any{"handler": "static_response", "status_code": 403}},
+				"handle":   []any{denyForbidden()},
 				"terminal": true,
 			},
 		},
@@ -4080,7 +4025,7 @@ func BuildGlobalBlocklistRoute(raw string) map[string]any {
 	}
 	return map[string]any{
 		"match":    []any{map[string]any{"client_ip": map[string]any{"ranges": ranges}}},
-		"handle":   []any{map[string]any{"handler": "static_response", "status_code": 403}},
+		"handle":   []any{denyForbidden()},
 		"terminal": true,
 	}
 }
@@ -4183,7 +4128,7 @@ func BuildRedirectRoute(r models.RedirectionHost) map[string]any {
 								"client_ip": map[string]any{"ranges": allowed},
 							}},
 						}},
-						"handle":   []any{map[string]any{"handler": "static_response", "status_code": 403}},
+						"handle":   []any{denyForbidden()},
 						"terminal": true,
 					},
 				},
@@ -4357,10 +4302,7 @@ func denyDotfilesSubroute() map[string]any {
 					},
 				},
 				"handle": []any{
-					map[string]any{
-						"handler":     "static_response",
-						"status_code": 403,
-					},
+					denyForbidden(),
 				},
 				"terminal": true,
 			},
@@ -4385,10 +4327,7 @@ func ExploitBlockerSubroute() map[string]any {
 					},
 				},
 				"handle": []any{
-					map[string]any{
-						"handler":     "static_response",
-						"status_code": 403,
-					},
+					denyForbidden(),
 				},
 				"terminal": true,
 			},
@@ -4465,6 +4404,39 @@ func buildClientAuthentication(p models.ProxyHost) map[string]any {
 		}
 	}
 	return ca
+}
+
+// denyResponse builds the static_response handler CaddyUI uses whenever it
+// refuses a request itself — IP allowlists and blocklists, blocked methods,
+// blocked paths, blocked agents and the rest.
+//
+// v2.68.1 (issue #148): these used to emit a status code and nothing else.
+// A bodiless response with no Content-Type is legal, but a browser has
+// nothing to render and nothing to go on, and mobile Safari and Edge react by
+// offering the empty response as a `document.txt` download rather than
+// showing a denial page. An explicit short body and content type fixes that
+// without inventing a styled error page inside generated config.
+//
+// Extra headers (an Allow list on a 405, say) are merged in by the caller.
+func denyResponse(status int, body string, extraHeaders map[string]any) map[string]any {
+	headers := map[string]any{
+		"Content-Type": []any{"text/plain; charset=utf-8"},
+	}
+	for k, v := range extraHeaders {
+		headers[k] = v
+	}
+	return map[string]any{
+		"handler":     "static_response",
+		"status_code": status,
+		// Trailing newline so the body reads correctly in a terminal too.
+		"body":    body + "\n",
+		"headers": headers,
+	}
+}
+
+// denyForbidden is the common case: a plain 403 with a readable body.
+func denyForbidden() map[string]any {
+	return denyResponse(403, "403 Forbidden", nil)
 }
 
 // methodStrings converts a []any of method strings back to []string for the
