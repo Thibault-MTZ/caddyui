@@ -13,6 +13,12 @@ J'utilise ce fork pour mes essais dans une VM et mon homelab, la traduction fran
 - Branches de travail et de validation : expériences et assemblages de test.
 - Branches de contribution : une correction ou une zone à la fois, extraction anglaise et traduction française séparées.
 
+Travail en cours sur la traduction de CaddyUI
+
+- [Sécurité et connexion en français](https://github.com/Thibault-MTZ/caddyui/tree/review-fr-security-signin) — catalogue français après la PR #147.
+- [Paramètres et mail de test SMTP](https://github.com/Thibault-MTZ/caddyui/tree/review-smtp-i18n) — code, clés anglaises et tests.
+- [Version de test regroupée](https://github.com/Thibault-MTZ/caddyui/tree/validation-securite-smtp) — historique personnel, traduction française SMTP et essais sur les accents.
+
 Mes notes et commits personnels sont principalement en français ; les contributions au projet d'origine sont préparées en anglais. Je m'aide d'outils d'IA, notamment pour la traduction et la préparation de code, que je relis et teste avant soumission. Une compilation ou un test réussi ne garantit pas tous les usages.
 
 ## English
